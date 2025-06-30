@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>German Learning Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- This includes ALL the styles from Layer 0, plus new styles for navigation -->
+    <style>
+        :root {
+            --primary-color: #007aff; --text-color: #333; --bg-color: #f9f9f9; --card-bg: #fff; --border-color: #e0e0e0;
+            --noun-color: #1c1c1e; --verb-color: #e60000; --adjective-color: #34c759; --adverb-color: #ff9500; --connector-color: #a2805b;
+            --article-masc-color: #007aff; --article-fem-color: #ff3b30; --article-neut-color: #5856d6;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; color: var(--text-color); background-color: var(--bg-color); }
+        .container { padding: 0 15px; }
+        .lesson { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1 { text-align: center; font-size: clamp(2rem, 5vw, 2.5rem); margin-bottom: 40px; color: var(--primary-color); }
+        h2, h3, h4 { color: #111; font-weight: 700; }
+        .vocab-list { list-style: none; padding: 0; }
+        .vocab-item { background-color: #f7f7f7; padding: 12px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid var(--primary-color); }
+        .german-paragraph { font-size: 1.2em; line-height: 1.8; }
+        .german-paragraph .noun { color: var(--noun-color); font-weight: 600; }
+        .german-paragraph .verb { color: var(--verb-color); }
+        .german-paragraph .adjective { color: var(--adjective-color); }
+        .german-paragraph .adverb { color: var(--adverb-color); }
+        .german-paragraph .connector { color: var(--connector-color); font-style: italic; }
+        .german-paragraph .article-m { color: var(--article-masc-color); font-weight: 600; }
+        .german-paragraph .article-f { color: var(--article-fem-color); font-weight: 600; }
+        .german-paragraph .article-n { color: var(--article-neut-color); font-weight: 600; }
+        .color-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 15px; background-color: var(--card-bg); border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .key-item { display: flex; align-items: center; font-size: 0.9em; }
+        .key-color-box { width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; border: 1px solid rgba(0,0,0,0.1); }
+
+        /* NEW styles for navigation */
+        .navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px; background-color: var(--card-bg); border-radius: 8px; }
+        .navigation button { padding: 10px 20px; border: 1px solid var(--primary-color); background-color: var(--primary-color); color: white; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        .navigation button:disabled { background-color: #e0e0e0; color: #aaa; cursor: not-allowed; border-color: #ccc; }
+        .navigation span { font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>German Learning Portal - Layer 2</h1>
+        <div class="navigation">
+            <button id="prevBtn">← Previous</button>
+            <span id="lesson-counter"></span>
+            <button id="nextBtn">Next →</button>
+        </div>
+        <div id="current-lesson">Loading...</div>
+    </div>
+    <script>
+        let allLessons = [];
+        let currentLessonIndex = 0;
+
+        async function initialize() {
+            try {
+                const response = await fetch('./lessons.json');
+                const data = await response.json();
+                allLessons = data.lessons;
+                displayCurrentLesson();
+            } catch (error) {
+                document.getElementById('current-lesson').innerHTML = '<h2>Error loading lessons. Please try again later.</h2>';
+            }
+        }
+
+        function showNextLesson() {
+            if (currentLessonIndex < allLessons.length - 1) {
+                currentLessonIndex++;
+                displayCurrentLesson();
+            }
+        }
+
+        function showPreviousLesson() {
+            if (currentLessonIndex > 0) {
+                currentLessonIndex--;
+                displayCurrentLesson();
+            }
+        }
+
+        function displayCurrentLesson() {
+            const lesson = allLessons[currentLessonIndex];
+            const container = document.getElementById('current-lesson');
+            container.innerHTML = `<div class="lesson">
+                <h2>${lesson.title}</h2>
+                <h3>German Text (Color Coded):</h3><p class="german-paragraph">${lesson.germanTextHTML}</p>
+                <h3>English Translation:</h3><p>${lesson.englishText}</p>
+                <h3>Key Vocabulary:</h3>${lesson.vocabularyHTML}
+                <h3>German Grammar Focus:</h3>${lesson.grammarFocusHTML}
+            </div>`;
+            updateNavigationUI();
+        }
+
+        function updateNavigationUI() {
+            document.getElementById('lesson-counter').textContent = `Lesson ${currentLessonIndex + 1} of ${allLessons.length}`;
+            document.getElementById('prevBtn').disabled = currentLessonIndex === 0;
+            document.getElementById('nextBtn').disabled = currentLessonIndex === allLessons.length - 1;
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', showPreviousLesson);
+        document.getElementById('nextBtn').addEventListener('click', showNextLesson);
+
+        initialize();
+    </script>
+</body>
+</html>
