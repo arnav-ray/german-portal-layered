@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- The <head> and <style> section is exactly the same as Layer 0 -->
 <head>
     <title>German Learning Portal</title>
     <meta charset="UTF-8">
@@ -36,46 +37,39 @@
 </head>
 <body>
     <div class="container">
-        <h1>German Learning Portal - Layer 0</h1>
-        <div class="color-key">
-            <div class="key-item"><div class="key-color-box" style="background-color: var(--article-masc-color);"></div>der (Masc.)</div>
-            <div class="key-item"><div class="key-color-box" style="background-color: var(--article-fem-color);"></div>die (Fem.)</div>
-            <div class="key-item"><div class="key-color-box" style="background-color: var(--article-neut-color);"></div>das (Neut.)</div>
-            <div class="key-item"><div class="key-color-box" style="background-color: var(--noun-color);"></div>Noun</div>
-            <div class="key-item"><div class="key-color-box" style="background-color: var(--verb-color);"></div>Verb</div>
-            <div class="key-item"><div class="key-color-box" style="background-color: var(--adjective-color);"></div>Adjective</div>
-            <div class="key-item"><div class="key-color-box" style="background-color: var(--adverb-color);"></div>Adverb</div>
-            <div class="key-item"><div class="key-color-box" style="background-color: var(--connector-color);"></div>Connector</div>
-        </div>
-        <div class="lesson">
-            <h2>Lesson 1: Ein Tag im Büro</h2>
-            <h3>German Text (Color Coded):</h3>
-            <p class="german-paragraph">
-                <span class="article-m">Der</span> <span class="adjective">neue</span> <span class="noun">Manager</span> <span class="verb">gibt</span> <span class="article-f">der</span> <span class="adjective">intelligenten</span> <span class="noun">Frau</span> <span class="article-n">das</span> <span class="adjective">wichtige</span> <span class="noun">Dokument</span>, <span class="connector">und</span> er <span class="verb">erklärt</span> <span class="adverb">schnell</span> <span class="article-f">die</span> <span class="noun">Aufgabe</span>, <span class="connector">weil</span> <span class="article-n">das</span> <span class="noun">Meeting</span> <span class="adverb">bald</span> <span class="verb">beginnt</span>.
-            </p>
-            <h3>English Translation:</h3>
-            <p>The new manager gives the important document to the intelligent woman, and he quickly explains the task because the meeting will begin soon.</p>
-
-            <!-- RESTORED SECTIONS -->
-            <h3>Key Vocabulary:</h3>
-            <ul class="vocab-list">
-                <li class="vocab-item"><strong>der Manager</strong> - the manager</li>
-                <li class="vocab-item"><strong>die Aufgabe</strong> - the task</li>
-                <li class="vocab-item"><strong>das Dokument</strong> - the document</li>
-                <li class="vocab-item"><strong>wichtig</strong> - important</li>
-            </ul>
-            <h3>German Grammar Focus:</h3>
-            <div>
-                <h4>Sentence Structure: Main vs. Subordinate Clauses</h4>
-                <p>This sentence shows how German sentence structure changes with different types of clauses, especially the verb position.</p>
-                <ul class="vocab-list">
-                    <li class="vocab-item"><strong>Main Clause (Hauptsatz):</strong> In the first part, "...der neue Manager <strong>gibt</strong>...", the conjugated verb ("gibt") is in the second position, which is standard for a main clause.</li>
-                    <li class="vocab-item"><strong>Subordinate Clause (Nebensatz):</strong> The connector "weil" (because) introduces a subordinate clause. In these clauses, the conjugated verb ("beginnt") is always moved to the very end of the clause.</li>
-                </ul>
-            </div>
-            <!-- END OF RESTORED SECTIONS -->
-
-        </div>
+        <h1>German Learning Portal - Layer 1</h1>
+        <div id="lessons-container">Loading...</div>
     </div>
+    <script>
+        async function loadAndDisplayLessons() {
+            try {
+                const response = await fetch('./lessons.json');
+                const data = await response.json();
+                const container = document.getElementById('lessons-container');
+                container.innerHTML = ''; // Clear "Loading..."
+                data.lessons.forEach(lesson => {
+                    const lessonDiv = document.createElement('div');
+                    lessonDiv.className = 'lesson';
+                    // Inject the pre-formatted HTML directly from the JSON file
+                    lessonDiv.innerHTML = `
+                        <h2>${lesson.title}</h2>
+                        <h3>German Text (Color Coded):</h3>
+                        <p class="german-paragraph">${lesson.germanTextHTML}</p>
+                        <h3>English Translation:</h3>
+                        <p>${lesson.englishText}</p>
+                        <h3>Key Vocabulary:</h3>
+                        ${lesson.vocabularyHTML}
+                        <h3>German Grammar Focus:</h3>
+                        ${lesson.grammarFocusHTML}
+                    `;
+                    container.appendChild(lessonDiv);
+                });
+            } catch (error) {
+                console.error('Error loading lessons:', error);
+                document.getElementById('lessons-container').innerHTML = '<h2>Error: Could not load lessons.</h2>';
+            }
+        }
+        loadAndDisplayLessons();
+    </script>
 </body>
 </html>
