@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>German B1-B2 Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .nav-button:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .page-indicator {
+            background: #34495e;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem 0;
+        }
+
+        .page {
+            width: 21cm;
+            min-height: 29.7cm;
+            margin: 2cm auto;
+            padding: 2cm;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            font-size: 12pt;
+            position: relative;
+        }
+
+        .lesson-header {
+            text-align: center;
+            margin-bottom: 2cm;
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5cm;
+        }
+
+        .lesson-title {
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 0.3cm;
+        }
+
+        .lesson-level {
+            font-size: 14pt;
+            color: #666;
+        }
+
+        .text-section {
+            margin-bottom: 1.5cm;
+        }
+
+        .section-title {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 0.5cm;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .grammar-link {
+            background: #e74c3c;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 9pt;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .grammar-link:hover {
+            background: #c0392b;
+        }
+
+        .german-text {
+            font-size: 13pt;
+            line-height: 1.8;
+            margin-bottom: 1cm;
+            padding: 0.8cm;
+            background: #fafafa;
+            border-left: 4px solid #2196F3;
+        }
+
+        .english-translation {
+            font-size: 12pt;
+            line-height: 1.7;
+            color: #555;
+            font-style: italic;
+            margin-bottom: 1cm;
+            padding: 0.8cm;
+            background: #f0f8ff;
+            border-left: 4px solid #4CAF50;
+        }
+
+        /* Color coding for German grammar */
+        .der { color: #1976D2; font-weight: bold; cursor: pointer; }
+        .die { color: #D32F2F; font-weight: bold; cursor: pointer; }
+        .das { color: #388E3C; font-weight: bold; cursor: pointer; }
+        .noun { color: #333; font-weight: bold; cursor: pointer; }
+        .adjective { color: #FF9800; font-weight: bold; cursor: pointer; }
+        .verb { color: #9C27B0; font-weight: bold; text-decoration: underline; cursor: pointer; }
+        .adverb { color: #795548; font-style: italic; cursor: pointer; }
+        .conjunction { color: #607D8B; font-weight: bold; cursor: pointer; }
+        .preposition { color: #E91E63; cursor: pointer; }
+
+        .vocabulary-section {
+            margin-bottom: 1.5cm;
+        }
+
+        .vocab-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3cm;
+            margin-bottom: 1cm;
+        }
+
+        .vocab-item {
+            padding: 0.2cm 0.5cm;
+            border-bottom: 1px solid #eee;
+        }
+
+        .vocab-german {
+            font-weight: bold;
+        }
+
+        .vocab-english {
+            color: #666;
+            margin-left: 0.5cm;
+        }
+
+        .grammar-section {
+            margin-bottom: 1.5cm;
+        }
+
+        .grammar-box {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 1cm;
+            margin-bottom: 1cm;
+        }
+
+        .grammar-title {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #e65100;
+            margin-bottom: 0.5cm;
+        }
+
+        .grammar-explanation {
+            margin-bottom: 0.5cm;
+        }
+
+        .grammar-examples {
+            background: white;
+            padding: 0.5cm;
+            border-left: 4px solid #ff9800;
+            margin-top: 0.5cm;
+        }
+
+        .color-legend {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 0.8cm;
+            margin-bottom: 1.5cm;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 0.5cm;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.3cm;
+        }
+
+        .legend-item {
+            font-size: 10pt;
+            padding: 0.2cm;
+        }
+
+        .grammar-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: none;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .grammar-index {
+            margin-top: 2rem;
+        }
+
+        .grammar-index h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .grammar-index-item {
+            background: #ecf0f1;
+            margin: 0.5rem 0;
+            padding: 0.8rem;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .grammar-index-item:hover {
+            background-color: #bdc3c7;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 11pt;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media print {
+            .header, .navigation, .modal-content, .grammar-modal {
+                display: none !important;
+            }
+            body {
+                background: white;
+            }
+            .main-content {
+                margin-top: 0;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+                min-height: auto;
+            }
+        }
+
+        @media screen and (max-width: 21cm) {
+            .page {
+                width: 95%;
+                margin: 1cm auto;
+                padding: 1cm;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .navigation {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .vocab-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .legend-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">Deutsch B1-B2 Lernen</div>
+            <div class="navigation">
+                <button class="nav-button" onclick="previousPage()" id="prevBtn">◀ Vorherige</button>
+                <span class="page-indicator" id="pageIndicator">Lektion 1 / 3</span>
+                <button class="nav-button" onclick="nextPage()" id="nextBtn">Nächste ▶</button>
+                <button class="nav-button" onclick="showGrammarIndex()">📚 Grammatik Index</button>
+                <button class="nav-button" onclick="window.print()">🖨️ Drucken</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Lesson 1 -->
+        <div class="page lesson-page" id="lesson1">
+            <div class="lesson-header">
+                <div class="lesson-title">Lektion 1: Ein Tag im Büro</div>
+                <div class="lesson-level">B1-B2 Level Deutsch</div>
+            </div>
+
+            <div class="color-legend">
+                <div class="legend-title">Farblegende:</div>
+                <div class="legend-grid">
+                    <div class="legend-item"><span class="der">der</span> - maskuline Artikel</div>
+                    <div class="legend-item"><span class="die">die</span> - feminine Artikel</div>
+                    <div class="legend-item"><span class="das">das</span> - neutrale Artikel</div>
+                    <div class="legend-item"><span class="noun">Substantive</span> - fett</div>
+                    <div class="legend-item"><span class="adjective">Adjektive</span> - orange</div>
+                    <div class="legend-item"><span class="verb">Verben</span> - lila unterstrichen</div>
+                    <div class="legend-item"><span class="adverb">Adverbien</span> - braun kursiv</div>
+                    <div class="legend-item"><span class="conjunction">Konjunktionen</span> - blaugrau</div>
+                    <div class="legend-item"><span class="preposition">Präpositionen</span> - pink</div>
+                </div>
+            </div>
+
+            <div class="text-section">
+                <div class="section-title">
+                    Deutscher Text (farbkodiert):
+                    <a href="#" class="grammar-link" onclick="showGrammarHelp('articles')">Artikel</a>
+                    <a href="#" class="grammar-link" onclick="showGrammarHelp('adjectives')">Adjektive</a>
+                    <a href="#" class="grammar-link" onclick="showGrammarHelp('verbs')">Verben</a>
+                </div>
+                <div class="german-text">
+                    <span class="der tooltip">Der<span class="tooltiptext">Maskuliner Artikel Nominativ</span></span> <span class="adjective tooltip">neue<span class="tooltiptext">Adjektiv: neu + e (maskulin, Nominativ)</span></span> <span class="noun tooltip">Manager<span class="tooltiptext">Substantiv maskulin</span></span>, <span class="noun">Herr Müller</span>, <span class="verb tooltip">arbeitet<span class="tooltiptext">arbeiten - 3. Person Singular Präsens</span></span> <span class="preposition">seit</span> <span class="adjective">einigen</span> <span class="noun">Wochen</span> <span class="preposition">in</span> <span class="der">der</span> <span class="noun">Firma</span>. <span class="conjunction">Er</span> <span class="verb">ist</span> <span class="adverb">sehr</span> <span class="adjective">freundlich</span>, <span class="adjective">hilfsbereit</span> <span class="conjunction">und</span> <span class="adjective">organisiert</span>. <span class="adverb">Heute</span> <span class="verb">gibt</span> <span class="conjunction">er</span> <span class="adjective">einer</span> <span class="adjective">intelligenten</span> <span class="conjunction">und</span> <span class="adjective">erfahrenen</span> <span class="noun">Frau</span>, <span class="noun">Frau Schmidt</span>, <span class="adjective">ein</span> <span class="adverb">sehr</span> <span class="adjective">wichtiges</span> <span class="noun">Dokument</span>. <span class="noun">Frau Schmidt</span> <span class="verb">ist</span> <span class="adjective">eine</span> <span class="noun">Mitarbeiterin</span> <span class="preposition">mit</span> <span class="adjective">viel</span> <span class="noun">Wissen</span> <span class="conjunction">und</span> <span class="verb">hat</span> <span class="adverb">schon</span> <span class="adjective">viele</span> <span class="noun">Jahre</span> <span class="preposition">in</span> <span class="der">der</span> <span class="noun">Firma</span> <span class="verb">gearbeitet</span>. <span class="der">Der</span> <span class="noun">Manager</span> <span class="verb">erklärt</span> <span class="conjunction">ihr</span> <span class="die">die</span> <span class="noun">Aufgabe</span> <span class="adverb">schnell</span> <span class="conjunction">und</span> <span class="adverb">genau</span>, <span class="conjunction">weil</span> <span class="das">das</span> <span class="adjective">wichtige</span> <span class="noun">Meeting</span> <span class="adverb">bald</span> <span class="verb">beginnt</span> <span class="conjunction">und</span> <span class="adjective">alle</span> <span class="adverb">gut</span> <span class="adjective">vorbereitet</span> <span class="verb">sein</span> <span class="verb">müssen</span>. <span class="noun">Frau Schmidt</span> <span class="verb">hatte</span> <span class="die">die</span> <span class="adjective">notwendigen</span> <span class="noun">Unterlagen</span> <span class="adverb">bereits</span> <span class="adverb">gestern</span> <span class="verb">vorbereitet</span>, <span class="conjunction">obwohl</span> <span class="conjunction">sie</span> <span class="adverb">erst</span> <span class="adverb">kurz</span> <span class="adverb">zuvor</span> <span class="preposition">von</span> <span class="der">der</span> <span class="adjective">plötzlichen</span> <span class="noun">Änderung</span> <span class="verb">erfahren hatte</span>. <span class="conjunction">Sie</span> <span class="verb">war</span> <span class="adverb">sehr</span> <span class="adjective">überrascht</span>, <span class="conjunction">aber</span> <span class="adverb">gleichzeitig</span> <span class="conjunction">auch</span> <span class="adverb">sehr</span> <span class="adjective">professionell</span> <span class="conjunction">und</span> <span class="adjective">ruhig</span>. <span class="preposition">Trotz</span> <span class="der">des</span> <span class="adjective">kurzen</span> <span class="noun">Zeitdrucks</span> <span class="verb">hat</span> <span class="conjunction">sie</span> <span class="adjective">alle</span> <span class="noun">Dokumente</span> <span class="adverb">sorgfältig</span> <span class="verb">geordnet</span> <span class="conjunction">und</span> <span class="verb">geprüft</span>, <span class="conjunction">damit</span> <span class="preposition">im</span> <span class="noun">Meeting</span> <span class="adjective">alles</span> <span class="adjective">klar</span> <span class="conjunction">und</span> <span class="adjective">verständlich</span> <span class="verb">ist</span>. <span class="preposition">Während</span> <span class="der">des</span> <span class="noun">Meetings</span> <span class="verb">sprechen</span> <span class="die">die</span> <span class="noun">Kollegen</span> <span class="preposition">über</span> <span class="adjective">neue</span> <span class="noun">Projekte</span> <span class="conjunction">und</span> <span class="adjective">wichtige</span> <span class="noun">Entscheidungen</span> <span class="preposition">für</span> <span class="die">die</span> <span class="noun">Zukunft</span> <span class="der">der</span> <span class="noun">Firma</span>. <span class="noun">Frau Schmidt</span> <span class="verb">unterstützt</span> <span class="die">die</span> <span class="noun">Gruppe</span> <span class="preposition">mit</span> <span class="conjunction">ihrem</span> <span class="noun">Fachwissen</span> <span class="conjunction">und</span> <span class="verb">beantwortet</span> <span class="adjective">viele</span> <span class="noun">Fragen</span>. <span class="der">Der</span> <span class="noun">Manager</span> <span class="verb">hört</span> <span class="adverb">aufmerksam</span> <span class="verb">zu</span> <span class="conjunction">und</span> <span class="verb">lobt</span> <span class="die">die</span> <span class="adjective">gute</span> <span class="noun">Zusammenarbeit</span> <span class="preposition">im</span> <span class="noun">Team</span>. <span class="conjunction">Er</span> <span class="verb">weiß</span>, <span class="conjunction">dass</span> <span class="conjunction">es</span> <span class="adverb">sehr</span> <span class="adjective">wichtig</span> <span class="verb">ist</span>, <span class="conjunction">dass</span> <span class="adjective">alle</span> <span class="noun">Mitarbeiter</span> <span class="adverb">gut</span> <span class="verb">kommunizieren</span> <span class="conjunction">und</span> <span class="conjunction">sich</span> <span class="adverb">gegenseitig</span> <span class="verb">helfen</span>, <span class="adverb">besonders</span> <span class="conjunction">wenn</span> <span class="die">die</span> <span class="noun">Aufgaben</span> <span class="adjective">schwierig</span> <span class="conjunction">oder</span> <span class="die">die</span> <span class="noun">Zeit</span> <span class="adjective">knapp</span> <span class="verb">ist</span>. <span class="die">Die</span> <span class="adjective">erfahrene</span> <span class="noun">Mitarbeiterin</span> <span class="verb">erklärt</span> <span class="conjunction">auch</span>, <span class="conjunction">warum</span> <span class="adjective">manche</span> <span class="noun">Änderungen</span> <span class="adjective">nötig</span> <span class="verb">sind</span> <span class="conjunction">und</span> <span class="adjective">welche</span> <span class="noun">Vorteile</span> <span class="conjunction">sie</span> <span class="preposition">für</span> <span class="die">die</span> <span class="noun">Firma</span> <span class="verb">bringen</span> <span class="verb">können</span>. <span class="conjunction">Sie</span> <span class="verb">arbeitet</span> <span class="adverb">sehr</span> <span class="adverb">genau</span> <span class="conjunction">und</span> <span class="verb">gibt</span> <span class="adverb">immer</span> <span class="conjunction">ihr</span> <span class="adjective">Bestes</span>, <span class="conjunction">um</span> <span class="die">die</span> <span class="noun">Ziele</span> <span class="verb">zu erreichen</span>. <span class="der">Der</span> <span class="noun">Manager</span> <span class="verb">freut</span> <span class="conjunction">sich</span>, <span class="adverb">so</span> <span class="adjective">eine</span> <span class="adjective">zuverlässige</span> <span class="conjunction">und</span> <span class="adjective">kompetente</span> <span class="noun">Kollegin</span> <span class="verb">zu haben</span>. <span class="preposition">Am</span> <span class="noun">Ende</span> <span class="der">des</span> <span class="noun">Meetings</span> <span class="verb">fühlen</span> <span class="conjunction">sich</span> <span class="adjective">alle</span> <span class="adjective">motiviert</span> <span class="conjunction">und</span> <span class="adjective">bereit</span>, <span class="die">die</span> <span class="adjective">neuen</span> <span class="noun">Aufgaben</span> <span class="verb">anzugehen</span>. <span class="der">Der</span> <span class="noun">Manager</span> <span class="conjunction">und</span> <span class="noun">Frau Schmidt</span> <span class="verb">besprechen</span> <span class="adverb">noch</span> <span class="adjective">einige</span> <span class="noun">Details</span> <span class="conjunction">und</span> <span class="verb">planen</span> <span class="die">die</span> <span class="adjective">nächsten</span> <span class="noun">Schritte</span> <span class="adverb">gemeinsam</span>. <span class="conjunction">Es</span> <span class="verb">ist</span> <span class="adjective">klar</span>, <span class="conjunction">dass</span> <span class="conjunction">sie</span> <span class="preposition">als</span> <span class="noun">Team</span> <span class="adverb">gut</span> <span class="verb">zusammenarbeiten</span> <span class="conjunction">und</span> <span class="conjunction">sich</span> <span class="adverb">gegenseitig</span> <span class="verb">unterstützen</span> <span class="verb">können</span>.
+                </div>
+
+                <div class="section-title">Englische Übersetzung:</div>
+                <div class="english-translation">
+                    The new manager, Mr. Müller, has been working at the company for several weeks. He is very friendly, helpful and organized. Today he gives a very important document to an intelligent and experienced woman, Mrs. Schmidt. Mrs. Schmidt is an employee with a lot of knowledge and has worked at the company for many years. The manager explains the task to her quickly and precisely because the important meeting starts soon and everyone must be well prepared. Mrs. Schmidt had already prepared the necessary documents yesterday, although she had only learned about the sudden change shortly before. She was very surprised, but at the same time also very professional and calm. Despite the short time pressure, she carefully sorted and checked all documents so that everything would be clear and understandable in the meeting. During the meeting, the colleagues discuss new projects and important decisions for the future of the company. Mrs. Schmidt supports the group with her expertise and answers many questions. The manager listens attentively and praises the good teamwork. He knows that it is very important that all employees communicate well and help each other, especially when tasks are difficult or time is short. The experienced employee also explains why some changes are necessary and what advantages they can bring to the company. She works very precisely and always gives her best to achieve the goals. The manager is pleased to have such a reliable and competent colleague. At the end of the meeting, everyone feels motivated and ready to tackle the new tasks. The manager and Mrs. Schmidt discuss some more details and plan the next steps together. It is clear that they can work well together as a team and support each other.
+                </div>
+            </div>
+
+            <div class="vocabulary-section">
+                <div class="section-title">Wichtige Vokabeln:</div>
+                <div class="vocab-list">
+                    <div class="vocab-item">
+                        <span class="vocab-german">der Manager</span>
+                        <span class="vocab-english">- the manager</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">freundlich</span>
+                        <span class="vocab-english">- friendly</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">hilfsbereit</span>
+                        <span class="vocab-english">- helpful</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">organisiert</span>
+                        <span class="vocab-english">- organized</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">intelligent</span>
+                        <span class="vocab-english">- intelligent</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">erfahren</span>
+                        <span class="vocab-english">- experienced</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">das Dokument</span>
+                        <span class="vocab-english">- the document</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Mitarbeiterin</span>
+                        <span class="vocab-english">- the (female) employee</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">das Wissen</span>
+                        <span class="vocab-english">- knowledge</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Aufgabe</span>
+                        <span class="vocab-english">- the task</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">vorbereitet</span>
+                        <span class="vocab-english">- prepared</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">notwendig</span>
+                        <span class="vocab-english">- necessary</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Unterlagen</span>
+                        <span class="vocab-english">- documents/papers</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">plötzlich</span>
+                        <span class="vocab-english">- sudden</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Änderung</span>
+                        <span class="vocab-english">- the change</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">überrascht</span>
+                        <span class="vocab-english">- surprised</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">professionell</span>
+                        <span class="vocab-english">- professional</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">der Zeitdruck</span>
+                        <span class="vocab-english">- time pressure</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">sorgfältig</span>
+                        <span class="vocab-english">- carefully</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">verständlich</span>
+                        <span class="vocab-english">- understandable</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Entscheidung</span>
+                        <span class="vocab-english">- the decision</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">das Fachwissen</span>
+                        <span class="vocab-english">- expertise</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">aufmerksam</span>
+                        <span class="vocab-english">- attentively</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Zusammenarbeit</span>
+                        <span class="vocab-english">- teamwork/cooperation</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">kommunizieren</span>
+                        <span class="vocab-english">- to communicate</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">gegenseitig</span>
+                        <span class="vocab-english">- mutually</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">schwierig</span>
+                        <span class="vocab-english">- difficult</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">knapp</span>
+                        <span class="vocab-english">- short/scarce</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">der Vorteil</span>
+                        <span class="vocab-english">- the advantage</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">zuverlässig</span>
+                        <span class="vocab-english">- reliable</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">kompetent</span>
+                        <span class="vocab-english">- competent</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">motiviert</span>
+                        <span class="vocab-english">- motivated</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">angehen</span>
+                        <span class="vocab-english">- to tackle</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">besprechen</span>
+                        <span class="vocab-english">- to discuss</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">unterstützen</span>
+                        <span class="vocab-english">- to support</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grammar-section">
+                <div class="section-title">Grammatik-Fokus:</div>
+                <div class="grammar-box">
+                    <div class="grammar-title">Adjektivdeklination mit unbestimmtem Artikel</div>
+                    <div class="grammar-explanation">
+                        Bei der Adjektivdeklination mit unbestimmtem Artikel (ein, eine, ein) ändert sich die Endung des Adjektivs je nach Geschlecht, Fall und Zahl des Substantivs.
+                    </div>
+                    <div class="grammar-examples">
+                        <strong>Beispiele aus dem Text:</strong><br>
+                        • ein<u>er</u> intelligent<u>en</u> Frau (Dativ, feminin)<br>
+                        • ein wichtig<u>es</u> Dokument (Nominativ, neutral)<br>
+                        • ein<u>e</u> zuverlässig<u>e</u> Kollegin (Nominativ, feminin)
+                    </div>
+                </div>
+
+                <div class="grammar-box">
+                    <div class="grammar-title">Temporale Konjunktionen</div>
+                    <div class="grammar-explanation">
+                        Konjunktionen wie "während", "obwohl", "weil" verbinden Haupt- und Nebensätze und drücken zeitliche oder kausale Beziehungen aus.
+                    </div>
+                    <div class="grammar-examples">
+                        <strong>Beispiele:</strong><br>
+                        • <u>Während</u> des Meetings sprechen die Kollegen...<br>
+                        • <u>Obwohl</u> sie erst kurz zuvor erfahren hatte...<br>
+                        • <u>Weil</u> das Meeting bald beginnt...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson 2 -->
+        <div class="page lesson-page hidden" id="lesson2">
+            <div class="lesson-header">
+                <div class="lesson-title">Lektion 2: Einkaufen und Verhandeln</div>
+                <div class="lesson-level">B1-B2 Level Deutsch</div>
+            </div>
+
+            <div class="color-legend">
+                <div class="legend-title">Farblegende:</div>
+                <div class="legend-grid">
+                    <div class="legend-item"><span class="der">der</span> - maskuline Artikel</div>
+                    <div class="legend-item"><span class="die">die</span> - feminine Artikel</div>
+                    <div class="legend-item"><span class="das">das</span> - neutrale Artikel</div>
+                    <div class="legend-item"><span class="noun">Substantive</span> - fett</div>
+                    <div class="legend-item"><span class="adjective">Adjektive</span> - orange</div>
+                    <div class="legend-item"><span class="verb">Verben</span> - lila unterstrichen</div>
+                    <div class="legend-item"><span class="adverb">Adverbien</span> - braun kursiv</div>
+                    <div class="legend-item"><span class="conjunction">Konjunktionen</span> - blaugrau</div>
+                    <div class="legend-item"><span class="preposition">Präpositionen</span> - pink</div>
+                </div>
+            </div>
+
+            <div class="text-section">
+                <div class="section-title">
+                    Deutscher Text (farbkodiert):
+                    <a href="#" class="grammar-link" onclick="showGrammarHelp('konjunktiv')">Konjunktiv II</a>
+                    <a href="#" class="grammar-link" onclick="showGrammarHelp('modalverben')">Modalverben</a>
+                </div>
+                <div class="german-text">
+                    <span class="noun">Frau Weber</span> <span class="verb">geht</span> <span class="adverb">heute</span> <span class="preposition">auf</span> <span class="der tooltip">den<span class="tooltiptext">Maskuliner Artikel Akkusativ</span></span> <span class="adjective">großen</span> <span class="noun">Markt</span> <span class="preposition">in</span> <span class="der">der</span> <span class="noun">Innenstadt</span>, <span class="conjunction">weil</span> <span class="conjunction">sie</span> <span class="adjective">frische</span> <span class="noun">Lebensmittel</span> <span class="preposition">für</span> <span class="das tooltip">das<span class="tooltiptext">Neutraler Artikel Akkusativ</span></span> <span class="adjective">große</span> <span class="noun">Abendessen</span> <span class="verb">kaufen</span> <span class="verb tooltip">möchte<span class="tooltiptext">möchten - Modalverb</span></span>. <span class="conjunction">Sie</span> <span class="verb">hat</span> <span class="adjective">eine</span> <span class="adjective">lange</span> <span class="noun">Einkaufsliste</span> <span class="verb">geschrieben</span> <span class="conjunction">und</span> <span class="verb">plant</span>, <span class="adverb">sorgfältig</span> <span class="die">die</span> <span class="noun">Preise</span> <span class="verb">zu vergleichen</span>. <span class="der">Der</span> <span class="adjective">erste</span> <span class="noun">Verkäufer</span>, <span class="preposition">bei</span> <span class="der">dem</span> <span class="conjunction">sie</span> <span class="verb">anhält</span>, <span class="verb">verkauft</span> <span class="adjective">wunderschöne</span> <span class="adjective">rote</span> <span class="noun">Tomaten</span> <span class="conjunction">und</span> <span class="adjective">grüne</span> <span class="noun">Paprika</span>. <span class="conjunction">Er</span> <span class="verb">erklärt</span> <span class="conjunction">ihr</span> <span class="adverb">stolz</span>, <span class="conjunction">dass</span> <span class="adjective">alle</span> <span class="conjunction">seine</span> <span class="noun">Produkte</span> <span class="adjective">biologisch</span> <span class="conjunction">und</span> <span class="adjective">regional</span> <span class="verb">sind</span>. "<span class="conjunction">Wenn</span> <span class="conjunction">Sie</span> <span class="adjective">mehr</span> <span class="conjunction">als</span> <span class="adjective">fünf</span> <span class="noun">Kilogramm</span> <span class="verb">kaufen</span>, <span class="verb tooltip">könnte<span class="tooltiptext">können - Konjunktiv II</span></span> <span class="conjunction">ich</span> <span class="conjunction">Ihnen</span> <span class="adjective">einen</span> <span class="adjective">besseren</span> <span class="noun">Preis</span> <span class="verb">machen</span>", <span class="verb">sagt</span> <span class="conjunction">er</span> <span class="adverb">freundlich</span>. <span class="noun">Frau Weber</span> <span class="verb">überlegt</span> <span class="adjective">einen</span> <span class="noun">Moment</span> <span class="conjunction">und</span> <span class="verb">antwortet</span>: "<span class="das">Das</span> <span class="verb tooltip">wäre<span class="tooltiptext">sein - Konjunktiv II</span></span> <span class="adverb">wirklich</span> <span class="adjective">toll</span>! <span class="conjunction">Ich</span> <span class="verb tooltip">würde<span class="tooltiptext">werden - Konjunktiv II</span></span> <span class="adverb">gerne</span> <span class="adjective">drei</span> <span class="noun">Kilogramm</span> <span class="noun">Tomaten</span> <span class="conjunction">und</span> <span class="adjective">zwei</span> <span class="noun">Kilogramm</span> <span class="noun">Paprika</span> <span class="verb">nehmen</span>. <span class="verb">Könnten</span> <span class="conjunction">Sie</span> <span class="conjunction">mir</span> <span class="adverb">vielleicht</span> <span class="adjective">einen</span> <span class="noun">Rabatt</span> <span class="verb">geben</span>?" <span class="der">Der</span> <span class="noun">Verkäufer</span> <span class="verb">lächelt</span> <span class="conjunction">und</span> <span class="verb">sagt</span>: "<span class="adverb">Natürlich</span>! <span class="preposition">Für</span> <span class="adjective">eine</span> <span class="adjective">so</span> <span class="adjective">nette</span> <span class="noun">Kundin</span> <span class="verb">mache</span> <span class="conjunction">ich</span> <span class="adverb">gerne</span> <span class="adjective">einen</span> <span class="noun">Sonderpreis</span>. <span class="conjunction">Sie</span> <span class="verb tooltip">müssten<span class="tooltiptext">müssen - Konjunktiv II</span></span> <span class="adverb">nur</span> <span class="adjective">15</span> <span class="noun">Euro</span> <span class="preposition">statt</span> <span class="adjective">18</span> <span class="noun">Euro</span> <span class="verb">bezahlen</span>." <span class="noun">Frau Weber</span> <span class="verb">freut</span> <span class="conjunction">sich</span> <span class="adverb">sehr</span> <span class="preposition">über</span> <span class="das">das</span> <span class="adjective">gute</span> <span class="noun">Angebot</span> <span class="conjunction">und</span> <span class="verb">kauft</span> <span class="adverb">sofort</span> <span class="das">das</span> <span class="noun">Gemüse</span>. <span class="adverb">Danach</span> <span class="verb">geht</span> <span class="conjunction">sie</span> <span class="preposition">zu</span> <span class="adjective">einem</span> <span class="adjective">anderen</span> <span class="noun">Stand</span>, <span class="conjunction">wo</span> <span class="adjective">eine</span> <span class="adjective">ältere</span> <span class="noun">Frau</span> <span class="adjective">selbstgemachten</span> <span class="noun">Käse</span> <span class="conjunction">und</span> <span class="adjective">frische</span> <span class="noun">Milchprodukte</span> <span class="verb">verkauft</span>. <span class="die">Die</span> <span class="noun">Verkäuferin</span> <span class="verb">lässt</span> <span class="conjunction">sie</span> <span class="adverb">gerne</span> <span class="adjective">verschiedene</span> <span class="noun">Käsesorten</span> <span class="verb">probieren</span>. "<span class="der">Der</span> <span class="adjective">cremige</span> <span class="noun">Ziegenkäse</span> <span class="verb">schmeckt</span> <span class="adverb">besonders</span> <span class="adjective">gut</span> <span class="preposition">zu</span> <span class="adjective">frischem</span> <span class="noun">Brot</span>", <span class="verb">erklärt</span> <span class="conjunction">sie</span> <span class="adverb">enthusiastisch</span>. <span class="noun">Frau Weber</span> <span class="verb">ist</span> <span class="adverb">sehr</span> <span class="adjective">beeindruckt</span> <span class="preposition">von</span> <span class="der">der</span> <span class="noun">Qualität</span> <span class="conjunction">und</span> <span class="verb">fragt</span>: "<span class="verb">Könnten</span> <span class="conjunction">Sie</span> <span class="conjunction">mir</span> <span class="adverb">bitte</span> <span class="adjective">200</span> <span class="noun">Gramm</span> <span class="preposition">von</span> <span class="der">dem</span> <span class="noun">Ziegenkäse</span> <span class="conjunction">und</span> <span class="adjective">300</span> <span class="noun">Gramm</span> <span class="preposition">von</span> <span class="der">dem</span> <span class="adjective">harten</span> <span class="noun">Bergkäse</span> <span class="verb">geben</span>? <span class="conjunction">Und</span> <span class="verb">hätten</span> <span class="conjunction">Sie</span> <span class="adverb">vielleicht</span> <span class="adjective">auch</span> <span class="adjective">frische</span> <span class="noun">Butter</span>?" <span class="die">Die</span> <span class="adjective">freundliche</span> <span class="noun">Verkäuferin</span> <span class="verb">verpackt</span> <span class="adverb">alles</span> <span class="adverb">sorgfältig</span> <span class="conjunction">und</span> <span class="verb">gibt</span> <span class="conjunction">ihr</span> <span class="adverb">noch</span> <span class="adjective">ein</span> <span class="adjective">kleines</span> <span class="noun">Stück</span> <span class="noun">Käse</span> <span class="adjective">als</span> <span class="noun">Kostprobe</span> <span class="verb">dazu</span>. <span class="preposition">Am</span> <span class="adjective">letzten</span> <span class="noun">Stand</span> <span class="verb">kauft</span> <span class="noun">Frau Weber</span> <span class="adverb">noch</span> <span class="adjective">frisches</span> <span class="noun">Brot</span> <span class="preposition">von</span> <span class="adjective">einem</span> <span class="adjective">traditionellen</span> <span class="noun">Bäcker</span>. <span class="conjunction">Er</span> <span class="verb">erklärt</span> <span class="conjunction">ihr</span>, <span class="conjunction">dass</span> <span class="conjunction">er</span> <span class="adjective">alle</span> <span class="conjunction">seine</span> <span class="noun">Brote</span> <span class="adverb">noch</span> <span class="preposition">nach</span> <span class="adjective">alten</span> <span class="noun">Rezepten</span> <span class="conjunction">und</span> <span class="preposition">mit</span> <span class="adjective">natürlichen</span> <span class="noun">Zutaten</span> <span class="verb">backt</span>. "<span class="conjunction">Wenn</span> <span class="conjunction">Sie</span> <span class="adverb">morgen</span> <span class="adverb">wieder</span> <span class="verb">kommen</span>, <span class="verb">könnte</span> <span class="conjunction">ich</span> <span class="conjunction">Ihnen</span> <span class="adjective">frische</span> <span class="noun">Croissants</span> <span class="verb">anbieten</span>. <span class="conjunction">Die</span> <span class="verb">backe</span> <span class="conjunction">ich</span> <span class="adverb">immer</span> <span class="adverb">früh</span> <span class="preposition">am</span> <span class="noun">Morgen</span>", <span class="verb">schlägt</span> <span class="conjunction">er</span> <span class="adverb">vor</span>. <span class="noun">Frau Weber</span> <span class="verb">bedankt</span> <span class="conjunction">sich</span> <span class="preposition">für</span> <span class="der">den</span> <span class="noun">Tipp</span> <span class="conjunction">und</span> <span class="verb">verspricht</span>, <span class="adverb">morgen</span> <span class="adverb">früh</span> <span class="verb">zu kommen</span>. <span class="preposition">Mit</span> <span class="adjective">allen</span> <span class="adjective">gekauften</span> <span class="noun">Produkten</span> <span class="verb">ist</span> <span class="conjunction">sie</span> <span class="adverb">sehr</span> <span class="adjective">zufrieden</span> <span class="conjunction">und</span> <span class="verb">freut</span> <span class="conjunction">sich</span> <span class="adverb">schon</span> <span class="preposition">auf</span> <span class="das">das</span> <span class="adjective">leckere</span> <span class="noun">Abendessen</span>. <span class="conjunction">Sie</span> <span class="verb">denkt</span>, <span class="conjunction">dass</span> <span class="der">der</span> <span class="noun">Markt</span> <span class="adjective">wirklich</span> <span class="adjective">eine</span> <span class="adjective">wunderbare</span> <span class="noun">Alternative</span> <span class="preposition">zu</span> <span class="der">den</span> <span class="adjective">großen</span> <span class="noun">Supermärkten</span> <span class="verb">ist</span>, <span class="conjunction">weil</span> <span class="die">die</span> <span class="noun">Produkte</span> <span class="adjective">frischer</span> <span class="verb">sind</span> <span class="conjunction">und</span> <span class="conjunction">man</span> <span class="preposition">mit</span> <span class="der">den</span> <span class="noun">Verkäufern</span> <span class="adverb">persönlich</span> <span class="verb">sprechen</span> <span class="verb">kann</span>.
+                </div>
+
+                <div class="section-title">Englische Übersetzung:</div>
+                <div class="english-translation">
+                    Mrs. Weber goes to the big market in the city center today because she wants to buy fresh food for the big dinner. She has written a long shopping list and plans to carefully compare prices. The first vendor she stops at sells beautiful red tomatoes and green peppers. He proudly explains to her that all his products are organic and regional. "If you buy more than five kilograms, I could give you a better price," he says friendly. Mrs. Weber thinks for a moment and replies: "That would be really great! I would like to take three kilograms of tomatoes and two kilograms of peppers. Could you maybe give me a discount?" The vendor smiles and says: "Of course! For such a nice customer, I'm happy to make a special price. You would only have to pay 15 euros instead of 18 euros." Mrs. Weber is very happy about the good offer and immediately buys the vegetables. After that, she goes to another stand where an older woman sells homemade cheese and fresh dairy products. The vendor happily lets her try different types of cheese. "The creamy goat cheese tastes particularly good with fresh bread," she explains enthusiastically. Mrs. Weber is very impressed by the quality and asks: "Could you please give me 200 grams of the goat cheese and 300 grams of the hard mountain cheese? And would you perhaps also have fresh butter?" The friendly vendor packs everything carefully and gives her another small piece of cheese as a sample. At the last stand, Mrs. Weber buys fresh bread from a traditional baker. He explains to her that he still bakes all his breads according to old recipes and with natural ingredients. "If you come again tomorrow, I could offer you fresh croissants. I always bake them early in the morning," he suggests. Mrs. Weber thanks him for the tip and promises to come early tomorrow. With all the purchased products, she is very satisfied and already looks forward to the delicious dinner. She thinks that the market is really a wonderful alternative to the big supermarkets because the products are fresher and you can talk personally with the vendors.
+                </div>
+            </div>
+
+            <div class="vocabulary-section">
+                <div class="section-title">Wichtige Vokabeln:</div>
+                <div class="vocab-list">
+                    <div class="vocab-item">
+                        <span class="vocab-german">der Markt</span>
+                        <span class="vocab-english">- the market</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Lebensmittel</span>
+                        <span class="vocab-english">- food/groceries</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Einkaufsliste</span>
+                        <span class="vocab-english">- shopping list</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">vergleichen</span>
+                        <span class="vocab-english">- to compare</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">der Verkäufer</span>
+                        <span class="vocab-english">- the (male) vendor</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">biologisch</span>
+                        <span class="vocab-english">- organic</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">regional</span>
+                        <span class="vocab-english">- regional/local</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">der Rabatt</span>
+                        <span class="vocab-english">- the discount</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">der Sonderpreis</span>
+                        <span class="vocab-english">- special price</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">das Angebot</span>
+                        <span class="vocab-english">- the offer</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">selbstgemacht</span>
+                        <span class="vocab-english">- homemade</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Milchprodukte</span>
+                        <span class="vocab-english">- dairy products</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">probieren</span>
+                        <span class="vocab-english">- to try/taste</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">cremig</span>
+                        <span class="vocab-english">- creamy</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">der Ziegenkäse</span>
+                        <span class="vocab-english">- goat cheese</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">beeindruckt</span>
+                        <span class="vocab-english">- impressed</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Qualität</span>
+                        <span class="vocab-english">- the quality</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">verpacken</span>
+                        <span class="vocab-english">- to pack</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Kostprobe</span>
+                        <span class="vocab-english">- the sample</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">traditionell</span>
+                        <span class="vocab-english">- traditional</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">das Rezept</span>
+                        <span class="vocab-english">- the recipe</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Zutat</span>
+                        <span class="vocab-english">- the ingredient</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">anbieten</span>
+                        <span class="vocab-english">- to offer</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">sich bedanken</span>
+                        <span class="vocab-english">- to thank</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">versprechen</span>
+                        <span class="vocab-english">- to promise</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">zufrieden</span>
+                        <span class="vocab-english">- satisfied</span>
+                    </div>
+                    <div class="vocab-item">
+                        <span class="vocab-german">die Alternative</span>
+                        <span class="vocab-english">- the alternative</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grammar-section">
+                <div class="section-title">Grammatik-Fokus:</div>
+                <div class="grammar-box">
+                    <div class="grammar-title">Konjunktiv II - Höfliche Bitten und Wünsche</div>
+                    <div class="grammar-explanation">
+                        Der Konjunktiv II wird für höfliche Bitten, Wünsche und hypothetische Situationen verwendet. Oft wird er mit Modalverben (könnte, müsste) oder mit 'würde' + Infinitiv gebildet.
+                    </div>
+                    <div class="grammar-examples">
+                        <strong>Beispiele aus dem Text:</strong><br>
+                        • Das <u>wäre</u> wirklich toll! (sein → wäre)<br>
+                        • Ich <u>würde</u> gerne ... <u>nehmen</u>. (Konjunktiv II mit 'würde')<br>
+                        • <u>Könnten</u> Sie mir einen Rabatt <u>geben</u>? (höfliche Frage mit 'können')<br>
+                        • Sie <u>müssten</u> nur 15 Euro <u>bezahlen</u>. (hypothetische Bedingung mit 'müssen')
+                    </div>
+                </div>
+                 <div class="grammar-box">
+                    <div class="grammar-title">Modalverben im Präsens</div>
+                    <div class="grammar-explanation">
+                        Modalverben (möchten, können, müssen etc.) verändern die Bedeutung des Hauptverbs im Satz. Das Modalverb wird konjugiert und das Hauptverb steht am Satzende im Infinitiv.
+                    </div>
+                    <div class="grammar-examples">
+                        <strong>Beispiele aus dem Text:</strong><br>
+                        • ...weil sie ... Lebensmittel <u>kaufen möchte</u>.<br>
+                        • ...man <u>kann</u> mit den Verkäufern persönlich <u>sprechen</u>.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lesson 3 -->
+        <div class="page lesson-page hidden" id="lesson3">
+            <div class="lesson-header">
+                <div class="lesson-title">Lektion 3: Reiseplanung und Urlaub</div>
+                <div class="lesson-level">B1-B2 Level Deutsch</div>
+            </div>
+
+            <div class="color-legend">
+                <div class="legend-title">Farblegende:</div>
+                <div class="legend-grid">
+                    <div class="legend-item"><span class="der">der</span> - maskuline Artikel</div>
+                    <div class="legend-item"><span class="die">die</span> - feminine Artikel</div>
+                    <div class="legend-item"><span class="das">das</span> - neutrale Artikel</div>
+                    <div class="legend-item"><span class="noun">Substantive</span> - fett</div>
+                    <div class="legend-item"><span class="adjective">Adjektive</span> - orange</div>
+                    <div class="legend-item"><span class="verb">Verben</span> - lila unterstrichen</div>
+                    <div class="legend-item"><span class="adverb">Adverbien</span> - braun kursiv</div>
+                    <div class="legend-item"><span class="conjunction">Konjunktionen</span> - blaugrau</div>
+                    <div class="legend-item"><span class="preposition">Präpositionen</span> - pink</div>
+                </div>
+            </div>
+
+            <div class="text-section">
+                <div class="section-title">
+                    Deutscher Text (farbkodiert):
+                     <a href="#" class="grammar-link" onclick="showGrammarHelp('genitiv')">Genitiv</a>
+                     <a href="#" class="grammar-link" onclick="showGrammarHelp('passiv')">Passiv</a>
+                </div>
+                <div class="german-text">
+                    <span class="der">Der</span> <span class="noun">Urlaub</span> <span class="der tooltip">der<span class="tooltiptext">Genitiv, feminin</span></span> <span class="noun">Familie</span> <span class="noun">Schulze</span> <span class="verb">steht</span> <span class="adverb">kurz</span> <span class="verb">bevor</span>. <span class="preposition tooltip">Wegen<span class="tooltiptext">Präposition mit Genitiv</span></span> <span class="der tooltip">des<span class="tooltiptext">Genitiv, maskulin</span></span> <span class="adjective">schlechten</span> <span class="noun">Wetters</span> <span class="der">der</span> <span class="adjective">letzten</span> <span class="noun">Wochen</span> <span class="verb">freuen</span> <span class="conjunction">sie</span> <span class="conjunction">sich</span> <span class="adverb">besonders</span> <span class="preposition">auf</span> <span class="die">die</span> <span class="noun">Sonne</span> <span class="preposition">in</span> <span class="noun">Italien</span>. <span class="die">Die</span> <span class="noun">Tickets</span> <span class="verb tooltip">wurden<span class="tooltiptext">Passiv Präteritum</span></span> <span class="adverb">bereits</span> <span class="preposition">vor</span> <span class="adjective">einem</span> <span class="noun">Monat</span> <span class="verb">gebucht</span>. <span class="das">Das</span> <span class="noun">Hotel</span> <span class="verb">wurde</span> <span class="conjunction">ihnen</span> <span class="preposition">von</span> <span class="noun">Freunden</span> <span class="verb">empfohlen</span>, <span class="conjunction tooltip">deren<span class="tooltiptext">Relativpronomen Genitiv</span></span> <span class="noun">Meinung</span> <span class="conjunction">sie</span> <span class="adverb">sehr</span> <span class="verb">schätzen</span>. <span class="adverb">Gestern</span> <span class="verb">wurde</span> <span class="der">der</span> <span class="adjective">neue</span> <span class="noun">Koffer</span> <span class="preposition">von</span> <span class="noun">Herrn Schulze</span> <span class="verb">geliefert</span>. <span class="preposition tooltip">Während<span class="tooltiptext">Präposition mit Genitiv</span></span> <span class="der">der</span> <span class="noun">Vorbereitungen</span> <span class="verb">diskutieren</span> <span class="die">die</span> <span class="noun">Eltern</span> <span class="preposition">mit</span> <span class="conjunction">ihren</span> <span class="noun">Kindern</span>, <span class="adjective">welche</span> <span class="noun">Ausflüge</span> <span class="verb">gemacht</span> <span class="verb">werden</span> <span class="verb">sollen</span>. <span class="der">Die</span> <span class="noun">Tochter</span> <span class="verb">möchte</span> <span class="adverb">unbedingt</span> <span class="adjective">eine</span> <span class="adjective">alte</span> <span class="noun">Stadt</span> <span class="verb">besichtigen</span>, <span class="conjunction">deren</span> <span class="noun">Geschichte</span> <span class="conjunction">sie</span> <span class="preposition">im</span> <span class="noun">Unterricht</span> <span class="verb">behandelt hat</span>. <span class="der">Der</span> <span class="noun">Sohn</span> <span class="verb">interessiert</span> <span class="conjunction">sich</span> <span class="adverb">mehr</span> <span class="preposition">für</span> <span class="adjective">sportliche</span> <span class="noun">Aktivitäten</span>. <span class="conjunction">Er</span> <span class="verb">hofft</span>, <span class="conjunction">dass</span> <span class="adverb">viel</span> <span class="preposition">am</span> <span class="noun">Strand</span> <span class="verb tooltip">gespielt<span class="tooltiptext">Passiv Präsens</span></span> <span class="verb">wird</span>. <span class="die">Die</span> <span class="adjective">endgültige</span> <span class="noun">Route</span> <span class="verb">wird</span> <span class="adverb">heute</span> <span class="noun">Abend</span> <span class="verb">festgelegt</span>. <span class="noun">Frau Schulze</span> <span class="verb">packt</span> <span class="adverb">sorgfältig</span> <span class="die">die</span> <span class="noun">Kleidung</span> <span class="der">des</span> <span class="adjective">kleinen</span> <span class="noun">Sohnes</span> <span class="conjunction">und</span> <span class="die">die</span> <span class="noun">Bücher</span> <span class="der">der</span> <span class="adjective">großen</span> <span class="noun">Tochter</span> <span class="verb">ein</span>. <span class="preposition tooltip">Trotz<span class="tooltiptext">Präposition mit Genitiv</span></span> <span class="der">der</span> <span class="adjective">ganzen</span> <span class="noun">Organisation</span> <span class="verb">ist</span> <span class="die">die</span> <span class="noun">Stimmung</span> <span class="adjective">ausgezeichnet</span>. <span class="adjective">Alle</span> <span class="noun">Reisedokumente</span> <span class="verb">werden</span> <span class="preposition">von</span> <span class="noun">Herrn Schulze</span> <span class="adverb">sicher</span> <span class="preposition">in</span> <span class="adjective">einer</span> <span class="adjective">neuen</span> <span class="noun">Tasche</span> <span class="verb">verstaut</span>. <span class="conjunction">Es</span> <span class="verb">wird</span> <span class="adverb">bestimmt</span> <span class="adjective">ein</span> <span class="adjective">unvergesslicher</span> <span class="noun">Urlaub</span>, <span class="preposition tooltip">dessen<span class="tooltiptext">Relativpronomen Genitiv</span></span> <span class="noun">Erinnerungen</span> <span class="adverb">lange</span> <span class="verb">bleiben</span> <span class="verb">werden</span>.
+                </div>
+
+                <div class="section-title">Englische Übersetzung:</div>
+                <div class="english-translation">
+                    The Schulze family's vacation is just around the corner. Because of the bad weather of the last few weeks, they are particularly looking forward to the sun in Italy. The tickets were already booked a month ago. The hotel was recommended to them by friends whose opinion they value very much. Yesterday, Mr. Schulze's new suitcase was delivered. During the preparations, the parents discuss with their children which excursions should be made. The daughter really wants to visit an old city whose history she has covered in class. The son is more interested in sports activities. He hopes that there will be a lot of playing on the beach. The final route will be decided this evening. Mrs. Schulze carefully packs the clothes of the little son and the books of the older daughter. Despite all the organization, the mood is excellent. All travel documents are safely stowed away by Mr. Schulze in a new bag. It will certainly be an unforgettable vacation whose memories will last for a long time.
+                </div>
+            </div>
+
+            <div class="vocabulary-section">
+                <div class="section-title">Wichtige Vokabeln:</div>
+                <div class="vocab-list">
+                    <div class="vocab-item"><span class="vocab-german">der Urlaub</span><span class="vocab-english">- the vacation</span></div>
+                    <div class="vocab-item"><span class="vocab-german">bevorstehen</span><span class="vocab-english">- to be imminent</span></div>
+                    <div class="vocab-item"><span class="vocab-german">wegen (+ Genitiv)</span><span class="vocab-english">- because of</span></div>
+                    <div class="vocab-item"><span class="vocab-german">das Wetter</span><span class="vocab-english">- the weather</span></div>
+                    <div class="vocab-item"><span class="vocab-german">buchen</span><span class="vocab-english">- to book</span></div>
+                    <div class="vocab-item"><span class="vocab-german">empfehlen</span><span class="vocab-english">- to recommend</span></div>
+                    <div class="vocab-item"><span class="vocab-german">die Meinung</span><span class="vocab-english">- the opinion</span></div>
+                    <div class="vocab-item"><span class="vocab-german">schätzen</span><span class="vocab-english">- to value/appreciate</span></div>
+                    <div class="vocab-item"><span class="vocab-german">liefern</span><span class="vocab-english">- to deliver</span></div>
+                    <div class="vocab-item"><span class="vocab-german">die Vorbereitung</span><span class="vocab-english">- the preparation</span></div>
+                    <div class="vocab-item"><span class="vocab-german">der Ausflug</span><span class="vocab-english">- the excursion/trip</span></div>
+                    <div class="vocab-item"><span class="vocab-german">besichtigen</span><span class="vocab-english">- to visit/view</span></div>
+                    <div class="vocab-item"><span class="vocab-german">die Geschichte</span><span class="vocab-english">- the history/story</span></div>
+                    <div class="vocab-item"><span class="vocab-german">festlegen</span><span class="vocab-english">- to determine/set</span></div>
+                    <div class="vocab-item"><span class="vocab-german">die Stimmung</span><span class="vocab-english">- the mood/atmosphere</span></div>
+                    <div class="vocab-item"><span class="vocab-german">ausgezeichnet</span><span class="vocab-english">- excellent</span></div>
+                    <div class="vocab-item"><span class="vocab-german">verstauen</span><span class="vocab-english">- to stow/pack away</span></div>
+                    <div class="vocab-item"><span class="vocab-german">unvergesslich</span><span class="vocab-english">- unforgettable</span></div>
+                    <div class="vocab-item"><span class="vocab-german">die Erinnerung</span><span class="vocab-english">- the memory</span></div>
+                </div>
+            </div>
+
+            <div class="grammar-section">
+                <div class="section-title">Grammatik-Fokus:</div>
+                <div class="grammar-box">
+                    <div class="grammar-title">Genitiv</div>
+                    <div class="grammar-explanation">
+                        Der Genitiv drückt Besitz oder Zugehörigkeit aus (wessen? - whose?). Maskuline und neutrale Substantive erhalten oft die Endung -(e)s. Er wird auch nach bestimmten Präpositionen (z.B. wegen, trotz, während) verwendet.
+                    </div>
+                    <div class="grammar-examples">
+                        <strong>Beispiele aus dem Text:</strong><br>
+                        • der Urlaub <u>der Familie</u> (Zugehörigkeit)<br>
+                        • wegen <u>des schlechten Wetters</u> (nach Präposition)<br>
+                        • die Kleidung <u>des kleinen Sohnes</u> (Besitz)
+                    </div>
+                </div>
+
+                <div class="grammar-box">
+                    <div class="grammar-title">Passiv mit 'werden'</div>
+                    <div class="grammar-explanation">
+                        Das Passiv wird verwendet, wenn die Handlung im Vordergrund steht, nicht die Person, die sie ausführt. Es wird mit einer Form von 'werden' und dem Partizip II des Hauptverbs gebildet. Der Handelnde kann mit 'von' eingeführt werden.
+                    </div>
+                    <div class="grammar-examples">
+                        <strong>Beispiele aus dem Text:</strong><br>
+                        • Die Tickets <u>wurden gebucht</u>. (Präteritum Passiv)<br>
+                        • Der Koffer <u>wurde geliefert</u>. (Präteritum Passiv)<br>
+                        • Die Route <u>wird festgelegt</u>. (Präsens Passiv)<br>
+                        • ...dass viel <u>gespielt wird</u>. (Präsens Passiv)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Grammar Modal -->
+    <div id="grammarModal" class="grammar-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalBody">
+                <!-- Content will be injected by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = document.querySelectorAll('.lesson-page').length;
+        const pageIndicator = document.getElementById('pageIndicator');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const modal = document.getElementById('grammarModal');
+        const modalBody = document.getElementById('modalBody');
+
+        // --- GRAMMAR CONTENT DATABASE ---
+        // A simple object to hold all grammar explanations. This makes it easy to manage.
+        const grammarContent = {
+            'index': {
+                title: '📚 Grammatik Index',
+                content: `
+                    <p>Wählen Sie ein Thema aus, um mehr zu erfahren:</p>
+                    <div class="grammar-index">
+                        <div class="grammar-index-item" onclick="showGrammarHelp('articles')">Definite und Unbestimmte Artikel</div>
+                        <div class="grammar-index-item" onclick="showGrammarHelp('adjectives')">Adjektivdeklination</div>
+                        <div class="grammar-index-item" onclick="showGrammarHelp('verbs')">Konjugation und Zeitformen</div>
+                        <div class="grammar-index-item" onclick="showGrammarHelp('konjunktiv')">Konjunktiv II</div>
+                        <div class="grammar-index-item" onclick="showGrammarHelp('modalverben')">Modalverben</div>
+                        <div class="grammar-index-item" onclick="showGrammarHelp('genitiv')">Genitiv</div>
+                        <div class="grammar-index-item" onclick="showGrammarHelp('passiv')">Passiv mit 'werden'</div>
+                    </div>
+                `
+            },
+            'articles': {
+                title: 'Definite und Unbestimmte Artikel',
+                content: 'Im Deutschen gibt es drei Geschlechter: maskulin (der), feminin (die) und neutral (das). Die Artikel ändern sich je nach Fall (Nominativ, Akkusativ, Dativ, Genitiv).<br><strong>Beispiel:</strong> <i>der Manager</i> (Nominativ) vs. <i>den Manager</i> (Akkusativ).'
+            },
+            'adjectives': {
+                title: 'Adjektivdeklination',
+                content: 'Die Endung eines Adjektivs ändert sich je nach Artikel (bestimmt, unbestimmt, ohne Artikel), Geschlecht, Zahl und Fall des Substantivs.<br><strong>Beispiel:</strong> <i>der neu<u>e</u> Manager</i>, <i>ein neu<u>er</u> Manager</i>, <i>ein<u>em</u> neu<u>en</u> Manager</i>.'
+            },
+            'verbs': {
+                title: 'Konjugation und Zeitformen',
+                content: 'Verben werden je nach Person (ich, du, er/sie/es) und Zahl (Singular, Plural) konjugiert. Die Texte verwenden verschiedene Zeitformen wie Präsens (er arbeitet), Perfekt (er hat gearbeitet) und Präteritum (er arbeitete).'
+            },
+            'konjunktiv': {
+                title: 'Konjunktiv II',
+                content: 'Der Konjunktiv II drückt Wünsche, höfliche Bitten oder irreale/hypothetische Situationen aus. Er wird oft mit <i>würde + Infinitiv</i> oder den eigenen Formen von sein (wäre), haben (hätte) und Modalverben (könnte, sollte, müsste) gebildet.<br><strong>Beispiel:</strong> "Ich <i>würde</i> gern reisen." (Wunsch), "<i>Könnten</i> Sie mir helfen?" (höfliche Bitte).'
+            },
+            'modalverben': {
+                title: 'Modalverben',
+                content: 'Modalverben (können, müssen, wollen, sollen, dürfen, möchten) modifizieren die Bedeutung des Hauptverbs. Das Modalverb wird konjugiert, das Hauptverb steht im Infinitiv am Satzende.<br><strong>Beispiel:</strong> "Sie <i>möchte</i> Lebensmittel <i>kaufen</i>."'
+            },
+            'genitiv': {
+                title: 'Genitiv',
+                content: 'Der Genitiv (wessen?) zeigt Besitz oder Zugehörigkeit an. Maskuline/neutrale Nomen bekommen oft die Endung -(e)s. Er folgt auch auf bestimmte Präpositionen (wegen, trotz, während).<br><strong>Beispiel:</strong> "die Tasche <i>des Mannes</i>", "<i>wegen des</i> Regens".'
+            },
+            'passiv': {
+                title: 'Passiv mit \'werden\'',
+                content: 'Das Passiv betont die Handlung, nicht den Handelnden. Es wird mit einer Form von "werden" + Partizip II gebildet. Der Handelnde kann mit "von" hinzugefügt werden.<br><strong>Beispiel:</strong> "Das Paket <i>wird geliefert</i>." (Präsens Passiv), "Das Paket <i>wurde</i> von ihm <i>geliefert</i>." (Präteritum Passiv).'
+            }
+        };
+
+        /**
+         * Updates the display to show the correct lesson page and sets button states.
+         */
+        function updatePage() {
+            // Hide all lesson pages
+            document.querySelectorAll('.lesson-page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show the current lesson page
+            const currentPageElement = document.getElementById(`lesson${currentPage}`);
+            if (currentPageElement) {
+                currentPageElement.classList.remove('hidden');
+            }
+            
+            // Update the page indicator text
+            pageIndicator.textContent = `Lektion ${currentPage} / ${totalPages}`;
+            
+            // Disable/enable navigation buttons
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+        }
+
+        /**
+         * Navigates to the next page.
+         */
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePage();
+            }
+        }
+
+        /**
+         * Navigates to the previous page.
+         */
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePage();
+            }
+        }
+
+        /**
+         * Displays the grammar modal with content for a specific topic.
+         * @param {string} topic - The key for the grammar topic (e.g., 'articles').
+         */
+        function showGrammarHelp(topic) {
+            const info = grammarContent[topic];
+            if (info) {
+                modalBody.innerHTML = `<h3 class="grammar-title">${info.title}</h3><div>${info.content}</div>`;
+                modal.style.display = 'block';
+            }
+        }
+        
+        /**
+         * Shows the main grammar index in the modal.
+         */
+        function showGrammarIndex() {
+            showGrammarHelp('index');
+        }
+
+        /**
+         * Closes the grammar modal.
+         */
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // --- EVENT LISTENERS ---
+
+        // Close the modal if the user clicks anywhere outside of the modal content
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+        
+        // Initial setup when the page is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePage();
+        });
+
+    </script>
+</body>
+</html>
