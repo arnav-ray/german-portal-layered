@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>German Learning Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary-color: #007aff; --text-color: #333; --bg-color: #f9f9f9; --card-bg: #fff; --border-color: #e0e0e0;
+            /* Parts of Speech Colors */
+            --noun-color: #1c1c1e; --verb-color: #e60000; --adjective-color: #34c759; --adverb-color: #ff9500; --connector-color: #a2805b;
+            /* Article Colors */
+            --article-masc-color: #007aff; --article-fem-color: #ff3b30; --article-neut-color: #5856d6;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; color: var(--text-color); background-color: var(--bg-color); }
+        .container { padding: 0 15px; }
+        .lesson, .extra-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1 { text-align: center; font-size: clamp(2rem, 5vw, 2.5rem); margin-bottom: 40px; color: var(--primary-color); }
+        h2, h3, h4 { color: #111; font-weight: 700; }
+        .vocab-list { list-style: none; padding: 0; }
+        .vocab-item { background-color: #f7f7f7; padding: 12px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid var(--primary-color); }
+        .german-paragraph { font-size: 1.2em; line-height: 1.8; }
+        .german-paragraph .noun { color: var(--noun-color); font-weight: 600; }
+        .german-paragraph .verb { color: var(--verb-color); }
+        .german-paragraph .adjective { color: var(--adjective-color); }
+        .german-paragraph .adverb { color: var(--adverb-color); }
+        .german-paragraph .connector { color: var(--connector-color); font-style: italic; }
+        .german-paragraph .article-m { color: var(--article-masc-color); font-weight: 600; }
+        .german-paragraph .article-f { color: var(--article-fem-color); font-weight: 600; }
+        .german-paragraph .article-n { color: var(--article-neut-color); font-weight: 600; }
+        .color-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 15px; background-color: var(--card-bg); border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .key-item { display: flex; align-items: center; font-size: 0.9em; }
+        .key-color-box { width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; border: 1px solid rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>German Learning Portal - Layer 0</h1>
+        <div class="color-key">
+            <div class="key-item"><div class="key-color-box" style="background-color: var(--article-masc-color);"></div>der (Masc.)</div>
+            <div class="key-item"><div class="key-color-box" style="background-color: var(--article-fem-color);"></div>die (Fem.)</div>
+            <div class="key-item"><div class="key-color-box" style="background-color: var(--article-neut-color);"></div>das (Neut.)</div>
+            <div class="key-item"><div class="key-color-box" style="background-color: var(--noun-color);"></div>Noun</div>
+            <div class="key-item"><div class="key-color-box" style="background-color: var(--verb-color);"></div>Verb</div>
+            <div class="key-item"><div class="key-color-box" style="background-color: var(--adjective-color);"></div>Adjective</div>
+            <div class="key-item"><div class="key-color-box" style="background-color: var(--adverb-color);"></div>Adverb</div>
+            <div class="key-item"><div class="key-color-box" style="background-color: var(--connector-color);"></div>Connector</div>
+        </div>
+        <div class="lesson">
+            <h2>Lesson 1: Ein Tag im Büro</h2>
+            <h3>German Text (Color Coded):</h3>
+            <p class="german-paragraph">
+                <span class="article-m">Der</span> <span class="adjective">neue</span> <span class="noun">Manager</span> <span class="verb">gibt</span> <span class="article-f">der</span> <span class="adjective">intelligenten</span> <span class="noun">Frau</span> <span class="article-n">das</span> <span class="adjective">wichtige</span> <span class="noun">Dokument</span>, <span class="connector">und</span> er <span class="verb">erklärt</span> <span class="adverb">schnell</span> <span class="article-f">die</span> <span class="noun">Aufgabe</span>, <span class="connector">weil</span> <span class="article-n">das</span> <span class="noun">Meeting</span> <span class="adverb">bald</span> <span class="verb">beginnt</span>.
+            </p>
+            <h3>English Translation:</h3>
+            <p>The new manager gives the important document to the intelligent woman, and he quickly explains the task because the meeting will begin soon.</p>
+
+            <!-- RESTORED SECTIONS -->
+            <h3>Key Vocabulary:</h3>
+            <ul class="vocab-list">
+                <li class="vocab-item"><strong>der Manager</strong> - the manager</li>
+                <li class="vocab-item"><strong>die Aufgabe</strong> - the task</li>
+                <li class="vocab-item"><strong>das Dokument</strong> - the document</li>
+                <li class="vocab-item"><strong>wichtig</strong> - important</li>
+            </ul>
+            <h3>German Grammar Focus:</h3>
+            <div>
+                <h4>Sentence Structure: Main vs. Subordinate Clauses</h4>
+                <p>This sentence shows how German sentence structure changes with different types of clauses, especially the verb position.</p>
+                <ul class="vocab-list">
+                    <li class="vocab-item"><strong>Main Clause (Hauptsatz):</strong> In the first part, "...der neue Manager <strong>gibt</strong>...", the conjugated verb ("gibt") is in the second position, which is standard for a main clause.</li>
+                    <li class="vocab-item"><strong>Subordinate Clause (Nebensatz):</strong> The connector "weil" (because) introduces a subordinate clause. In these clauses, the conjugated verb ("beginnt") is always moved to the very end of the clause.</li>
+                </ul>
+            </div>
+            <!-- END OF RESTORED SECTIONS -->
+
+        </div>
+    </div>
+</body>
+</html>
