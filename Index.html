@@ -1,14 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- The <head> and <style> section is the same, but add styles for the navigation -->
 <head>
-  <!-- ... same as before ... -->
-  <style>
-      /* ... same as before ... */
-      .navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-      button { padding: 10px 15px; border: 1px solid #ccc; background-color: #f0f0f0; border-radius: 5px; cursor: pointer; }
-      button:disabled { color: #aaa; cursor: not-allowed; }
-  </style>
+    <title>German Learning Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary-color: #007aff; --text-color: #333; --bg-color: #f9f9f9; --card-bg: #fff; --border-color: #e0e0e0;
+            --noun-color: #1c1c1e; --verb-color: #e60000; --adjective-color: #34c759; --adverb-color: #ff9500; --connector-color: #a2805b;
+            --article-masc-color: #007aff; --article-fem-color: #ff3b30; --article-neut-color: #5856d6;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; color: var(--text-color); background-color: var(--bg-color); }
+        .container { padding: 0 15px; }
+        .lesson { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1 { text-align: center; font-size: clamp(2rem, 5vw, 2.5rem); margin-bottom: 40px; color: var(--primary-color); }
+        h2, h3, h4 { color: #111; font-weight: 700; }
+        .vocab-list { list-style: none; padding: 0; }
+        .vocab-item { background-color: #f7f7f7; padding: 12px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid var(--primary-color); }
+        .german-paragraph { font-size: 1.2em; line-height: 1.8; }
+        .german-paragraph .noun { color: var(--noun-color); font-weight: 600; }
+        .german-paragraph .verb { color: var(--verb-color); }
+        /* ... all other color styles ... */
+
+        /* NEW styles for navigation */
+        .navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px; background-color: var(--card-bg); border-radius: 8px; }
+        .navigation button { padding: 10px 20px; border: 1px solid var(--primary-color); background-color: var(--primary-color); color: white; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        .navigation button:disabled { background-color: #e0e0e0; color: #aaa; cursor: not-allowed; border-color: #ccc; }
+        .navigation span { font-weight: 500; }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -31,7 +51,7 @@
                 allLessons = data.lessons;
                 displayCurrentLesson();
             } catch (error) {
-                document.getElementById('current-lesson').innerHTML = 'Error loading lessons.';
+                document.getElementById('current-lesson').innerHTML = '<h2>Error loading lessons. Please try again later.</h2>';
             }
         }
 
