@@ -1,7 +1,7 @@
 // Your Google Sheets ID (you'll get this from your sheet URL)
 const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8'; // Replace this
 const SHEET_NAME = 'Sheet1'; // Replace this
-const API_KEY = 'AIzaSyCUB10pN09TO3BbxFKKiX7JCEV5wFjHM0c'; // We'll set this up next
+const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8'; // We'll set this up next
 
 // Global variables
 let articles = [];
