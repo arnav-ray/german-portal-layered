@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily German Learning</title>
     <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Master German with themed articles, vocabulary, and real-world scenarios">
 </head>
 <body>
     <div class="container">
@@ -13,6 +14,17 @@
             <p>Master German with themed articles and real-world scenarios</p>
         </header>
         
+        <!-- Search functionality -->
+        <div class="search-container" id="search-container" style="display: none;">
+            <input 
+                type="text" 
+                id="search-input" 
+                class="search-input" 
+                placeholder="Search articles, themes, or vocabulary..."
+                onkeypress="if(event.key==='Enter') searchArticles(this.value)"
+            >
+        </div>
+        
         <main id="main-content">
             <div id="loading">Loading today's article...</div>
             <div id="article-display" style="display: none;">
@@ -20,10 +32,23 @@
             </div>
         </main>
         
+        <!-- Navigation buttons -->
+        <div class="nav-buttons" id="nav-buttons" style="display: none;">
+            <button class="nav-btn" onclick="navigateArticle('previous')">← Previous Article</button>
+            <button class="nav-btn" onclick="displayTodayArticle()">📅 Today's Article</button>
+            <button class="nav-btn" onclick="navigateArticle('next')">Next Article →</button>
+        </div>
+        
         <nav id="theme-nav" style="display: none;">
             <h3>Browse by Theme:</h3>
             <div id="theme-buttons"></div>
         </nav>
+        
+        <!-- Article counter/info -->
+        <div id="article-info" style="display: none; text-align: center; margin-top: 10px;">
+            <p><small>Article <span id="current-article-number">1</span> of <span id="total-articles">0</span> | 
+            <span id="current-date"></span></small></p>
+        </div>
     </div>
     
     <script src="script.js"></script>

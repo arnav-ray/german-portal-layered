@@ -29,6 +29,41 @@ header {
 header h1 {
     color: #2c3e50;
     margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+header p {
+    color: #6c757d;
+    font-size: 1.1em;
+}
+
+/* Search container */
+.search-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #dee2e6;
+    border-radius: 25px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    font-family: 'Georgia', serif;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.search-input::placeholder {
+    color: #adb5bd;
 }
 
 #article-display {
@@ -57,6 +92,7 @@ header h1 {
     padding: 15px;
     background: #fff3cd;
     border-radius: 5px;
+    border-left: 4px solid #ffc107;
 }
 
 .vocabulary-word {
@@ -66,10 +102,106 @@ header h1 {
     border-radius: 3px;
     cursor: pointer;
     position: relative;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .vocabulary-word:hover {
     background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* New section styles for enhanced content */
+.vocabulary-section, .phrases-section, .quotes-section, .conversation-section {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.vocabulary-section {
+    background-color: #e8f4fd;
+    border-left-color: #007bff;
+}
+
+.phrases-section {
+    background-color: #e8f5e8;
+    border-left-color: #28a745;
+}
+
+.quotes-section {
+    background-color: #fff5e6;
+    border-left-color: #fd7e14;
+    font-style: italic;
+}
+
+.conversation-section {
+    background-color: #f8e6ff;
+    border-left-color: #6f42c1;
+}
+
+/* Section titles styling */
+.vocabulary-section strong,
+.phrases-section strong,
+.quotes-section strong,
+.conversation-section strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+/* Content within sections */
+.vocabulary-section div,
+.phrases-section div,
+.quotes-section div,
+.conversation-section div {
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* Navigation buttons */
+.nav-buttons {
+    text-align: center;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'Georgia', serif;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    min-width: 140px;
+}
+
+.nav-btn:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.nav-btn:active {
+    transform: translateY(0);
+}
+
+.nav-btn:disabled {
+    background: #dee2e6;
+    color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
 }
 
 #theme-nav {
@@ -77,11 +209,24 @@ header h1 {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+#theme-nav h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    text-align: center;
+}
+
+#theme-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
 }
 
 .theme-btn {
     display: inline-block;
-    margin: 5px;
     padding: 8px 15px;
     background: #28a745;
     color: white;
@@ -90,18 +235,27 @@ header h1 {
     font-size: 14px;
     border: none;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Georgia', serif;
 }
 
 .theme-btn:hover {
     background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.theme-btn:active {
+    transform: translateY(0);
 }
 
 .metadata {
     background: #e9ecef;
     padding: 15px;
-    border-radius: 5px;
+    border-radius: 8px;
     margin-bottom: 20px;
     font-size: 14px;
+    border-left: 4px solid #6c757d;
 }
 
 #loading {
@@ -109,4 +263,190 @@ header h1 {
     padding: 50px;
     font-size: 18px;
     color: #666;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Article info */
+#article-info {
+    text-align: center;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+#article-info small {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+/* Search results styling */
+.search-results {
+    background-color: #d4edda !important;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.search-results a {
+    color: #155724;
+    text-decoration: underline;
+}
+
+.search-results a:hover {
+    color: #0a3622;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    #article-display {
+        padding: 20px;
+    }
+    
+    .german-text {
+        font-size: 16px;
+        padding: 15px;
+    }
+    
+    .english-text {
+        font-size: 14px;
+        padding: 12px;
+    }
+    
+    .nav-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .nav-btn {
+        width: 100%;
+        max-width: 250px;
+        margin: 3px 0;
+    }
+    
+    .theme-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        margin: 3px;
+    }
+    
+    .vocabulary-section, .phrases-section, .quotes-section, .conversation-section {
+        padding: 12px;
+        margin-top: 15px;
+    }
+    
+    .search-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.8em;
+    }
+    
+    .german-text {
+        font-size: 15px;
+        padding: 12px;
+    }
+    
+    .english-text {
+        font-size: 13px;
+        padding: 10px;
+    }
+    
+    #theme-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .theme-btn {
+        width: 100%;
+        max-width: 200px;
+        margin: 2px 0;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+        font-size: 12pt;
+    }
+    
+    .container {
+        max-width: none;
+        padding: 0;
+    }
+    
+    #theme-nav, .nav-buttons, .search-container, #article-info {
+        display: none !important;
+    }
+    
+    #article-display {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+    }
+    
+    .german-text, .english-text {
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+    }
+    
+    .vocabulary-word {
+        background-color: #f0f0f0 !important;
+        color: #000 !important;
+        border: 1px solid #999;
+    }
+}
+
+/* Accessibility improvements */
+.nav-btn:focus,
+.theme-btn:focus,
+.search-input:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .vocabulary-word {
+        border: 2px solid #000;
+    }
+    
+    .german-text,
+    .english-text,
+    .vocabulary-section,
+    .phrases-section,
+    .quotes-section,
+    .conversation-section {
+        border: 2px solid #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

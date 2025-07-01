@@ -1,94 +1,145 @@
-// Temporary hardcoded data for testing
-const TEST_ARTICLES = [
-    {
-        date: '2025-07-01',
-        theme: 'Job Interview',
-        grammar: 'Perfect tense',
-        german: 'Heute habe ich ein wichtiges Vorstellungsgespräch gehabt. Ich habe meinen Lebenslauf vorbereitet und bin pünktlich angekommen. Der Arbeitgeber hat mir viele Fragen über meine Erfahrung gestellt. Ich habe alle Fragen beantwortet und bin sehr nervös gewesen. Am Ende habe ich gefragt, wann ich eine Antwort bekommen werde. Das Gespräch ist sehr gut gelaufen.',
-        english: 'Today I had an important job interview. I prepared my CV and arrived on time. The employer asked me many questions about my experience. I answered all questions and was very nervous. At the end I asked when I would get an answer. The conversation went very well.',
-        vocabulary: 'Vorstellungsgespräch, Lebenslauf, Arbeitgeber, Erfahrung, nervös, pünktlich'
-    },
-    {
-        date: '2025-07-02',
-        theme: 'Apartment Hunting',
-        grammar: 'Dative case',
-        german: 'Gestern bin ich mit dem Makler zu einer Wohnung gefahren. Die Wohnung gefällt mir sehr gut. Sie liegt in der Nähe vom Zentrum und hat einen großen Balkon. Der Makler hat mir alle Zimmer gezeigt. Ich habe ihm viele Fragen gestellt. Die Miete ist etwas teuer, aber die Lage ist perfekt.',
-        english: 'Yesterday I went to an apartment with the real estate agent. I like the apartment very much. It is close to the center and has a large balcony. The agent showed me all the rooms. I asked him many questions. The rent is a bit expensive, but the location is perfect.',
-        vocabulary: 'Makler, Wohnung, Zentrum, Balkon, Zimmer, Miete, Lage'
-    }
-];
+// Your Google Sheets ID (you'll get this from your sheet URL)
+const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8'; // Replace this
+const SHEET_NAME = 'Sheet1'; // Replace this
+const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8'; // We'll set this up next
 
 // Global variables
-let articles = TEST_ARTICLES;
+let articles = [];
 let currentArticle = null;
+let filteredArticles = []; // For search functionality
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded, starting app...');
     loadArticles();
 });
 
-// Load articles (using test data for now)
-function loadArticles() {
-    console.log('Loading articles...', articles);
-    displayTodayArticle();
-    setupThemeNavigation();
+// Load articles from Google Sheets
+async function loadArticles() {
+    try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.values) {
+            articles = parseSheetData(data.values);
+            filteredArticles = [...articles]; // Initialize filtered articles
+            displayTodayArticle();
+            setupThemeNavigation();
+            setupUI(); // Show navigation and search
+        }
+    } catch (error) {
+        console.error('Error loading articles:', error);
+        document.getElementById('loading').innerHTML = 'Error loading content. Please try again later.';
+    }
+}
+
+// Parse the sheet data into usable format
+function parseSheetData(rows) {
+    const headers = rows[0];
+    const articles = [];
+    
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        // Check if row has enough columns and status is "Published"
+        if (row.length >= 10 && row[9] === 'Published') {
+            articles.push({
+                date: row[0],
+                theme: row[1],
+                german: row[2],
+                english: row[3],
+                vocabulary: row[4] || '',
+                grammar: row[5] || '',
+                phrases: row[6] || '',
+                quotes: row[7] || '',
+                conversation: row[8] || '',
+                status: row[9]
+            });
+        }
+    }
+    
+    // Sort articles by date (newest first)
+    articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    return articles;
 }
 
 // Display today's article
 function displayTodayArticle() {
     const today = new Date().toISOString().split('T')[0];
-    console.log('Looking for article for date:', today);
-    
-    // First try to find today's article, then fallback to any article
-    currentArticle = articles.find(article => article.date === today);
-    
-    if (!currentArticle && articles.length > 0) {
-        console.log('No article for today, using first available article');
-        currentArticle = articles[0];
-    }
+    currentArticle = articles.find(article => article.date === today) || articles[0];
     
     if (currentArticle) {
-        console.log('Displaying article:', currentArticle);
         displayArticle(currentArticle);
+        updateArticleCounter();
     } else {
-        console.log('No articles available');
-        document.getElementById('loading').innerHTML = 'No articles available. Please add some content to your Google Sheet.';
+        document.getElementById('loading').innerHTML = 'No article available for today.';
     }
 }
 
 // Display an article
 function displayArticle(article) {
-    console.log('Displaying article:', article.theme);
-    
-    const vocabularyWords = article.vocabulary.split(', ');
     let germanText = article.german;
     
-    // Highlight vocabulary words
-    vocabularyWords.forEach(word => {
-        const cleanWord = word.trim();
-        // More flexible regex that handles German characters
-        const regex = new RegExp(`\\b${cleanWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
-        germanText = germanText.replace(regex, `<span class="vocabulary-word" title="Click for translation">${cleanWord}</span>`);
-    });
+    // Highlight vocabulary words if they exist
+    if (article.vocabulary) {
+        const vocabularyWords = article.vocabulary.split(/[,;]/);
+        vocabularyWords.forEach(word => {
+            const cleanWord = word.trim();
+            if (cleanWord) {
+                const regex = new RegExp(`\\b${cleanWord}\\b`, 'gi');
+                germanText = germanText.replace(regex, `<span class="vocabulary-word" title="Vocabulary word">${cleanWord}</span>`);
+            }
+        });
+    }
     
     const displayHTML = `
         <div class="metadata">
             <strong>Theme:</strong> ${article.theme} | 
             <strong>Grammar Focus:</strong> ${article.grammar} |
-            <strong>Date:</strong> ${article.date}
+            <strong>Date:</strong> ${formatDate(article.date)}
         </div>
+        
         <div class="german-text">${germanText}</div>
+        
         <div class="english-text">${article.english}</div>
-        <div style="margin-top: 20px;">
-            <strong>Key Vocabulary:</strong> ${article.vocabulary}
-        </div>
+        
+        ${article.vocabulary ? `
+            <div class="vocabulary-section">
+                <strong>🎯 Key Vocabulary:</strong>
+                <div>${article.vocabulary}</div>
+            </div>
+        ` : ''}
+        
+        ${article.phrases ? `
+            <div class="phrases-section">
+                <strong>💬 Phrases & Idioms:</strong>
+                <div>${article.phrases}</div>
+            </div>
+        ` : ''}
+        
+        ${article.quotes ? `
+            <div class="quotes-section">
+                <strong>😄 Quote & Joke:</strong>
+                <div>${article.quotes}</div>
+            </div>
+        ` : ''}
+        
+        ${article.conversation ? `
+            <div class="conversation-section">
+                <strong>🗣️ Conversation Time:</strong>
+                <div>${article.conversation}</div>
+            </div>
+        ` : ''}
     `;
     
     document.getElementById('article-display').innerHTML = displayHTML;
     document.getElementById('article-display').style.display = 'block';
     document.getElementById('loading').style.display = 'none';
     document.getElementById('theme-nav').style.display = 'block';
+    
+    // Update current article reference
+    currentArticle = article;
+    updateArticleCounter();
 }
 
 // Set up theme navigation
@@ -96,7 +147,8 @@ function setupThemeNavigation() {
     const themes = [...new Set(articles.map(article => article.theme))];
     const buttonContainer = document.getElementById('theme-buttons');
     
-    console.log('Setting up themes:', themes);
+    // Clear existing buttons
+    buttonContainer.innerHTML = '';
     
     themes.forEach(theme => {
         const button = document.createElement('button');
@@ -109,59 +161,151 @@ function setupThemeNavigation() {
 
 // Show articles by theme
 function showArticlesByTheme(theme) {
-    console.log('Showing articles for theme:', theme);
     const themeArticles = articles.filter(article => article.theme === theme);
     if (themeArticles.length > 0) {
+        // Show the most recent article of that theme
         displayArticle(themeArticles[0]);
+        
+        // Update filtered articles to this theme for navigation
+        filteredArticles = themeArticles;
+        updateArticleCounter();
     }
 }
 
-// TODO: Once Google Sheets is working, replace this with the API version
-/*
-async function loadArticlesFromGoogleSheets() {
-    const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
-    const SHEET_NAME = 'Sheet1';
-    const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
+// Navigate to next/previous article
+function navigateArticle(direction) {
+    const currentIndex = filteredArticles.findIndex(article => 
+        article.date === currentArticle.date && article.theme === currentArticle.theme
+    );
     
-    try {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
-        const response = await fetch(url);
+    let newIndex;
+    
+    if (direction === 'next') {
+        newIndex = (currentIndex + 1) % filteredArticles.length;
+    } else {
+        newIndex = currentIndex === 0 ? filteredArticles.length - 1 : currentIndex - 1;
+    }
+    
+    displayArticle(filteredArticles[newIndex]);
+}
+
+// Search articles by keyword
+function searchArticles(keyword) {
+    if (!keyword.trim()) {
+        filteredArticles = [...articles];
+        displayArticle(articles[0]);
+        return;
+    }
+    
+    const searchResults = articles.filter(article => 
+        article.german.toLowerCase().includes(keyword.toLowerCase()) ||
+        article.english.toLowerCase().includes(keyword.toLowerCase()) ||
+        article.theme.toLowerCase().includes(keyword.toLowerCase()) ||
+        article.vocabulary.toLowerCase().includes(keyword.toLowerCase()) ||
+        article.phrases.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    if (searchResults.length > 0) {
+        filteredArticles = searchResults;
+        displayArticle(searchResults[0]);
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // Clear search input
+        document.getElementById('search-input').value = '';
         
-        const data = await response.json();
-        
-        if (data.values && data.values.length > 1) {
-            articles = parseSheetData(data.values);
-            displayTodayArticle();
-            setupThemeNavigation();
-        }
-    } catch (error) {
-        console.error('Error loading articles from Google Sheets:', error);
-        // Fallback to test data
-        loadArticles();
+        // Show search results count
+        showSearchResults(searchResults.length, keyword);
+    } else {
+        alert(`No articles found for "${keyword}"`);
     }
 }
 
-function parseSheetData(rows) {
-    const articles = [];
+// Show search results notification
+function showSearchResults(count, keyword) {
+    const metadata = document.querySelector('.metadata');
+    if (metadata) {
+        const searchInfo = document.createElement('div');
+        searchInfo.className = 'search-results';
+        searchInfo.innerHTML = `<small>🔍 Found ${count} result(s) for "${keyword}" | <a href="#" onclick="resetSearch()">Show all articles</a></small>`;
+        searchInfo.style.marginTop = '10px';
+        searchInfo.style.padding = '8px';
+        searchInfo.style.backgroundColor = '#d4edda';
+        searchInfo.style.borderRadius = '3px';
+        
+        // Remove existing search results
+        const existingSearch = metadata.querySelector('.search-results');
+        if (existingSearch) {
+            existingSearch.remove();
+        }
+        
+        metadata.appendChild(searchInfo);
+    }
+}
+
+// Reset search to show all articles
+function resetSearch() {
+    filteredArticles = [...articles];
+    displayTodayArticle();
     
-    for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        if (row.length >= 7 && row[6] === 'Published') {
-            articles.push({
-                date: row[0],
-                theme: row[1],
-                grammar: row[2],
-                german: row[3],
-                english: row[4],
-                vocabulary: row[5]
-            });
+    // Remove search results notification
+    const searchResults = document.querySelector('.search-results');
+    if (searchResults) {
+        searchResults.remove();
+    }
+}
+
+// Setup UI elements after articles load
+function setupUI() {
+    document.getElementById('search-container').style.display = 'block';
+    document.getElementById('nav-buttons').style.display = 'block';
+    document.getElementById('article-info').style.display = 'block';
+    updateArticleCounter();
+}
+
+// Update article counter and info
+function updateArticleCounter() {
+    const currentIndex = filteredArticles.findIndex(article => 
+        article.date === currentArticle.date && article.theme === currentArticle.theme
+    );
+    
+    document.getElementById('current-article-number').textContent = currentIndex + 1;
+    document.getElementById('total-articles').textContent = filteredArticles.length;
+    document.getElementById('current-date').textContent = formatDate(currentArticle.date);
+}
+
+// Format date for display
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+// Add keyboard navigation
+document.addEventListener('keydown', function(event) {
+    // Only if search input is not focused
+    if (document.activeElement !== document.getElementById('search-input')) {
+        switch(event.key) {
+            case 'ArrowLeft':
+                navigateArticle('previous');
+                break;
+            case 'ArrowRight':
+                navigateArticle('next');
+                break;
+            case 'Home':
+                displayTodayArticle();
+                break;
         }
     }
-    
-    return articles;
-}
-*/
+});
+
+// Add tooltip functionality for vocabulary words
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('vocabulary-word')) {
+        const word = event.target.textContent;
+        // You could add a dictionary lookup here or show more info
+        console.log(`Clicked vocabulary word: ${word}`);
+    }
+});
