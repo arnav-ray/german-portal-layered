@@ -35,7 +35,7 @@
         <!-- Navigation buttons -->
         <div class="nav-buttons" id="nav-buttons" style="display: none;">
             <button class="nav-btn" onclick="navigateArticle('previous')">← Previous Article</button>
-            <button class="nav-btn" onclick="displayTodayArticle()">📅 Today's Article</button>
+            <button class="nav-btn" onclick="resetSearch()">🔄 Show All / Latest</button>
             <button class="nav-btn" onclick="navigateArticle('next')">Next Article →</button>
         </div>
         
@@ -45,7 +45,7 @@
         </nav>
         
         <!-- Article counter/info -->
-        <div id="article-info" style="display: none; text-align: center; margin-top: 10px;">
+        <div id="article-info" style="display: none;">
             <p><small>Article <span id="current-article-number">1</span> of <span id="total-articles">0</span> | 
             <span id="current-date"></span></small></p>
         </div>
