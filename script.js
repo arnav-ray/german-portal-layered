@@ -65,7 +65,6 @@ function parseSheetData(rows) {
         // Check if the row has a value in the status column and if it's 'Published'
         if (row[statusIndex] && row[statusIndex].trim() === 'Published') {
             data.push({
-                // We no longer need the date for logic, but can keep it for display if needed
                 date: row[headers.indexOf('DATE')], 
                 theme: row[themeIndex],
                 german: row[germanIndex] || '',
@@ -85,9 +84,13 @@ function parseSheetData(rows) {
 // Display the most recent article by default
 function displayLatestArticle() {
     if (articles.length > 0) {
-        // The first article in our array is now the newest one because we reversed the loop
         displayArticle(articles[0]);
     }
+}
+
+// Helper function to escape special characters for regular expressions
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
 // Display an article
@@ -98,10 +101,17 @@ function displayArticle(article) {
     if (article.vocabulary) {
         const vocabularyWords = article.vocabulary.split(/[,;]/);
         vocabularyWords.forEach(word => {
-            const cleanWord = word.trim();
+            let cleanWord = word.trim();
+            // We only want the German word itself for highlighting, not the translation part
+            if (cleanWord.includes('(')) {
+                cleanWord = cleanWord.substring(0, cleanWord.indexOf('(')).trim();
+            }
+
             if (cleanWord) {
-                const regex = new RegExp(`\\b${cleanWord}\\b`, 'gi');
-                germanText = germanText.replace(regex, `<span class="vocabulary-word" title="Vocabulary: ${cleanWord}">${cleanWord}</span>`);
+                // Use the escape function here
+                const escapedWord = escapeRegExp(cleanWord);
+                const regex = new RegExp(`\\b${escapedWord}\\b`, 'gi');
+                germanText = germanText.replace(regex, `<span class="vocabulary-word" title="Vocabulary: ${word.trim()}">${cleanWord}</span>`);
             }
         });
     }
