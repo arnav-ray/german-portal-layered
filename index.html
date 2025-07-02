@@ -471,7 +471,7 @@
                 // For demo purposes, we'll use sample data
                 // In your actual implementation, uncomment the API call below
                 
-              
+                /*
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`API request failed. Check API Key/Sheet ID.`);
@@ -482,8 +482,35 @@
                 } else {
                     throw new Error('No data found in the sheet.');
                 }
-               
-          ;
+                */
+                
+                // Demo data
+                articles = [
+                    {
+                        DATE: '2025-07-02',
+                        THEME: 'Travel',
+                        GERMAN_ARTICLE: 'Heute fahre ich nach Berlin. Die Stadt ist sehr groß und hat viele interessante Museen. Ich freue mich auf die Reise.',
+                        ENGLISH_TRANSLATION: 'Today I am traveling to Berlin. The city is very large and has many interesting museums. I am looking forward to the trip.',
+                        VOCABULARY_USED: '<strong>fahren</strong> - to drive/travel<br><strong>groß</strong> - big/large<br><strong>Museum</strong> - museum<br><strong>Reise</strong> - trip/journey',
+                        PHRASE_IDIOM: '<strong>sich freuen auf</strong> - to look forward to<br><strong>Es ist soweit</strong> - It\'s time/The time has come',
+                        QUOTE_JOKE: '"Reisen ist die einzige Sache, die du kaufst und die dich reicher macht." - Travel is the only thing you buy that makes you richer.',
+                        CONVERSATION_TIME: '<strong>A:</strong> Wohin fährst du?<br><strong>B:</strong> Ich fahre nach Berlin.<br><strong>A:</strong> Wie lange bleibst du dort?<br><strong>B:</strong> Drei Tage.',
+                        GRAMMAR_LESSON: 'Modal verb "fahren" conjugation',
+                        Status: 'Published'
+                    },
+                    {
+                        DATE: '2025-07-01',
+                        THEME: 'Food',
+                        GERMAN_ARTICLE: 'Ich koche gerne deutsche Gerichte. Heute mache ich Schnitzel mit Kartoffeln. Das Essen schmeckt sehr gut.',
+                        ENGLISH_TRANSLATION: 'I like to cook German dishes. Today I am making schnitzel with potatoes. The food tastes very good.',
+                        VOCABULARY_USED: '<strong>kochen</strong> - to cook<br><strong>Gericht</strong> - dish<br><strong>Schnitzel</strong> - schnitzel<br><strong>schmecken</strong> - to taste',
+                        PHRASE_IDIOM: '<strong>guten Appetit</strong> - enjoy your meal<br><strong>Es schmeckt mir</strong> - I like the taste',
+                        QUOTE_JOKE: '"Man ist, was man isst." - You are what you eat.',
+                        CONVERSATION_TIME: '<strong>A:</strong> Was kochst du heute?<br><strong>B:</strong> Schnitzel mit Kartoffeln.<br><strong>A:</strong> Das klingt lecker!',
+                        GRAMMAR_LESSON: 'Present tense with "gerne"',
+                        Status: 'Published'
+                    }
+                ];
                 
                 if (articles.length > 0) {
                     filteredArticles = [...articles];
