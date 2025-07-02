@@ -111,6 +111,13 @@
         input:checked + .slider:before { transform: translateX(22px); }
         /* --- End Theme Switch Styles --- */
 
+        #config-section { background-color: #e3f2fd; border: 1px solid #90caf9; color: #0d47a1; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        body.dark-theme #config-section { background-color: #1a237e; border-color: #3f51b5; color: #e3f2fd; }
+        .config-form { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .config-input { padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; background-color: var(--card-bg-color); color: var(--text-color); font-family: 'Georgia', serif; }
+        .config-btn { padding: 10px 20px; background: var(--primary-accent); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        .config-btn:hover { background: #0056b3; }
+
         .search-container { margin-bottom: 20px; }
         .search-input { width: 100%; padding: 12px 20px; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); border-radius: 25px; font-size: 16px; transition: all 0.3s ease; }
         .search-input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); }
@@ -125,16 +132,9 @@
         .german-text span:hover { background-color: #d0eaff; }
         body.dark-theme .german-text span:hover { background-color: #003c7a; }
 
-        .noun-m { color: #007bff; font-weight: bold; } /* Masculine (der) - Blue */
-        .noun-f { color: #dc3545; font-weight: bold; } /* Feminine (die) - Red */
-        .noun-n { color: #28a745; font-weight: bold; } /* Neuter (das) - Green */
-        .verb { color: #6f42c1; text-decoration: underline; } /* Purple */
-        .adjective { color: #fd7e14; } /* Orange */
-        .adverb { color: #6c757d; font-style: italic; } /* Gray */
-        .preposition { color: #E91E63; } /* Pink */
-        .conjunction { color: #20c997; } /* Teal */
-        .pronoun { color: #ffc107; } /* Yellow-Orange */
-        .article { color: #17a2b8; font-weight: bold; } /* Cyan */
+        .noun-m { color: #007bff; font-weight: bold; } .noun-f { color: #dc3545; font-weight: bold; } .noun-n { color: #28a745; font-weight: bold; }
+        .verb { color: #6f42c1; text-decoration: underline; } .adjective { color: #fd7e14; } .adverb { color: #6c757d; font-style: italic; }
+        .preposition { color: #E91E63; } .conjunction { color: #20c997; } .pronoun { color: #ffc107; } .article { color: #17a2b8; font-weight: bold; }
         .punctuation { color: var(--subtle-text-color); }
         /* --- End Grammar Coding --- */
 
@@ -161,12 +161,10 @@
         #article-info { text-align: center; margin-top: 20px; }
         #article-info small { color: var(--subtle-text-color); font-size: 13px; }
 
-        /* --- STYLES FOR AUDIO PLAYER --- */
         #audio-player-container { display: flex; gap: 10px; align-items: center; background-color: var(--bg-color); padding: 10px 15px; border-radius: 25px; margin-bottom: 20px; width: fit-content; }
         .audio-btn { background: var(--primary-accent); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s ease; }
         .audio-btn:hover { background: #0056b3; }
         #audio-status { font-size: 14px; color: var(--subtle-text-color); font-weight: bold; }
-        /* --- END AUDIO PLAYER STYLES --- */
 
         .error-message { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; }
         body.dark-theme .error-message { background-color: #4a2c2c; border-color: #dc3545; color: #f8d7da; }
@@ -203,6 +201,18 @@
             <p>Master German with themed articles and real-world scenarios</p>
         </header>
         
+        <div id="config-section" class="config-section">
+            <h3>🔧 Configuration Required</h3>
+            <p>Please enter your Google Sheets API configuration:</p>
+            <div class="config-form">
+                <input type="text" id="sheet-id-input" class="config-input" placeholder="Google Sheet ID">
+                <input type="password" id="api-key-input" class="config-input" placeholder="Google Sheets API Key">
+                <input type="text" id="sheet-name-input" class="config-input" placeholder="Sheet Name (default: Sheet1)">
+                <button id="test-connection-btn" class="config-btn">Test Connection & Load Articles</button>
+            </div>
+            <div id="connection-status" style="margin-top: 15px; font-weight: bold;"></div>
+        </div>
+        
         <div class="search-container" id="search-container" style="display: none;">
             <input 
                 type="text" 
@@ -213,7 +223,7 @@
         </div>
         
         <main id="main-content">
-            <div id="loading">Loading today's article...</div>
+            <div id="loading" style="display: none;">Loading today's article...</div>
             <div id="article-display" style="display: none;"></div>
         </main>
         
@@ -230,9 +240,9 @@
     </div>
     
     <script>
-        const SHEET_ID = 'Y1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
-        const SHEET_NAME = 'Sheet1';
-        const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
+        let SHEET_ID = '';
+        let SHEET_NAME = 'Sheet1';
+        let API_KEY = '';
 
         let articles = [];
         let filteredArticles = [];
@@ -267,8 +277,65 @@
             initializeTheme();
             setupThemeToggle();
             setupSearchInput();
-            loadArticles();
+            setupConfigForm();
+            loadSavedConfig();
         });
+
+        function setupConfigForm() {
+            const testBtn = document.getElementById('test-connection-btn');
+            testBtn.addEventListener('click', async function() {
+                const sheetId = document.getElementById('sheet-id-input').value.trim();
+                const apiKey = document.getElementById('api-key-input').value.trim();
+                const sheetName = document.getElementById('sheet-name-input').value.trim() || 'Sheet1';
+                
+                if (!sheetId || !apiKey) {
+                    updateConnectionStatus('❌ Please fill in both Sheet ID and API Key', 'error');
+                    return;
+                }
+                
+                SHEET_ID = sheetId;
+                API_KEY = apiKey;
+                SHEET_NAME = sheetName;
+                
+                localStorage.setItem('german_sheet_id', SHEET_ID);
+                localStorage.setItem('german_api_key', API_KEY);
+                localStorage.setItem('german_sheet_name', SHEET_NAME);
+                
+                updateConnectionStatus('⏳ Testing connection...', 'loading');
+                
+                try {
+                    await loadArticles();
+                    updateConnectionStatus('✅ Connection successful! Articles loaded.', 'success');
+                    setTimeout(() => {
+                        document.getElementById('config-section').style.display = 'none';
+                    }, 2000);
+                } catch (error) {
+                    updateConnectionStatus(`❌ Connection failed: ${error.message}`, 'error');
+                }
+            });
+        }
+
+        function loadSavedConfig() {
+            const savedSheetId = localStorage.getItem('german_sheet_id');
+            const savedApiKey = localStorage.getItem('german_api_key');
+            const savedSheetName = localStorage.getItem('german_sheet_name');
+            
+            if (savedSheetId) document.getElementById('sheet-id-input').value = savedSheetId;
+            if (savedApiKey) document.getElementById('api-key-input').value = savedApiKey;
+            if (savedSheetName) document.getElementById('sheet-name-input').value = savedSheetName;
+            
+            if (savedSheetId && savedApiKey) {
+                document.getElementById('test-connection-btn').click();
+            }
+        }
+
+        function updateConnectionStatus(message, type) {
+            const statusDiv = document.getElementById('connection-status');
+            statusDiv.textContent = message;
+            if (type === 'success') statusDiv.style.color = '#28a745';
+            else if (type === 'error') statusDiv.style.color = '#dc3545';
+            else statusDiv.style.color = '#007bff';
+        }
 
         function setupSearchInput() {
             const searchInput = document.getElementById('search-input');
@@ -282,29 +349,38 @@
         }
 
         async function loadArticles() {
+            if (!SHEET_ID || !API_KEY) {
+                throw new Error('Sheet ID and API Key are required');
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            
             try {
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
                 const response = await fetch(url);
-                if (!response.ok) throw new Error(`API request failed. Check API Key/Sheet ID.`);
-                
-                const data = await response.json();
-                if (data.values && data.values.length > 1) {
-                    articles = parseSheetData(data.values);
-                } else {
-                    throw new Error('No data found in the sheet.');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    const errorMessage = errorData.error?.message || `API request failed with status ${response.status}`;
+                    throw new Error(errorMessage);
                 }
                 
+                const data = await response.json();
+                if (!data.values || data.values.length < 2) {
+                    throw new Error('No data found in the sheet or sheet is empty.');
+                }
+                
+                articles = parseSheetData(data.values);
                 if (articles.length > 0) {
                     filteredArticles = [...articles];
                     displayLatestArticle();
                     setupThemeNavigation();
                     setupUI();
                 } else {
-                    showError('No "Published" articles found.');
+                    throw new Error('No "Published" articles found in the sheet.');
                 }
             } catch (error) {
-                console.error('Error loading articles:', error);
-                showError('Error loading content. Please check your API configuration.');
+                document.getElementById('loading').style.display = 'none';
+                throw error;
             }
         }
 
@@ -334,22 +410,24 @@
 
         function displayArticle(article) {
             currentArticle = article;
-            synth.cancel(); // Stop any speech from the previous article
+            synth.cancel();
             const displayContainer = document.getElementById('article-display');
             
+            const safeGet = (field, fallback = '') => article[field] || fallback;
+
             const displayHTML = `
                 <div id="audio-player-container"></div>
                 <div class="metadata">
-                    <strong>Theme:</strong> ${article.THEME} | 
-                    <strong>Grammar Focus:</strong> ${article.GRAMMAR_LESSON.replace(/\n/g, '<br>')} |
-                    <strong>Date:</strong> ${article.DATE}
+                    <strong>Theme:</strong> ${safeGet('THEME')} | 
+                    <strong>Grammar Focus:</strong> ${safeGet('GRAMMAR_LESSON').replace(/\n/g, '<br>')} |
+                    <strong>Date:</strong> ${safeGet('DATE')}
                 </div>
-                <div class="german-text">${article.GERMAN_ARTICLE}</div>
-                <div class="english-text">${article.ENGLISH_TRANSLATION.replace(/\n/g, '<br>')}</div>
-                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${article.VOCABULARY_USED.replace(/\n/g, '<br>')}</div></div>
-                <div class="phrases-section"><strong>💬 Phrases & Idioms:</strong><div>${article.PHRASE_and_IDIOM.replace(/\n/g, '<br>')}</div></div>
-                <div class="quotes-section"><strong>😄 Quote & Joke:</strong><div>${article.QUOTE_and_JOKE.replace(/\n/g, '<br>')}</div></div>
-                <div class="conversation-section"><strong>🗣️ Conversation Time:</strong><div>${article.CONVERSATION_TIME.replace(/\n/g, '<br>')}</div></div>
+                <div class="german-text">${safeGet('GERMAN_ARTICLE')}</div>
+                <div class="english-text">${safeGet('ENGLISH_TRANSLATION').replace(/\n/g, '<br>')}</div>
+                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${safeGet('VOCABULARY_USED').replace(/\n/g, '<br>')}</div></div>
+                <div class="phrases-section"><strong>💬 Phrases & Idioms:</strong><div>${safeGet('PHRASE_and_IDIOM').replace(/\n/g, '<br>')}</div></div>
+                <div class="quotes-section"><strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_and_JOKE').replace(/\n/g, '<br>')}</div></div>
+                <div class="conversation-section"><strong>🗣️ Conversation Time:</strong><div>${safeGet('CONVERSATION_TIME').replace(/\n/g, '<br>')}</div></div>
             `;
             
             displayContainer.innerHTML = displayHTML;
@@ -377,7 +455,7 @@
             const stopBtn = document.getElementById('stop-btn');
             const statusLabel = document.getElementById('audio-status');
             const germanTextElement = document.querySelector('.german-text');
-            const textToSpeak = germanTextElement.textContent || "";
+            const textToSpeak = germanTextElement ? (germanTextElement.textContent || "") : "";
 
             playPauseBtn.onclick = () => {
                 if (synth.speaking && !synth.paused) {
@@ -385,6 +463,7 @@
                 } else if (synth.paused) {
                     synth.resume();
                 } else {
+                    if (!textToSpeak) return;
                     const utterance = new SpeechSynthesisUtterance(textToSpeak);
                     utterance.lang = 'de-DE';
                     utterance.rate = 0.9;
