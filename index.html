@@ -161,8 +161,13 @@
         #article-info { text-align: center; margin-top: 20px; }
         #article-info small { color: var(--subtle-text-color); font-size: 13px; }
 
-        .search-results { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; margin-top: -10px; margin-bottom: 20px; border-radius: 8px; text-align: center; }
-        body.dark-theme .search-results { background-color: #2a352c; border-color: #28a745; color: #a3d9b1; }
+        /* --- STYLES FOR AUDIO PLAYER --- */
+        #audio-player-container { display: flex; gap: 10px; align-items: center; background-color: var(--bg-color); padding: 10px 15px; border-radius: 25px; margin-bottom: 20px; width: fit-content; }
+        .audio-btn { background: var(--primary-accent); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s ease; }
+        .audio-btn:hover { background: #0056b3; }
+        #audio-status { font-size: 14px; color: var(--subtle-text-color); font-weight: bold; }
+        /* --- END AUDIO PLAYER STYLES --- */
+
         .error-message { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; }
         body.dark-theme .error-message { background-color: #4a2c2c; border-color: #dc3545; color: #f8d7da; }
 
@@ -232,6 +237,7 @@
         let articles = [];
         let filteredArticles = [];
         let currentArticle = null;
+        const synth = window.speechSynthesis;
 
         const themeToggle = document.getElementById('theme-checkbox');
         
@@ -328,18 +334,19 @@
 
         function displayArticle(article) {
             currentArticle = article;
+            synth.cancel(); // Stop any speech from the previous article
             const displayContainer = document.getElementById('article-display');
             
-            // This is the corrected block. It now correctly references the header names from your sheet.
             const displayHTML = `
+                <div id="audio-player-container"></div>
                 <div class="metadata">
                     <strong>Theme:</strong> ${article.THEME} | 
-                    <strong>Grammar Focus:</strong> ${article.GRAMMAR_LESSON.replace(/\n/g, '<br>')} |
+                    <strong>Grammar Focus:</strong> ${article.GRAMMAR.replace(/\n/g, '<br>')} |
                     <strong>Date:</strong> ${article.DATE}
                 </div>
                 <div class="german-text">${article.GERMAN_ARTICLE}</div>
                 <div class="english-text">${article.ENGLISH_TRANSLATION.replace(/\n/g, '<br>')}</div>
-                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${article.VOCABULARY_USED.replace(/\n/g, '<br>')}</div></div>
+                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${article.VOCABULARY.replace(/\n/g, '<br>')}</div></div>
                 <div class="phrases-section"><strong>💬 Phrases & Idioms:</strong><div>${article.PHRASE_and_IDIOM.replace(/\n/g, '<br>')}</div></div>
                 <div class="quotes-section"><strong>😄 Quote & Joke:</strong><div>${article.QUOTE_and_JOKE.replace(/\n/g, '<br>')}</div></div>
                 <div class="conversation-section"><strong>🗣️ Conversation Time:</strong><div>${article.CONVERSATION_TIME.replace(/\n/g, '<br>')}</div></div>
@@ -349,7 +356,63 @@
             displayContainer.style.display = 'block';
             document.getElementById('loading').style.display = 'none';
             
+            setupAudioPlayer();
             updateArticleCounter();
+        }
+
+        function setupAudioPlayer() {
+            const audioContainer = document.getElementById('audio-player-container');
+            if (!audioContainer || !'speechSynthesis' in window) {
+                if(audioContainer) audioContainer.style.display = 'none';
+                return;
+            }
+
+            audioContainer.innerHTML = `
+                <button id="play-pause-btn" class="audio-btn" title="Play/Pause">▶️</button>
+                <button id="stop-btn" class="audio-btn" title="Stop">⏹️</button>
+                <span id="audio-status">Read Aloud</span>
+            `;
+
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const statusLabel = document.getElementById('audio-status');
+            const germanTextElement = document.querySelector('.german-text');
+            const textToSpeak = germanTextElement.textContent || "";
+
+            playPauseBtn.onclick = () => {
+                if (synth.speaking && !synth.paused) {
+                    synth.pause();
+                } else if (synth.paused) {
+                    synth.resume();
+                } else {
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    utterance.lang = 'de-DE';
+                    utterance.rate = 0.9;
+                    utterance.onstart = () => {
+                        playPauseBtn.textContent = '⏸️';
+                        statusLabel.textContent = 'Playing...';
+                    };
+                    utterance.onpause = () => {
+                        playPauseBtn.textContent = '▶️';
+                        statusLabel.textContent = 'Paused';
+                    };
+                    utterance.onresume = () => {
+                        playPauseBtn.textContent = '⏸️';
+                        statusLabel.textContent = 'Playing...';
+                    };
+                    utterance.onend = () => {
+                        playPauseBtn.textContent = '▶️';
+                        statusLabel.textContent = 'Read Aloud';
+                    };
+                    synth.speak(utterance);
+                }
+            };
+
+            stopBtn.onclick = () => {
+                synth.cancel();
+                playPauseBtn.textContent = '▶️';
+                statusLabel.textContent = 'Read Aloud';
+            };
         }
 
         function showError(message) {
