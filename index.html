@@ -230,7 +230,7 @@
     </div>
     
     <script>
-        const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
+        const SHEET_ID = 'Y1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
         const SHEET_NAME = 'Sheet1';
         const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
 
@@ -341,12 +341,12 @@
                 <div id="audio-player-container"></div>
                 <div class="metadata">
                     <strong>Theme:</strong> ${article.THEME} | 
-                    <strong>Grammar Focus:</strong> ${article.GRAMMAR.replace(/\n/g, '<br>')} |
+                    <strong>Grammar Focus:</strong> ${article.GRAMMAR_LESSON.replace(/\n/g, '<br>')} |
                     <strong>Date:</strong> ${article.DATE}
                 </div>
                 <div class="german-text">${article.GERMAN_ARTICLE}</div>
                 <div class="english-text">${article.ENGLISH_TRANSLATION.replace(/\n/g, '<br>')}</div>
-                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${article.VOCABULARY.replace(/\n/g, '<br>')}</div></div>
+                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${article.VOCABULARY_USED.replace(/\n/g, '<br>')}</div></div>
                 <div class="phrases-section"><strong>💬 Phrases & Idioms:</strong><div>${article.PHRASE_and_IDIOM.replace(/\n/g, '<br>')}</div></div>
                 <div class="quotes-section"><strong>😄 Quote & Joke:</strong><div>${article.QUOTE_and_JOKE.replace(/\n/g, '<br>')}</div></div>
                 <div class="conversation-section"><strong>🗣️ Conversation Time:</strong><div>${article.CONVERSATION_TIME.replace(/\n/g, '<br>')}</div></div>
@@ -359,7 +359,7 @@
             setupAudioPlayer();
             updateArticleCounter();
         }
-
+        
         function setupAudioPlayer() {
             const audioContainer = document.getElementById('audio-player-container');
             if (!audioContainer || !'speechSynthesis' in window) {
