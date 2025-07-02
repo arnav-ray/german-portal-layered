@@ -162,11 +162,35 @@
         .error-message { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; }
         body.dark-theme .error-message { background-color: #4a2c2c; border-color: #dc3545; color: #f8d7da; }
 
+        /* --- UPDATED: Mobile Responsive Styles --- */
         @media (max-width: 768px) {
-            .header-top { flex-direction: column; text-align: center; }
-            header h1 { text-align: center; }
-            .nav-buttons { flex-direction: column; align-items: center; }
-            .nav-btn { width: 100%; max-width: 250px; }
+            .container {
+                padding: 10px;
+            }
+            .header-top { 
+                flex-direction: column; 
+                text-align: center; 
+                justify-content: center;
+            }
+            header h1 { 
+                text-align: center;
+                font-size: 1.8em;
+                margin-bottom: 10px;
+            }
+            .nav-buttons { 
+                flex-direction: column; 
+                align-items: center; 
+            }
+            .nav-btn { 
+                width: 100%; 
+                max-width: 280px; 
+            }
+            #article-display {
+                padding: 15px;
+            }
+            .german-text {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -345,7 +369,7 @@
                 </div>
                 <div class="german-text">${safeGet('GERMAN_ARTICLE')}</div>
                 <div class="english-text">${safeGet('ENGLISH_TRANSLATION').replace(/\n/g, '<br>')}</div>
-                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${safeGet('VOCABULARY_USED').replace(/\n/g, '<br>')}</div></div>
+                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${safeGet('VOCABULARY_USED')}</div></div>
                 <div class="phrases-section"><strong>💬 Phrases & Idioms:</strong><div>${safeGet('PHRASE_and_IDIOM').replace(/\n/g, '<br>')}</div></div>
                 <div class="quotes-section"><strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_and_JOKE').replace(/\n/g, '<br>')}</div></div>
                 <div class="conversation-section"><strong>🗣️ Conversation Time:</strong><div>${safeGet('CONVERSATION_TIME').replace(/\n/g, '<br>')}</div></div>
