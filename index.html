@@ -407,7 +407,7 @@
         // Your Google Sheets ID
         const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
         const SHEET_NAME = 'Sheet1';
-        const API_KEY = 'YOUR_NEW_SECURE_API_KEY'; // IMPORTANT: Replace with a new, restricted API key
+        const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8'; // IMPORTANT: Replace with a new, restricted API key
 
         // Global variables
         let articles = [];
@@ -471,7 +471,7 @@
                 // For demo purposes, we'll use sample data
                 // In your actual implementation, uncomment the API call below
                 
-                /*
+               
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`API request failed. Check API Key/Sheet ID.`);
@@ -482,8 +482,8 @@
                 } else {
                     throw new Error('No data found in the sheet.');
                 }
-                */
                 
+                /* 
                 // Demo data
                 articles = [
                     {
@@ -511,7 +511,7 @@
                         Status: 'Published'
                     }
                 ];
-                
+                */
                 if (articles.length > 0) {
                     filteredArticles = [...articles];
                     displayLatestArticle();
