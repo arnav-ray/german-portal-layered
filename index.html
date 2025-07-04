@@ -76,10 +76,15 @@
         .german-text { font-size: 18px; line-height: 1.8; margin-bottom: 30px; padding: 20px; background: var(--bg-color); border-left: 4px solid var(--primary-accent); border-radius: 5px; }
         .english-text { font-size: 16px; color: var(--subtle-text-color); font-style: italic; margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107; }
         body.dark-theme .english-text { background: #3e3829; }
-        .vocabulary-section { margin-top: 20px; padding: 15px; border-radius: 8px; background-color: #e8f4fd; border-left-color: #007bff; }
+        .article-section { margin-top: 20px; padding: 15px; border-radius: 8px; border-left: 4px solid transparent; }
+        .vocabulary-section { background-color: #e8f4fd; border-left-color: #007bff; }
+        .grammar-section { background-color: #e8f5e8; border-left-color: #28a745; }
+        .quotes-section { background-color: #fff5e6; border-left-color: #fd7e14; font-style: italic; }
         body.dark-theme .vocabulary-section { background-color: #2a333d; }
-        .vocabulary-section strong { display: block; margin-bottom: 8px; font-size: 16px; color: var(--header-text-color); }
-        .vocabulary-section div { font-size: 15px; line-height: 1.5; }
+        body.dark-theme .grammar-section { background-color: #2a352c; }
+        body.dark-theme .quotes-section { background-color: #3e332a; }
+        .article-section strong { display: block; margin-bottom: 8px; font-size: 16px; color: var(--header-text-color); }
+        .article-section div { font-size: 15px; line-height: 1.5; }
         .nav-buttons { text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .nav-btn { display: inline-block; padding: 10px 20px; background: var(--primary-accent); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; transition: background-color 0.3s ease; }
         .nav-btn:hover { background: #0056b3; }
@@ -116,7 +121,7 @@
         .article-quiz-options { display: flex; justify-content: center; gap: 15px; }
         .article-quiz-btn { padding: 10px 25px; font-size: 1.1em; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--card-bg-color); cursor: pointer; transition: all 0.2s ease; }
         .article-quiz-btn:hover { background-color: var(--primary-accent); color: white; transform: scale(1.05); }
-        .translation-input, .listening-input { width: 100%; min-height: 100px; padding: 15px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); border-radius: 8px; font-size: 16px; font-family: 'Georgia', serif; margin-top: 15px; resize: vertical; }
+        .translation-input, .listening-input { width: 100%; min-height: 60px; padding: 15px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); border-radius: 8px; font-size: 16px; font-family: 'Georgia', serif; margin-top: 15px; resize: vertical; }
         .lueckentext-input { padding: 4px 8px; font-size: 1em; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color); width: 120px; }
 
         /* Memory Game Styles */
@@ -421,7 +426,9 @@
                 <div class="metadata"><strong>Level:</strong> ${safeGet('LEVEL')} | <strong>Theme:</strong> ${safeGet('THEME')}</div>
                 <div class="german-text">${safeGet('GERMAN_ARTICLE')}</div>
                 <div class="english-text">${safeGet('ENGLISH_TRANSLATION')}</div>
-                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div><ul>${safeGet('VOCABULARY_USED').split(',').map(v => `<li>${v.trim()}</li>`).join('')}</ul></div></div>
+                <div class="article-section vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div><ul>${safeGet('VOCABULARY_USED').split(',').map(v => `<li>${v.trim()}</li>`).join('')}</ul></div></div>
+                <div class="article-section grammar-section"><strong>🧠 Grammar Lesson:</strong><div>${safeGet('GRAMMAR_LESSON')}</div></div>
+                <div class="article-section quotes-section"><strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_&_JOKE')}</div></div>
             `;
             setupAudioPlayer();
             updateArticleCounter();
@@ -508,19 +515,20 @@
             };
             
             // Translate to German
-            const germanText = safeGet('GERMAN_ARTICLE');
-            const englishText = safeGet('ENGLISH_TRANSLATION');
-            if (germanText && englishText) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = germanText;
-                const correctGermanText = (tempDiv.textContent || "").trim();
-                addExercise('Translate to German', `
-                    <p>Read the English text below and type the German translation in the box.</p>
-                    <div class="english-text" style="margin-top: 15px;">${englishText}</div>
-                    <textarea id="translation-input-area" class="translation-input" placeholder="Type the German text here..."></textarea>
-                    <button class="check-btn" onclick="checkTranslation('translation-input-area', \`${correctGermanText}\`, 'feedback-translate')">Check Translation</button>
-                    <div class="feedback-message" id="feedback-translate"></div>
-                `);
+            const germanSentences = safeGet('GERMAN_ARTICLE').split(/[.!?]/).filter(s => s.trim());
+            const englishSentences = safeGet('ENGLISH_TRANSLATION').split(/[.!?]/).filter(s => s.trim());
+            if (germanSentences.length > 0 && germanSentences.length === englishSentences.length) {
+                let translationHTML = '<p>Read the English sentences below and type the German translation in the boxes.</p>';
+                germanSentences.forEach((gSentence, i) => {
+                    translationHTML += `
+                        <div class="english-text" style="margin-top: 15px;">${englishSentences[i]}.</div>
+                        <textarea id="translation-input-${i}" class="translation-input" placeholder="Type the German sentence here..."></textarea>
+                        <button class="check-btn" onclick="checkTranslation('translation-input-${i}', \`${gSentence.trim()}.\`, 'feedback-translate-${i}')">Check</button>
+                        <div class="feedback-message" id="feedback-translate-${i}"></div>
+                        ${i < germanSentences.length - 1 ? '<hr style="margin: 20px 0;">' : ''}
+                    `;
+                });
+                addExercise('Translate to German', translationHTML);
             }
 
             // Listening Comprehension
