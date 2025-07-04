@@ -508,7 +508,11 @@
         // --- Practice Page Logic ---
         function generatePracticeData(article) {
             const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
-            const germanText = safeGet('GERMAN_ARTICLE');
+            const germanHtml = safeGet('GERMAN_ARTICLE');
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = germanHtml;
+            const germanText = tempDiv.textContent || "";
+
             const englishText = safeGet('ENGLISH_TRANSLATION');
             const vocab = safeGet('VOCABULARY_USED');
 
@@ -539,7 +543,7 @@
             practiceData.matchingWords = vocabPairs.map(p => ({ german: p[0], english: p[1] }));
             practiceData.quizWords = vocabPairs.map(p => p[0]).filter(g => /^(der|die|das)\s/i.test(g)).map(g => {
                 const parts = g.split(' ');
-                return { article: parts[0], noun: parts[1] };
+                return { article: parts[0], noun: parts.slice(1).join(' ') };
             });
             practiceData.crosswordWords = vocabPairs.map(p => ({ word: p[0].replace(/^(der|die|das)\s/,''), clue: p[1] }));
 
