@@ -267,7 +267,7 @@
                 <div class="search-container" id="search-container" style="display: none;">
                     <input type="text" id="search-input" class="search-input" placeholder="Search articles, themes, or vocabulary...">
                 </div>
-                <div id="loading">Loading articles...</div>
+                <div id="loading" style="display: none;">Loading articles...</div>
                 <div id="article-display" style="display: none;"></div>
                 <div class="nav-buttons" id="nav-buttons" style="display: none;">
                     <button class="nav-btn" onclick="navigateArticle('previous')">← Previous Article</button>
@@ -575,8 +575,7 @@
         function generatePracticeData(article) {
             const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
             
-            // **FIX**: Sanitize HTML from German article to get clean text for exercises
-            const germanHtml = safeGet('GERMAN_ARTICLE');
+            const germanHtml = safeGet('GERMAN_ARTICLE_CLEAN') || safeGet('GERMAN_ARTICLE'); // Fallback to main article
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = germanHtml;
             const germanText = tempDiv.textContent || "";
@@ -681,7 +680,6 @@
                         ${i < data.buildSentences.length - 1 ? '<hr style="margin: 20px 0;">' : ''}`;
                 });
                 addExercise('Build the Sentences', html);
-                // **FIX**: Call drag and drop setup AFTER elements are in the DOM
                 setTimeout(() => {
                     data.buildSentences.forEach((sentence, i) => {
                         const wordBank = document.getElementById(`word-bank-${i}`);
