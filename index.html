@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily German Learning</title>
-    <meta name="description" content="Master German with themed articles, vocabulary, and real-world scenarios">
+    <meta name="description" content="Master German with themed articles, vocabulary, and interactive exercises">
     <style>
         /* --- CSS Variables for Theming --- */
         :root {
@@ -16,6 +16,10 @@
             --border-color: #dee2e6;
             --shadow-color: rgba(0,0,0,0.05);
             --primary-accent: #007bff;
+            --secondary-accent: #28a745;
+            --danger-accent: #dc3545;
+            --success-accent: #28a745;
+            --modal-overlay-color: rgba(0, 0, 0, 0.6);
         }
 
         body.dark-theme {
@@ -26,171 +30,152 @@
             --subtle-text-color: #adb5bd;
             --border-color: #444;
             --shadow-color: rgba(0,0,0,0.2);
+            --modal-overlay-color: rgba(0, 0, 0, 0.7);
         }
         /* --- End Theming Variables --- */
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Georgia', serif; line-height: 1.6; color: var(--text-color); background-color: var(--bg-color); transition: background-color 0.3s ease, color 0.3s ease; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; margin-bottom: 20px; padding: 20px; background: var(--card-bg-color); border-radius: 10px; box-shadow: 0 2px 10px var(--shadow-color); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 15px; }
+        header h1 { color: var(--header-text-color); font-size: 2em; margin: 0; text-align: left; flex-grow: 1; }
+        header p { color: var(--subtle-text-color); font-size: 1.1em; width: 100%; text-align: center; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
 
-        body {
-            font-family: 'Georgia', serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--bg-color);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
+        /* --- Settings Button --- */
+        #settings-btn { background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--subtle-text-color); transition: transform 0.3s ease; }
+        #settings-btn:hover { transform: rotate(45deg); }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        /* --- Main Navigation Tabs --- */
+        #main-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .nav-tab { padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; background: transparent; color: var(--subtle-text-color); border-bottom: 2px solid transparent; transition: all 0.3s ease; }
+        .nav-tab.active { color: var(--primary-accent); border-bottom-color: var(--primary-accent); font-weight: bold; }
+        .nav-tab:hover { color: var(--primary-accent); }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: var(--card-bg-color);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px var(--shadow-color);
-        }
+        /* --- Content Pages --- */
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        /* --- Article Page Styles --- */
+        #level-navigation { background: var(--card-bg-color); padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px var(--shadow-color); margin-bottom: 20px; }
+        .level-header { background: var(--bg-color); padding: 15px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.2s ease; margin-bottom: 5px;}
+        .level-header:hover { background-color: #e9ecef; }
+        body.dark-theme .level-header:hover { background-color: #343a40; }
+        .level-header h3 { margin: 0; color: var(--header-text-color); }
+        .level-header .toggle-icon { font-weight: bold; transition: transform 0.3s ease; }
+        .level-header.active .toggle-icon { transform: rotate(90deg); }
+        .theme-list { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; padding: 0 15px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .theme-list.active { max-height: 500px; padding: 15px 15px 5px 15px; }
+        .theme-button { display: inline-block; padding: 8px 15px; background: var(--secondary-accent); color: white; text-decoration: none; border-radius: 20px; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s ease; }
+        .theme-button:hover { background: #218838; transform: translateY(-1px); }
+        .search-container { margin-bottom: 20px; }
+        .search-input { width: 100%; padding: 12px 20px; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); border-radius: 25px; font-size: 16px; transition: all 0.3s ease; }
+        .search-input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); }
+        #article-display { background: var(--card-bg-color); padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px var(--shadow-color); }
+        .german-text { font-size: 18px; line-height: 1.8; margin-bottom: 30px; padding: 20px; background: var(--bg-color); border-left: 4px solid var(--primary-accent); border-radius: 5px; }
+        .english-text { font-size: 16px; color: var(--subtle-text-color); font-style: italic; margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107; }
+        body.dark-theme .english-text { background: #3e3829; }
+        .vocabulary-section { margin-top: 20px; padding: 15px; border-radius: 8px; background-color: #e8f4fd; border-left-color: #007bff; }
+        body.dark-theme .vocabulary-section { background-color: #2a333d; }
+        .vocabulary-section strong { display: block; margin-bottom: 8px; font-size: 16px; color: var(--header-text-color); }
+        .vocabulary-section div { font-size: 15px; line-height: 1.5; }
+        .nav-buttons { text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .nav-btn { display: inline-block; padding: 10px 20px; background: var(--primary-accent); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; transition: background-color 0.3s ease; }
+        .nav-btn:hover { background: #0056b3; }
+        .metadata { background: var(--bg-color); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border-left: 4px solid var(--subtle-text-color); }
+        #loading { text-align: center; padding: 50px; font-size: 18px; color: var(--subtle-text-color); }
+        #article-info { text-align: center; margin-top: 20px; }
+        #article-info small { color: var(--subtle-text-color); font-size: 13px; }
+        #audio-player-container { display: flex; gap: 10px; align-items: center; background-color: var(--bg-color); padding: 10px 15px; border-radius: 25px; margin-bottom: 20px; width: fit-content; }
+        .audio-btn { background: var(--primary-accent); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s ease; }
+        .audio-btn:hover { background: #0056b3; }
+        #audio-status { font-size: 14px; color: var(--subtle-text-color); font-weight: bold; }
+        .error-message { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; }
+        body.dark-theme .error-message { background-color: #4a2c2c; border-color: #dc3545; color: #f8d7da; }
+        
+        /* --- Practice Page Styles --- */
+        #practice-page-content { background-color: var(--card-bg-color); padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px var(--shadow-color); }
+        .practice-exercise { margin-bottom: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .practice-exercise:last-child { border-bottom: none; margin-bottom: 0; }
+        .practice-exercise h2 { color: var(--header-text-color); padding-bottom: 10px; margin-bottom: 20px; font-size: 1.4em; }
+        .word-bank { display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; padding: 15px; background-color: var(--bg-color); border-radius: 8px; min-height: 50px; justify-content: center; }
+        .word-drag { padding: 8px 16px; background-color: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 20px; cursor: grab; user-select: none; transition: all 0.2s ease; text-align: center; }
+        .word-drag:hover { background-color: var(--primary-accent); color: white; border-color: var(--primary-accent); transform: scale(1.05); }
+        .drop-zone { padding: 20px; background-color: var(--bg-color); border: 2px dashed var(--border-color); border-radius: 8px; min-height: 60px; transition: background-color 0.3s ease; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .drop-zone.over { background-color: #d0eaff; }
+        body.dark-theme .drop-zone.over { background-color: #003c7a; }
+        .check-btn { width: 100%; padding: 12px; font-size: 16px; background: var(--secondary-accent); color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-top: 15px; }
+        .check-btn:hover { background-color: #218838; }
+        .feedback-message { margin-top: 15px; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; display: none; }
+        .feedback-message.correct { background-color: var(--success-accent); color: white; }
+        .feedback-message.incorrect { background-color: var(--danger-accent); color: white; }
+        #no-practice-message { text-align: center; color: var(--subtle-text-color); font-style: italic; padding: 40px 0; }
+        .article-quiz-question { text-align: center; margin-bottom: 15px; font-size: 1.2em; }
+        .article-quiz-question .noun { font-weight: bold; color: var(--primary-accent); }
+        .article-quiz-options { display: flex; justify-content: center; gap: 15px; }
+        .article-quiz-btn { padding: 10px 25px; font-size: 1.1em; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--card-bg-color); cursor: pointer; transition: all 0.2s ease; }
+        .article-quiz-btn:hover { background-color: var(--primary-accent); color: white; transform: scale(1.05); }
+        .translation-input, .listening-input { width: 100%; min-height: 100px; padding: 15px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); border-radius: 8px; font-size: 16px; font-family: 'Georgia', serif; margin-top: 15px; resize: vertical; }
+        .lueckentext-input { padding: 4px 8px; font-size: 1em; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color); width: 120px; }
 
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+        /* Memory Game Styles */
+        .memory-game-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; perspective: 1000px; }
+        .memory-card { background-color: transparent; width: 100%; aspect-ratio: 3/2; border-radius: 8px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.5s; }
+        .memory-card.flip { transform: rotateY(180deg); }
+        .memory-card .front-face, .memory-card .back-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; text-align: center; padding: 10px; border-radius: 8px; }
+        .memory-card .front-face { background-color: var(--primary-accent); color: white; }
+        .memory-card .back-face { background-color: var(--card-bg-color); border: 1px solid var(--border-color); color: var(--text-color); transform: rotateY(180deg); }
+        .memory-game-controls { text-align: center; margin-top: 15px; font-size: 1.2em; }
 
-        header h1 {
-            color: var(--header-text-color);
-            font-size: 2em;
-            margin: 0;
-            text-align: left;
-            flex-grow: 1;
-        }
+        /* Crossword Styles */
+        .crossword-container { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+        .crossword-grid { border-collapse: collapse; }
+        .crossword-grid td { width: 30px; height: 30px; text-align: center; vertical-align: middle; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); font-size: 16px; position: relative; }
+        .crossword-grid td.empty { background-color: transparent; border: none; }
+        .crossword-grid td .word-start-number { position: absolute; top: 1px; left: 2px; font-size: 10px; color: var(--subtle-text-color); }
+        .crossword-grid input { width: 100%; height: 100%; text-align: center; border: none; background-color: transparent; font-size: 16px; color: var(--text-color); padding: 0; text-transform: uppercase; }
+        .crossword-grid input:focus { outline: 2px solid var(--primary-accent); }
+        .crossword-grid input.correct { background-color: #d4edda; }
+        body.dark-theme .crossword-grid input.correct { background-color: #2a352c; }
+        .crossword-grid input.incorrect { background-color: #f8d7da; }
+        body.dark-theme .crossword-grid input.incorrect { background-color: #4a2c2c; }
+        .crossword-clues { flex-grow: 1; min-width: 250px; }
+        .crossword-clues h3 { margin-top: 0; color: var(--header-text-color); }
+        .crossword-clues ol { padding-left: 25px; }
+        .crossword-clues li { margin-bottom: 8px; }
+        .crossword-controls { display: flex; gap: 10px; margin-top: 15px; justify-content: center; }
 
-        header p {
-            color: var(--subtle-text-color);
-            font-size: 1.1em;
-            width: 100%;
-            text-align: center;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .theme-select-dropdown {
-            padding: 8px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            background-color: var(--card-bg-color);
-            color: var(--text-color);
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            cursor: pointer;
-            min-width: 180px;
-        }
-
-        /* --- Theme Switch Styles --- */
+        /* --- Settings Modal Styles --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay-color); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--card-bg-color); padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 500px; position: relative; transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--subtle-text-color); }
+        .modal-content h2 { margin-top: 0; color: var(--header-text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
+        .settings-section { margin-bottom: 25px; }
+        .settings-section h3 { margin-bottom: 15px; color: var(--header-text-color); }
+        .control-group { margin-bottom: 15px; }
+        .control-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-color); }
+        .control-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .control-row select { width: 100%; max-width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; background-color: var(--bg-color); color: var(--text-color); }
+        .control-row input[type="range"] { width: auto; flex-grow: 1; }
+        .range-value { font-weight: bold; color: var(--primary-accent); min-width: 30px; }
         .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; }
-        .theme-switch-wrapper span { font-size: 14px; color: var(--subtle-text-color); }
         .theme-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .theme-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary-accent); }
         input:checked + .slider:before { transform: translateX(22px); }
-        /* --- End Theme Switch Styles --- */
 
-        .search-container { margin-bottom: 20px; }
-        .search-input { width: 100%; padding: 12px 20px; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); border-radius: 25px; font-size: 16px; transition: all 0.3s ease; }
-        .search-input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); }
-
-        #article-display { background: var(--card-bg-color); padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px var(--shadow-color); }
-        .german-text { font-size: 18px; line-height: 1.8; margin-bottom: 30px; padding: 20px; background: var(--bg-color); border-left: 4px solid var(--primary-accent); border-radius: 5px; }
-        .english-text { font-size: 16px; color: var(--subtle-text-color); font-style: italic; margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107; }
-        body.dark-theme .english-text { background: #3e3829; }
-
-        /* --- Grammar Color Coding --- */
-        .german-text span { cursor: pointer; transition: background-color 0.2s ease-in-out; padding: 1px 2px; border-radius: 3px; }
-        .german-text span:hover { background-color: #d0eaff; }
-        body.dark-theme .german-text span:hover { background-color: #003c7a; }
-
-        .noun-m { color: #007bff; font-weight: bold; } .noun-f { color: #dc3545; font-weight: bold; } .noun-n { color: #28a745; font-weight: bold; }
-        .verb { color: #6f42c1; text-decoration: underline; } .adjective { color: #fd7e14; } .adverb { color: #6c757d; font-style: italic; }
-        .preposition { color: #E91E63; } .conjunction { color: #20c997; } .pronoun { color: #ffc107; } .article { color: #17a2b8; font-weight: bold; }
-        .punctuation { color: var(--subtle-text-color); }
-        /* --- End Grammar Coding --- */
-
-        .vocabulary-section, .phrases-section, .quotes-section, .conversation-section { margin-top: 20px; padding: 15px; border-radius: 8px; border-left: 4px solid transparent; }
-        .vocabulary-section { background-color: #e8f4fd; border-left-color: #007bff; }
-        .phrases-section { background-color: #e8f5e8; border-left-color: #28a745; }
-        .quotes-section { background-color: #fff5e6; border-left-color: #fd7e14; font-style: italic; }
-        .conversation-section { background-color: #f8e6ff; border-left-color: #6f42c1; }
-
-        body.dark-theme .vocabulary-section { background-color: #2a333d; }
-        body.dark-theme .phrases-section { background-color: #2a352c; }
-        body.dark-theme .quotes-section { background-color: #3e332a; }
-        body.dark-theme .conversation-section { background-color: #342a3d; }
-
-        .vocabulary-section strong, .phrases-section strong, .quotes-section strong, .conversation-section strong { display: block; margin-bottom: 8px; font-size: 16px; color: var(--header-text-color); }
-        .vocabulary-section div, .phrases-section div, .quotes-section div, .conversation-section div { font-size: 15px; line-height: 1.5; }
-
-        .nav-buttons { text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .nav-btn { display: inline-block; padding: 10px 20px; background: var(--primary-accent); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; transition: background-color 0.3s ease; }
-        .nav-btn:hover { background: #0056b3; }
-
-        .metadata { background: var(--bg-color); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border-left: 4px solid var(--subtle-text-color); }
-        #loading { text-align: center; padding: 50px; font-size: 18px; color: var(--subtle-text-color); }
-        #article-info { text-align: center; margin-top: 20px; }
-        #article-info small { color: var(--subtle-text-color); font-size: 13px; }
-
-        #audio-player-container { display: flex; gap: 10px; align-items: center; background-color: var(--bg-color); padding: 10px 15px; border-radius: 25px; margin-bottom: 20px; width: fit-content; }
-        .audio-btn { background: var(--primary-accent); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s ease; }
-        .audio-btn:hover { background: #0056b3; }
-        #audio-status { font-size: 14px; color: var(--subtle-text-color); font-weight: bold; }
-
-        .error-message { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; }
-        body.dark-theme .error-message { background-color: #4a2c2c; border-color: #dc3545; color: #f8d7da; }
-
-        /* --- UPDATED: Mobile Responsive Styles --- */
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            .header-top { 
-                flex-direction: column; 
-                text-align: center; 
-                justify-content: center;
-            }
-            header h1 { 
-                text-align: center;
-                font-size: 1.8em;
-                margin-bottom: 10px;
-            }
-            .nav-buttons { 
-                flex-direction: column; 
-                align-items: center; 
-            }
-            .nav-btn { 
-                width: 100%; 
-                max-width: 280px; 
-            }
-            #article-display {
-                padding: 15px;
-            }
-            .german-text {
-                font-size: 16px;
-            }
+            .header-top { flex-direction: column; text-align: center; }
+            header h1 { text-align: center; font-size: 1.8em; margin-bottom: 15px; }
+            .nav-buttons { flex-direction: column; align-items: center; }
+            .nav-btn { width: 100%; max-width: 280px; }
+            #article-display, #practice-page-content { padding: 15px; }
+            .german-text { font-size: 16px; }
         }
     </style>
 </head>
@@ -200,111 +185,183 @@
             <div class="header-top">
                 <h1>Daily German Learning</h1>
                 <div class="header-controls">
-                    <nav id="theme-nav">
-                        <select id="theme-select" class="theme-select-dropdown">
-                            <option value="">Browse by Theme</option>
-                        </select>
-                    </nav>
-                    <div class="theme-switch-wrapper">
-                        <span>🌞</span>
-                        <label class="theme-switch" for="theme-checkbox">
-                            <input type="checkbox" id="theme-checkbox" />
-                            <div class="slider"></div>
-                        </label>
-                        <span>🌙</span>
-                    </div>
+                    <button id="settings-btn" title="Settings">⚙️</button>
                 </div>
             </div>
             <p>Master German with themed articles and real-world scenarios</p>
         </header>
-        
-        <div class="search-container" id="search-container" style="display: none;">
-            <input 
-                type="text" 
-                id="search-input" 
-                class="search-input" 
-                placeholder="Search articles, themes, or vocabulary..."
-            >
-        </div>
+
+        <nav id="main-nav">
+            <button class="nav-tab active" data-page="articles-page">📖 Articles</button>
+            <button class="nav-tab" data-page="practice-page">✍️ Practice</button>
+        </nav>
         
         <main id="main-content">
-            <div id="loading">Loading today's article...</div>
-            <div id="article-display" style="display: none;"></div>
+            <!-- Articles Page Content -->
+            <div id="articles-page" class="page active">
+                <div id="level-navigation"></div>
+                <div class="search-container" id="search-container" style="display: none;">
+                    <input type="text" id="search-input" class="search-input" placeholder="Search articles, themes, or vocabulary...">
+                </div>
+                <div id="loading">Loading articles...</div>
+                <div id="article-display" style="display: none;"></div>
+                <div class="nav-buttons" id="nav-buttons" style="display: none;">
+                    <button class="nav-btn" onclick="navigateArticle('previous')">← Previous Article</button>
+                    <button class="nav-btn" onclick="resetSearch()">🔄 Show All / Latest</button>
+                    <button class="nav-btn" onclick="navigateArticle('next')">Next Article →</button>
+                </div>
+                <div id="article-info" style="display: none;">
+                    <p><small>Article <span id="current-article-number">1</span> of <span id="total-articles">0</span> | <span id="current-date"></span></small></p>
+                </div>
+            </div>
+
+            <!-- Practice Page Content -->
+            <div id="practice-page" class="page">
+                <div id="practice-page-content">
+                    <!-- Dynamic exercises will be injected here -->
+                </div>
+            </div>
         </main>
-        
-        <div class="nav-buttons" id="nav-buttons" style="display: none;">
-            <button class="nav-btn" onclick="navigateArticle('previous')">← Previous Article</button>
-            <button class="nav-btn" onclick="resetSearch()">🔄 Show All / Latest</button>
-            <button class="nav-btn" onclick="navigateArticle('next')">Next Article →</button>
-        </div>
-        
-        <div id="article-info" style="display: none;">
-            <p><small>Article <span id="current-article-number">1</span> of <span id="total-articles">0</span> | 
-            <span id="current-date"></span></small></p>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2>Site Settings</h2>
+            <div class="settings-section">
+                <h3>Appearance</h3>
+                <div class="control-group">
+                    <label>Theme</label>
+                    <div class="theme-switch-wrapper">
+                        <span>🌞 Light</span>
+                        <label class="theme-switch" for="theme-checkbox"><input type="checkbox" id="theme-checkbox" /><div class="slider"></div></label>
+                        <span>🌙 Dark</span>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3>Audio (Text-to-Speech)</h3>
+                <div class="control-group">
+                    <label for="voice-select">Voice</label>
+                    <div class="control-row"><select id="voice-select"><option>Loading...</option></select></div>
+                </div>
+                <div class="control-group">
+                    <label for="rate-control">Speech Rate</label>
+                    <div class="control-row">
+                        <input type="range" id="rate-control" min="0.5" max="1.5" step="0.1"><span class="range-value" id="rate-value">1.0</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="pitch-control">Pitch</label>
+                    <div class="control-row">
+                        <input type="range" id="pitch-control" min="0.5" max="2" step="0.1"><span class="range-value" id="pitch-value">1.0</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
     <script>
-        const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
-        const SHEET_NAME = 'Sheet1';
-        const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
-
+        // --- App Configuration & Global State ---
         let articles = [];
         let filteredArticles = [];
         let currentArticle = null;
         const synth = window.speechSynthesis;
+        let voices = [];
 
+        // --- DOM Elements ---
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
         const themeToggle = document.getElementById('theme-checkbox');
         
-        function initializeTheme() {
-            const currentTheme = localStorage.getItem('theme') || 'light-theme';
-            if (currentTheme === 'dark-theme') {
-                document.body.classList.add('dark-theme');
-                themeToggle.checked = true;
-            }
-        }
-
-        function setupThemeToggle() {
-            if (themeToggle) {
-                themeToggle.addEventListener('change', function() {
-                    if (this.checked) {
-                        document.body.classList.add('dark-theme');
-                        localStorage.setItem('theme', 'dark-theme');
-                    } else {
-                        document.body.classList.remove('dark-theme');
-                        localStorage.setItem('theme', 'light-theme');
-                    }
-                });
-            }
-        }
-
+        // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function() {
-            initializeTheme();
-            setupThemeToggle();
-            setupSearchInput();
+            loadSettings();
+            setupEventListeners();
             loadArticles();
         });
 
-        function setupSearchInput() {
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('keypress', function(event) {
-                    if (event.key === 'Enter') {
-                        searchArticles(this.value);
-                    }
-                });
-            }
+        // --- Settings Management ---
+        function loadSettings() {
+            const settings = getSettings();
+            document.body.classList.toggle('dark-theme', settings.theme === 'dark');
+            themeToggle.checked = settings.theme === 'dark';
+            document.getElementById('rate-control').value = settings.rate;
+            document.getElementById('rate-value').textContent = settings.rate;
+            document.getElementById('pitch-control').value = settings.pitch;
+            document.getElementById('pitch-value').textContent = settings.pitch;
         }
 
+        function getSettings() {
+            const defaults = { theme: 'light', voiceURI: null, rate: 0.9, pitch: 1.0 };
+            const storedSettings = JSON.parse(localStorage.getItem('germanAppSettings')) || {};
+            return { ...defaults, ...storedSettings };
+        }
+
+        function saveSettings(newSettings) {
+            const currentSettings = getSettings();
+            localStorage.setItem('germanAppSettings', JSON.stringify({ ...currentSettings, ...newSettings }));
+        }
+
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            settingsBtn.addEventListener('click', () => settingsModal.classList.add('visible'));
+            settingsModal.querySelector('.modal-close-btn').addEventListener('click', () => settingsModal.classList.remove('visible'));
+            settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('visible'); });
+            themeToggle.addEventListener('change', (e) => {
+                const theme = e.target.checked ? 'dark' : 'light';
+                document.body.classList.toggle('dark-theme', e.target.checked);
+                saveSettings({ theme });
+            });
+            document.getElementById('voice-select').addEventListener('change', e => saveSettings({ voiceURI: e.target.value }));
+            document.getElementById('rate-control').addEventListener('input', e => {
+                document.getElementById('rate-value').textContent = e.target.value;
+                saveSettings({ rate: parseFloat(e.target.value) });
+            });
+            document.getElementById('pitch-control').addEventListener('input', e => {
+                document.getElementById('pitch-value').textContent = e.target.value;
+                saveSettings({ pitch: parseFloat(e.target.value) });
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    const targetPageId = e.target.getAttribute('data-page');
+                    document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === targetPageId));
+                });
+            });
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('keypress', e => (e.key === 'Enter') && searchArticles(e.target.value));
+            document.addEventListener('keydown', function(event) {
+                const activePage = document.querySelector('.page.active');
+                if (document.activeElement !== searchInput && activePage && activePage.id === 'articles-page') {
+                    if (event.key === 'ArrowLeft') navigateArticle('previous');
+                    if (event.key === 'ArrowRight') navigateArticle('next');
+                    if (event.key === 'Home') { event.preventDefault(); resetSearch(); }
+                }
+            });
+        }
+
+        // --- Data Loading ---
         async function loadArticles() {
             document.getElementById('loading').style.display = 'block';
             try {
+                // --- START: CONFIGURATION TO UPDATE ---
+                // Replace with your Google Sheet ID and API Key.
+                const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
+                const SHEET_NAME = 'Sheet1'; // Or your specific sheet name
+                const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
+                // --- END: CONFIGURATION TO UPDATE ---
+
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+                
+                // Fetch data from the Google Sheet
                 const response = await fetch(url);
                 if (!response.ok) {
                     const errorData = await response.json();
                     const errorMessage = errorData.error?.message || `API request failed with status ${response.status}`;
-                    throw new Error(errorMessage);
+                    throw new Error(`Failed to load from Google Sheets: ${errorMessage}`);
                 }
                 
                 const data = await response.json();
@@ -312,29 +369,33 @@
                     throw new Error('No data found in the sheet or sheet is empty.');
                 }
                 
+                // This function will parse the live data from your sheet
                 articles = parseSheetData(data.values);
+
                 if (articles.length > 0) {
                     filteredArticles = [...articles];
+                    setupLevelNavigation();
                     displayLatestArticle();
-                    setupThemeNavigation();
-                    setupUI();
-                } else {
-                    throw new Error('No "Published" articles found in the sheet.');
+                    document.getElementById('search-container').style.display = 'block';
+                    document.getElementById('nav-buttons').style.display = 'flex';
+                    document.getElementById('article-info').style.display = 'block';
+                } else { 
+                    throw new Error('No "Published" articles found in the sheet.'); 
                 }
             } catch (error) {
                 console.error('Error loading articles:', error);
-                showError('Error loading content. Please check your API configuration.');
+                showError(error.message);
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
         }
 
         function parseSheetData(rows) {
-            const headers = rows[0].map(h => h.trim().replace(/\s/g, '_').replace(/&/g, 'and'));
+            const headers = rows[0].map(h => h.trim());
             const data = [];
             const statusIndex = headers.indexOf('Status');
 
-            for (let i = rows.length - 1; i > 0; i--) {
+            for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
                 if (row[statusIndex] && row[statusIndex].trim() === 'Published') {
                     let article = {};
@@ -344,218 +405,557 @@
                     data.push(article);
                 }
             }
-            return data;
+            // Sort by date descending to show the latest first
+            return data.sort((a, b) => new Date(b.DATE) - new Date(a.DATE));
         }
 
-        function displayLatestArticle() {
-            if (articles.length > 0) {
-                displayArticle(articles[0]);
-            }
-        }
 
+        // --- Article Display & Navigation ---
+        function displayLatestArticle() { if (articles.length > 0) displayArticle(articles[0]); }
         function displayArticle(article) {
             currentArticle = article;
             synth.cancel();
             const displayContainer = document.getElementById('article-display');
-            
             const safeGet = (field, fallback = '') => article[field] || fallback;
-
-            const displayHTML = `
-                <div id="audio-player-container"></div>
-                <div class="metadata">
-                    <strong>Theme:</strong> ${safeGet('THEME')} | 
-                    <strong>Grammar Focus:</strong> ${safeGet('GRAMMAR_LESSON').replace(/\n/g, '<br>')} |
-                    <strong>Date:</strong> ${safeGet('DATE')}
+            displayContainer.innerHTML = `
+                <div id="audio-player-container">
+                    <button id="play-pause-btn" class="audio-btn" title="Play/Pause">▶️</button>
+                    <span id="audio-status">Read Aloud</span>
                 </div>
+                <div class="metadata"><strong>Level:</strong> ${safeGet('LEVEL')} | <strong>Theme:</strong> ${safeGet('THEME')}</div>
                 <div class="german-text">${safeGet('GERMAN_ARTICLE')}</div>
-                <div class="english-text">${safeGet('ENGLISH_TRANSLATION').replace(/\n/g, '<br>')}</div>
-                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${safeGet('VOCABULARY_USED')}</div></div>
-                <div class="phrases-section"><strong>💬 Phrases & Idioms:</strong><div>${safeGet('PHRASE_and_IDIOM').replace(/\n/g, '<br>')}</div></div>
-                <div class="quotes-section"><strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_and_JOKE').replace(/\n/g, '<br>')}</div></div>
-                <div class="conversation-section"><strong>🗣️ Conversation Time:</strong><div>${safeGet('CONVERSATION_TIME').replace(/\n/g, '<br>')}</div></div>
+                <div class="english-text">${safeGet('ENGLISH_TRANSLATION')}</div>
+                <div class="vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div><ul>${safeGet('VOCABULARY_USED').split(',').map(v => `<li>${v.trim()}</li>`).join('')}</ul></div></div>
             `;
-            
-            displayContainer.innerHTML = displayHTML;
-            displayContainer.style.display = 'block';
-            
             setupAudioPlayer();
             updateArticleCounter();
+            setupPracticeExercises(article);
         }
-        
-        function setupAudioPlayer() {
-            const audioContainer = document.getElementById('audio-player-container');
-            if (!audioContainer || !'speechSynthesis' in window) {
-                if(audioContainer) audioContainer.style.display = 'none';
-                return;
-            }
-
-            audioContainer.innerHTML = `
-                <button id="play-pause-btn" class="audio-btn" title="Play/Pause">▶️</button>
-                <button id="stop-btn" class="audio-btn" title="Stop">⏹️</button>
-                <span id="audio-status">Read Aloud</span>
-            `;
-
-            const playPauseBtn = document.getElementById('play-pause-btn');
-            const stopBtn = document.getElementById('stop-btn');
-            const statusLabel = document.getElementById('audio-status');
-            const germanTextElement = document.querySelector('.german-text');
-            const textToSpeak = germanTextElement ? (germanTextElement.textContent || "") : "";
-
-            playPauseBtn.onclick = () => {
-                if (synth.speaking && !synth.paused) {
-                    synth.pause();
-                } else if (synth.paused) {
-                    synth.resume();
-                } else {
-                    if (!textToSpeak) return;
-                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                    utterance.lang = 'de-DE';
-                    utterance.rate = 0.9;
-                    utterance.onstart = () => {
-                        playPauseBtn.textContent = '⏸️';
-                        statusLabel.textContent = 'Playing...';
-                    };
-                    utterance.onpause = () => {
-                        playPauseBtn.textContent = '▶️';
-                        statusLabel.textContent = 'Paused';
-                    };
-                    utterance.onresume = () => {
-                        playPauseBtn.textContent = '⏸️';
-                        statusLabel.textContent = 'Playing...';
-                    };
-                    utterance.onend = () => {
-                        playPauseBtn.textContent = '▶️';
-                        statusLabel.textContent = 'Read Aloud';
-                    };
-                    synth.speak(utterance);
-                }
-            };
-
-            stopBtn.onclick = () => {
-                synth.cancel();
-                playPauseBtn.textContent = '▶️';
-                statusLabel.textContent = 'Read Aloud';
-            };
-        }
-
-        function showError(message) {
-            const mainContent = document.getElementById('main-content');
-            mainContent.innerHTML = `<div class="error-message">${message}</div>`;
-            mainContent.style.display = 'block';
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        function setupUI() {
-            document.getElementById('search-container').style.display = 'block';
-            document.getElementById('nav-buttons').style.display = 'block';
-            document.getElementById('article-info').style.display = 'block';
-        }
-
-        function setupThemeNavigation() {
-            const themeSelect = document.getElementById('theme-select');
-            const themes = [...new Set(articles.map(article => article.THEME))];
-            
-            themeSelect.innerHTML = '<option value="">Browse by Theme</option>';
-            
-            themes.forEach(theme => {
-                const option = document.createElement('option');
-                option.value = theme;
-                option.textContent = theme;
-                themeSelect.appendChild(option);
-            });
-
-            themeSelect.addEventListener('change', function() {
-                showArticlesByTheme(this.value);
-            });
-        }
-
-        function showArticlesByTheme(theme) {
-            if (!theme) {
-                resetSearch();
-                return;
-            }
-            filteredArticles = articles.filter(article => article.THEME === theme);
-            if (filteredArticles.length > 0) {
-                displayArticle(filteredArticles[0]);
-            }
-        }
-
         function navigateArticle(direction) {
-            const currentIndex = filteredArticles.findIndex(a => a.DATE === currentArticle.DATE && a.THEME === currentArticle.THEME);
+            const currentIndex = filteredArticles.indexOf(currentArticle);
             if (currentIndex === -1) return;
-
-            let newIndex;
-            if (direction === 'next') {
-                newIndex = (currentIndex - 1 + filteredArticles.length) % filteredArticles.length;
-            } else {
-                newIndex = (currentIndex + 1) % filteredArticles.length;
-            }
+            let newIndex = (direction === 'next') ? (currentIndex + 1) % filteredArticles.length : (currentIndex - 1 + filteredArticles.length) % filteredArticles.length;
             displayArticle(filteredArticles[newIndex]);
         }
-
-        function searchArticles(keyword) {
-            const searchInput = document.getElementById('search-input');
-            const searchTerm = keyword || searchInput.value;
-            if (!searchTerm.trim()) {
-                resetSearch();
-                return;
-            }
-            
-            const searchResults = articles.filter(article => 
-                Object.values(article).some(value => String(value).toLowerCase().includes(searchTerm.toLowerCase()))
-            );
-            
-            if (searchResults.length > 0) {
-                filteredArticles = searchResults;
-                displayArticle(searchResults[0]);
-                showSearchResults(searchResults.length, searchTerm);
-            } else {
-                alert(`No articles found for "${searchTerm}"`);
-            }
-        }
-
-        function showSearchResults(count, keyword) {
-            const metadata = document.querySelector('.metadata');
-            if (metadata) {
-                const existingSearch = document.querySelector('.search-results');
-                if (existingSearch) existingSearch.remove();
-
-                const searchInfo = document.createElement('div');
-                searchInfo.className = 'search-results';
-                searchInfo.innerHTML = `<small>🔍 Found ${count} result(s) for "${keyword}" | <a href="#" onclick="event.preventDefault(); resetSearch();">Show all articles</a></small>`;
-                metadata.insertAdjacentElement('afterend', searchInfo);
-            }
-        }
-
-        function resetSearch() {
-            filteredArticles = [...articles];
-            displayLatestArticle();
-            const searchResults = document.querySelector('.search-results');
-            if (searchResults) searchResults.remove();
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) searchInput.value = '';
-            const themeSelect = document.getElementById('theme-select');
-            if (themeSelect) themeSelect.value = '';
-        }
-
         function updateArticleCounter() {
-            const currentIndex = filteredArticles.findIndex(a => a.DATE === currentArticle.DATE && a.THEME === currentArticle.THEME);
+            const currentIndex = filteredArticles.indexOf(currentArticle);
             document.getElementById('current-article-number').textContent = currentIndex + 1;
             document.getElementById('total-articles').textContent = filteredArticles.length;
             document.getElementById('current-date').textContent = currentArticle.DATE;
         }
 
-        document.addEventListener('keydown', function(event) {
-            const searchInput = document.getElementById('search-input');
-            if (document.activeElement !== searchInput) {
-                if (event.key === 'ArrowLeft') navigateArticle('previous');
-                if (event.key === 'ArrowRight') navigateArticle('next');
-                if (event.key === 'Home') {
-                    event.preventDefault();
-                    resetSearch();
+        // --- Audio Player & Voice Loading ---
+        function speak(text) {
+            if (synth.speaking) synth.cancel();
+            const settings = getSettings();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = voices.find(v => v.voiceURI === settings.voiceURI);
+            utterance.rate = settings.rate;
+            utterance.pitch = settings.pitch;
+            utterance.lang = 'de-DE';
+            synth.speak(utterance);
+        }
+        function setupAudioPlayer() {
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const textToSpeak = document.querySelector('.german-text')?.textContent.trim() || "";
+            playPauseBtn.onclick = () => {
+                if (!textToSpeak) return;
+                if (synth.speaking && !synth.paused) synth.pause();
+                else if (synth.paused) synth.resume();
+                else {
+                    const statusLabel = document.getElementById('audio-status');
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    const settings = getSettings();
+                    utterance.voice = voices.find(v => v.voiceURI === settings.voiceURI);
+                    utterance.rate = settings.rate;
+                    utterance.pitch = settings.pitch;
+                    utterance.lang = 'de-DE';
+                    utterance.onstart = () => { playPauseBtn.textContent = '⏸️'; statusLabel.textContent = 'Playing...'; };
+                    utterance.onpause = () => { playPauseBtn.textContent = '▶️'; statusLabel.textContent = 'Paused'; };
+                    utterance.onresume = () => { playPauseBtn.textContent = '⏸️'; statusLabel.textContent = 'Playing...'; };
+                    utterance.onend = () => { playPauseBtn.textContent = '▶️'; statusLabel.textContent = 'Read Aloud'; synth.cancel(); };
+                    synth.speak(utterance);
+                }
+            };
+        }
+        function populateVoiceList() {
+            voices = synth.getVoices();
+            const voiceSelect = document.getElementById('voice-select');
+            const settings = getSettings();
+            voiceSelect.innerHTML = '';
+            const germanVoices = voices.filter(voice => voice.lang.startsWith('de'));
+            germanVoices.forEach(voice => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.value = voice.voiceURI;
+                option.selected = voice.voiceURI === settings.voiceURI;
+                voiceSelect.appendChild(option);
+            });
+            if (!settings.voiceURI && germanVoices.length > 0) saveSettings({ voiceURI: germanVoices[0].voiceURI });
+        }
+        populateVoiceList();
+        if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = populateVoiceList;
+
+        // --- Practice Page Logic ---
+        function setupPracticeExercises(article) {
+            const container = document.getElementById('practice-page-content');
+            container.innerHTML = '';
+            let exercisesAdded = 0;
+
+            const addExercise = (title, content) => {
+                const exercise = document.createElement('div');
+                exercise.className = 'practice-exercise';
+                exercise.innerHTML = `<h2>${title}</h2>${content}`;
+                container.appendChild(exercise);
+                exercisesAdded++;
+            };
+            
+            // Translate to German
+            const germanText = article.GERMAN_ARTICLE;
+            const englishText = article.ENGLISH_TRANSLATION;
+            if (germanText && englishText) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = germanText;
+                const correctGermanText = (tempDiv.textContent || "").trim();
+                addExercise('Translate to German', `
+                    <p>Read the English text below and type the German translation in the box.</p>
+                    <div class="english-text" style="margin-top: 15px;">${englishText}</div>
+                    <textarea id="translation-input-area" class="translation-input" placeholder="Type the German text here..."></textarea>
+                    <button class="check-btn" onclick="checkTranslation('translation-input-area', \`${correctGermanText}\`, 'feedback-translate')">Check Translation</button>
+                    <div class="feedback-message" id="feedback-translate"></div>
+                `);
+            }
+
+            // Listening Comprehension
+            const listeningSentence = article.PRACTICE_SENTENCES?.split('|')[0];
+            if (listeningSentence) {
+                addExercise('Listening Comprehension', `
+                    <p>Click the button to hear a sentence, then type what you heard.</p>
+                    <button class="nav-btn" onclick="speak('${listeningSentence}')" style="margin-top:15px;">🔊 Play Audio</button>
+                    <textarea id="listening-input-area" class="listening-input" placeholder="Type what you heard..."></textarea>
+                    <button class="check-btn" onclick="checkListening('${listeningSentence}')">Check</button>
+                    <div class="feedback-message" id="feedback-listening"></div>
+                `);
+            }
+
+            // Fill in the Blanks
+            const lueckentext = article.FILL_IN_THE_BLANK;
+            if (lueckentext) {
+                const match = lueckentext.match(/(.*){(.*)}(.*)/);
+                if (match) {
+                    const [_, before, answer, after] = match;
+                    addExercise('Fill in the Blank', `
+                        <p>Complete the sentence by typing the missing word.</p>
+                        <p style="font-size: 1.2em; margin: 15px 0;">${before} <input type="text" class="lueckentext-input" id="lueckentext-input"> ${after}</p>
+                        <button class="check-btn" onclick="checkLueckentext('${answer}')">Check</button>
+                        <div class="feedback-message" id="feedback-lueckentext"></div>
+                    `);
                 }
             }
-        });
+
+            // Build the Sentence
+            const sentences = article.PRACTICE_SENTENCES?.split('|').filter(s => s.trim());
+            if (sentences && sentences.length > 0) {
+                const exercise = document.createElement('div');
+                exercise.className = 'practice-exercise';
+                exercise.innerHTML = `<h2>Build the Sentences</h2>`;
+                sentences.forEach((sentence, i) => {
+                    exercise.innerHTML += `
+                        <p style="margin-top:15px;">Drag the words to form the correct sentence.</p>
+                        <div class="word-bank" id="word-bank-${i}"></div>
+                        <div class="drop-zone" id="drop-zone-${i}"></div>
+                        <button class="check-btn" onclick="checkSentence('drop-zone-${i}', \`${sentence}\`)">Check</button>
+                        <div class="feedback-message" id="feedback-${i}"></div>
+                        ${i < sentences.length - 1 ? '<hr style="margin: 20px 0;">' : ''}`;
+                    setTimeout(() => {
+                        const wordBank = document.getElementById(`word-bank-${i}`);
+                        if(wordBank) shuffleArray(sentence.split(' ')).forEach(word => { wordBank.innerHTML += `<div class="word-drag" draggable="true">${word}</div>`; });
+                    }, 0);
+                });
+                container.appendChild(exercise);
+                exercisesAdded++;
+            }
+            
+            // Der/Die/Das Quiz
+            const quizWords = article.ARTICLE_QUIZ_WORDS?.split(',').filter(w => w.includes(':'));
+            if (quizWords && quizWords.length > 0) {
+                const exercise = document.createElement('div');
+                exercise.className = 'practice-exercise';
+                exercise.innerHTML = `<h2>Der, Die, or Das?</h2><p>Choose the correct article for each noun.</p>`;
+                quizWords.forEach((pair, i) => {
+                     const [article, noun] = pair.split(':');
+                     exercise.innerHTML += `
+                        <div class="article-quiz-question">What is the article for <span class="noun">${noun}</span>?</div>
+                        <div class="article-quiz-options" id="options-${i}">
+                            <button class="article-quiz-btn" onclick="checkArticle(this, '${article}', 'feedback-quiz-${i}')">der</button>
+                            <button class="article-quiz-btn" onclick="checkArticle(this, '${article}', 'feedback-quiz-${i}')">die</button>
+                            <button class="article-quiz-btn" onclick="checkArticle(this, '${article}', 'feedback-quiz-${i}')">das</button>
+                        </div>
+                        <div class="feedback-message" id="feedback-quiz-${i}"></div>
+                        ${i < quizWords.length - 1 ? '<hr style="margin: 20px 0;">' : ''}`;
+                });
+                container.appendChild(exercise);
+                exercisesAdded++;
+            }
+
+            // Vocabulary Matching Game
+            const matchingWords = article.MATCHING_WORDS?.split(',').filter(w => w.includes(':'));
+            if (matchingWords && matchingWords.length > 0) {
+                addExercise('Vocabulary Matching', `
+                    <p>Match the German words with their English translations. Find all pairs as quickly as you can!</p>
+                    <div class="memory-game-controls"><span id="memory-timer">Time: 0s</span></div>
+                    <div class="memory-game-container" id="memory-game-container"></div>
+                `);
+                setupMemoryGame(matchingWords);
+            }
+
+            // Crossword
+            const crosswordWords = article.CROSSWORD_WORDS?.split(',').filter(w => w.includes(':'));
+            if (crosswordWords && crosswordWords.length > 0) {
+                addExercise('Vocabulary Crossword', `
+                    <div id="crossword-container" class="crossword-container"></div>
+                    <div class="crossword-controls">
+                        <button class="nav-btn" onclick="checkCrossword()">Check Answers</button>
+                        <button class="nav-btn" onclick="revealCrossword()">Reveal Solution</button>
+                    </div>`);
+                generateCrossword(crosswordWords, 'crossword-container');
+                exercisesAdded++;
+            }
+
+            if (exercisesAdded === 0) container.innerHTML = `<p id="no-practice-message">No practice exercises available for this article.</p>`;
+            setupDragAndDrop();
+        }
+
+        function checkTranslation(inputId, correctText, feedbackId) {
+            const userInput = document.getElementById(inputId).value;
+            const feedbackEl = document.getElementById(feedbackId);
+            const normalize = (text) => text.trim().replace(/[.,!?;]/g, '').toLowerCase();
+            feedbackEl.style.display = 'block';
+            if (normalize(userInput) === normalize(correctText)) {
+                feedbackEl.textContent = 'Excellent! That is correct. 👍';
+                feedbackEl.className = 'feedback-message correct';
+            } else {
+                feedbackEl.textContent = 'Not quite right. Review the article and try again. 🔄';
+                feedbackEl.className = 'feedback-message incorrect';
+            }
+        }
+
+        function checkListening(correctSentence) {
+            const userInput = document.getElementById('listening-input-area').value;
+            const feedbackEl = document.getElementById('feedback-listening');
+            const normalize = (text) => text.trim().replace(/[.,!?;]/g, '').toLowerCase();
+            feedbackEl.style.display = 'block';
+            if (normalize(userInput) === normalize(correctSentence)) {
+                feedbackEl.textContent = 'Correct! Gut gemacht! 👍';
+                feedbackEl.className = 'feedback-message correct';
+            } else {
+                feedbackEl.textContent = 'Not quite right. Listen again and check your spelling. 🔄';
+                feedbackEl.className = 'feedback-message incorrect';
+            }
+        }
+
+        function checkLueckentext(correctAnswer) {
+            const userInput = document.getElementById('lueckentext-input').value;
+            const feedbackEl = document.getElementById('feedback-lueckentext');
+            feedbackEl.style.display = 'block';
+            if (userInput.trim().toLowerCase() === correctAnswer.toLowerCase()) {
+                feedbackEl.textContent = 'Correct! 👍';
+                feedbackEl.className = 'feedback-message correct';
+            } else {
+                feedbackEl.textContent = 'Incorrect. Try again! 🔄';
+                feedbackEl.className = 'feedback-message incorrect';
+            }
+        }
+
+        function setupMemoryGame(pairs) {
+            const container = document.getElementById('memory-game-container');
+            let cards = [];
+            pairs.forEach((pair, index) => {
+                const [german, english] = pair.split(':');
+                cards.push({ content: german, id: index });
+                cards.push({ content: english, id: index });
+            });
+            
+            shuffleArray(cards);
+            container.innerHTML = cards.map(card => `
+                <div class="memory-card" data-id="${card.id}">
+                    <div class="front-face"></div>
+                    <div class="back-face">${card.content}</div>
+                </div>
+            `).join('');
+
+            let hasFlippedCard = false, lockBoard = false;
+            let firstCard, secondCard;
+            let matchesFound = 0, timerInterval;
+
+            const startTimer = () => {
+                if (timerInterval) return;
+                let seconds = 0;
+                const timerEl = document.getElementById('memory-timer');
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    timerEl.textContent = `Time: ${seconds}s`;
+                }, 1000);
+            };
+
+            const flipCard = (e) => {
+                const clickedCard = e.currentTarget;
+                if (lockBoard || clickedCard === firstCard) return;
+                startTimer();
+                clickedCard.classList.add('flip');
+                if (!hasFlippedCard) {
+                    hasFlippedCard = true;
+                    firstCard = clickedCard;
+                    return;
+                }
+                secondCard = clickedCard;
+                lockBoard = true;
+                if (firstCard.dataset.id === secondCard.dataset.id) {
+                    matchesFound++;
+                    firstCard.removeEventListener('click', flipCard);
+                    secondCard.removeEventListener('click', flipCard);
+                    resetBoard();
+                    if (matchesFound === pairs.length) {
+                        clearInterval(timerInterval);
+                        setTimeout(() => alert('You found all matches!'), 500);
+                    }
+                } else {
+                    setTimeout(() => {
+                        firstCard.classList.remove('flip');
+                        secondCard.classList.remove('flip');
+                        resetBoard();
+                    }, 1200);
+                }
+            };
+            const resetBoard = () => { [hasFlippedCard, lockBoard] = [false, false]; [firstCard, secondCard] = [null, null]; };
+            document.querySelectorAll('.memory-card').forEach(card => card.addEventListener('click', flipCard));
+        }
+        
+        function checkArticle(button, correctArticle, feedbackId) {
+            const feedbackEl = document.getElementById(feedbackId);
+            feedbackEl.style.display = 'block';
+            if (button.textContent === correctArticle) {
+                feedbackEl.textContent = 'Correct! 👍';
+                feedbackEl.className = 'feedback-message correct';
+            } else {
+                feedbackEl.textContent = `Not quite. The correct article is "${correctArticle}".`;
+                feedbackEl.className = 'feedback-message incorrect';
+            }
+            button.parentElement.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+
+        function setupDragAndDrop() {
+            document.querySelectorAll('.word-drag').forEach(draggable => {
+                draggable.addEventListener('dragstart', () => draggable.classList.add('dragging'));
+                draggable.addEventListener('dragend', () => draggable.classList.remove('dragging'));
+            });
+            document.querySelectorAll('.drop-zone, .word-bank').forEach(zone => {
+                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); const d = document.querySelector('.dragging'); if (d) zone.appendChild(d); });
+                zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+                zone.addEventListener('drop', () => zone.classList.remove('over'));
+            });
+        }
+        
+        function checkSentence(dropZoneId, correctSentence) {
+            const dropZone = document.getElementById(dropZoneId);
+            const feedbackEl = document.getElementById(dropZoneId.replace('drop-zone', 'feedback'));
+            const userAnswer = Array.from(dropZone.children).map(c => c.textContent).join(' ').trim();
+            feedbackEl.style.display = 'block';
+            if (userAnswer === correctSentence) {
+                feedbackEl.textContent = 'Correct! Gut gemacht! 👍';
+                feedbackEl.className = 'feedback-message correct';
+            } else {
+                feedbackEl.textContent = 'Not quite, try again. 🔄';
+                feedbackEl.className = 'feedback-message incorrect';
+            }
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
+            return array;
+        }
+
+        // --- Search and Filtering ---
+        function setupLevelNavigation() {
+            const navContainer = document.getElementById('level-navigation');
+            navContainer.innerHTML = '';
+            const articlesByLevel = articles.reduce((acc, article) => {
+                const level = article.LEVEL || 'Uncategorized';
+                if (!acc[level]) acc[level] = [];
+                acc[level].push(article);
+                return acc;
+            }, {});
+            ['A2-B1', 'B2', 'C1+'].filter(l => articlesByLevel[l]).forEach(level => {
+                const levelHeader = document.createElement('div');
+                levelHeader.className = 'level-header';
+                levelHeader.innerHTML = `<h3>${level}</h3><span class="toggle-icon">▶</span>`;
+                const themeList = document.createElement('div');
+                themeList.className = 'theme-list';
+                [...new Set(articlesByLevel[level].map(a => a.THEME))].forEach(theme => {
+                    const btn = document.createElement('button');
+                    btn.className = 'theme-button';
+                    btn.textContent = theme;
+                    btn.onclick = (e) => { e.stopPropagation(); showArticlesByTheme(theme); }
+                    themeList.appendChild(btn);
+                });
+                levelHeader.onclick = () => { levelHeader.classList.toggle('active'); themeList.classList.toggle('active'); };
+                navContainer.appendChild(levelHeader);
+                navContainer.appendChild(themeList);
+            });
+        }
+        function showArticlesByTheme(theme) {
+            filteredArticles = articles.filter(article => article.THEME === theme);
+            if (filteredArticles.length > 0) displayArticle(filteredArticles[0]);
+        }
+        function searchArticles(keyword) {
+            const searchTerm = keyword.trim().toLowerCase();
+            if (!searchTerm) { resetSearch(); return; }
+            const results = articles.filter(a => Object.values(a).some(v => String(v).toLowerCase().includes(searchTerm)));
+            if (results.length > 0) { filteredArticles = results; displayArticle(results[0]); } 
+            else { alert(`No articles found for "${searchTerm}"`); }
+        }
+        function resetSearch() {
+            filteredArticles = [...articles];
+            displayLatestArticle();
+            document.getElementById('search-input').value = '';
+            document.querySelectorAll('.level-header.active').forEach(h => { h.classList.remove('active'); h.nextElementSibling.classList.remove('active'); });
+        }
+        function showError(message) {
+            const mainContent = document.getElementById('articles-page');
+            mainContent.innerHTML = `<div class="error-message">${message}</div>`;
+            mainContent.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // --- Crossword Generation ---
+        function generateCrossword(wordsWithClues, containerId) {
+            const wordsData = wordsWithClues.map(w => ({ word: w.split(':')[0].toUpperCase(), clue: w.split(':')[1] }));
+            const layout = createCrosswordLayout(wordsData.map(d => d.word));
+            if (!layout) return;
+
+            const gridHtml = layout.grid.map(row => `<tr>${row.map(cell => {
+                if (!cell) return '<td class="empty"></td>';
+                return `<td>
+                    <input type="text" maxlength="1" data-answer="${cell.char}" class="crossword-cell" />
+                    <span class="word-start-number">${cell.wordStartNum || ''}</span>
+                </td>`;
+            }).join('')}</tr>`).join('');
+
+            const cluesHtml = `
+                <div class="crossword-clues"><h3>Across</h3><ol>${layout.words.filter(w => w.direction === 'across').map(w => `<li value="${w.num}">${wordsData[w.originalIndex].clue}</li>`).join('')}</ol></div>
+                <div class="crossword-clues"><h3>Down</h3><ol>${layout.words.filter(w => w.direction === 'down').map(w => `<li value="${w.num}">${wordsData[w.originalIndex].clue}</li>`).join('')}</ol></div>
+            `;
+            
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<table class="crossword-grid">${gridHtml}</table>${cluesHtml}`;
+        }
+
+        function checkCrossword() {
+            const inputs = document.querySelectorAll('.crossword-grid input');
+            inputs.forEach(input => {
+                input.classList.remove('correct', 'incorrect');
+                if (input.value.toUpperCase() === input.dataset.answer) {
+                    input.classList.add('correct');
+                } else if (input.value !== '') {
+                    input.classList.add('incorrect');
+                }
+            });
+        }
+
+        function revealCrossword() {
+            const inputs = document.querySelectorAll('.crossword-grid input');
+            inputs.forEach(input => {
+                input.value = input.dataset.answer;
+                input.classList.remove('correct', 'incorrect');
+            });
+        }
+
+        function createCrosswordLayout(words) {
+            const sortedWords = words.map((word, i) => ({ word, len: word.length, originalIndex: i }))
+                                     .sort((a, b) => b.len - a.len);
+            const gridSize = 20;
+            let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
+            let placedWords = [];
+
+            const firstWord = sortedWords.shift();
+            if(!firstWord) return null;
+            const startRow = Math.floor(gridSize / 2);
+            const startCol = Math.floor((gridSize - firstWord.len) / 2);
+            for (let i = 0; i < firstWord.len; i++) {
+                grid[startRow][startCol + i] = { char: firstWord.word[i], wordStartNum: null };
+            }
+            placedWords.push({ ...firstWord, row: startRow, col: startCol, direction: 'across' });
+
+            while(sortedWords.length > 0) {
+                const wordToPlace = sortedWords.shift();
+                let bestFit = null;
+                for (const placed of placedWords) {
+                    for (let i = 0; i < placed.len; i++) {
+                        for (let j = 0; j < wordToPlace.len; j++) {
+                            if (placed.word[i] === wordToPlace.word[j]) {
+                                let newRow, newCol, newDirection;
+                                if (placed.direction === 'across') {
+                                    newDirection = 'down'; newRow = placed.row - j; newCol = placed.col + i;
+                                } else {
+                                    newDirection = 'across'; newRow = placed.row + i; newCol = placed.col - j;
+                                }
+                                if (canPlace(wordToPlace.word, newRow, newCol, newDirection, grid)) {
+                                    bestFit = { ...wordToPlace, row: newRow, col: newCol, direction: newDirection };
+                                    break;
+                                }
+                            }
+                        }
+                        if (bestFit) break;
+                    }
+                    if (bestFit) break;
+                }
+
+                if (bestFit) {
+                    for (let k = 0; k < bestFit.len; k++) {
+                        if (bestFit.direction === 'across') {
+                            grid[bestFit.row][bestFit.col + k] = { char: bestFit.word[k], ...grid[bestFit.row][bestFit.col + k] };
+                        } else {
+                            grid[bestFit.row + k][bestFit.col] = { char: bestFit.word[k], ...grid[bestFit.row + k][bestFit.col] };
+                        }
+                    }
+                    placedWords.push(bestFit);
+                }
+            }
+
+            let wordNum = 1;
+            placedWords.sort((a,b) => a.row - b.row || a.col - b.col);
+            for(const word of placedWords) {
+                if(!grid[word.row][word.col].wordStartNum) {
+                    grid[word.row][word.col].wordStartNum = wordNum;
+                    word.num = wordNum;
+                    wordNum++;
+                } else {
+                    word.num = grid[word.row][word.col].wordStartNum;
+                }
+            }
+            return { grid, words: placedWords };
+        }
+        function canPlace(word, row, col, direction, grid) {
+            if (row < 0 || col < 0) return false;
+            if (direction === 'across') {
+                if (col + word.length > grid[0].length) return false;
+                if (grid[row]?.[col-1] || grid[row]?.[col+word.length]) return false;
+                for (let i = 0; i < word.length; i++) {
+                    const cell = grid[row][col + i];
+                    if (cell && cell.char !== word[i]) return false;
+                    if (!cell && (grid[row-1]?.[col+i] || grid[row+1]?.[col+i])) return false;
+                }
+            } else { // down
+                if (row + word.length > grid.length) return false;
+                 if (grid[row-1]?.[col] || grid[row+word.length]?.[col]) return false;
+                for (let i = 0; i < word.length; i++) {
+                    const cell = grid[row + i]?.[col];
+                    if (cell && cell.char !== word[i]) return false;
+                    if (!cell && (grid[row+i]?.[col-1] || grid[row+i]?.[col+1])) return false;
+                }
+            }
+            return true;
+        }
     </script>
 </body>
 </html>
