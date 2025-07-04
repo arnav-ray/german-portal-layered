@@ -514,17 +514,14 @@
 
             const practiceData = {};
 
-            // Translation data
             const germanSentences = germanText.split(/[.!?]/).filter(s => s.trim());
             const englishSentences = englishText.split(/[.!?]/).filter(s => s.trim());
             if (germanSentences.length > 0 && germanSentences.length === englishSentences.length) {
                 practiceData.translation = germanSentences.map((g, i) => ({ german: g.trim() + '.', english: englishSentences[i].trim() + '.' }));
             }
 
-            // Listening & Build Sentence data
             practiceData.buildSentences = germanSentences.slice(0, 2);
 
-            // Fill in the Blank data
             const vocabList = vocab.split(',').map(v => v.split('-')[0].replace(/^(der|die|das)\s/,'').trim());
             for (const v of vocabList) {
                 const sentence = germanSentences.find(s => s.toLowerCase().includes(v.toLowerCase()));
@@ -538,7 +535,6 @@
                 }
             }
 
-            // Matching, Quiz, Crossword data
             const vocabPairs = vocab.split(',').map(v => v.trim().split(/\s*-\s*/)).filter(p => p.length === 2);
             practiceData.matchingWords = vocabPairs.map(p => ({ german: p[0], english: p[1] }));
             practiceData.quizWords = vocabPairs.map(p => p[0]).filter(g => /^(der|die|das)\s/i.test(g)).map(g => {
@@ -557,14 +553,16 @@
             let exercisesAdded = 0;
 
             const addExercise = (title, content) => {
-                const exercise = document.createElement('div');
-                exercise.className = 'practice-exercise';
-                exercise.innerHTML = `<h2>${title}</h2>${content}`;
-                container.appendChild(exercise);
-                exercisesAdded++;
+                if (content) {
+                    const exercise = document.createElement('div');
+                    exercise.className = 'practice-exercise';
+                    exercise.innerHTML = `<h2>${title}</h2>${content}`;
+                    container.appendChild(exercise);
+                    exercisesAdded++;
+                }
             };
             
-            if (data.translation) {
+            if (data.translation && data.translation.length > 0) {
                 let html = '<p>Read the English sentences below and type the German translation in the boxes.</p>';
                 data.translation.forEach((pair, i) => {
                     html += `
@@ -599,12 +597,10 @@
                 `);
             }
 
-            if (data.buildSentences) {
-                const exercise = document.createElement('div');
-                exercise.className = 'practice-exercise';
-                exercise.innerHTML = `<h2>Build the Sentences</h2>`;
+            if (data.buildSentences && data.buildSentences.length > 0) {
+                let html = '';
                 data.buildSentences.forEach((sentence, i) => {
-                    exercise.innerHTML += `
+                    html += `
                         <p style="margin-top:15px;">Drag the words to form the correct sentence.</p>
                         <div class="word-bank" id="word-bank-${i}"></div>
                         <div class="drop-zone" id="drop-zone-${i}"></div>
@@ -616,16 +612,13 @@
                         if(wordBank) shuffleArray(sentence.split(' ')).forEach(word => { wordBank.innerHTML += `<div class="word-drag" draggable="true">${word}</div>`; });
                     }, 0);
                 });
-                container.appendChild(exercise);
-                exercisesAdded++;
+                addExercise('Build the Sentences', html);
             }
             
             if (data.quizWords && data.quizWords.length > 0) {
-                const exercise = document.createElement('div');
-                exercise.className = 'practice-exercise';
-                exercise.innerHTML = `<h2>Der, Die, or Das?</h2><p>Choose the correct article for each noun.</p>`;
+                let html = `<p>Choose the correct article for each noun.</p>`;
                 data.quizWords.forEach(({ article, noun }, i) => {
-                     exercise.innerHTML += `
+                     html += `
                         <div class="article-quiz-question">What is the article for <span class="noun">${noun}</span>?</div>
                         <div class="article-quiz-options" id="options-${i}">
                             <button class="article-quiz-btn" onclick="checkArticle(this, '${article}', 'feedback-quiz-${i}')">der</button>
@@ -635,8 +628,7 @@
                         <div class="feedback-message" id="feedback-quiz-${i}"></div>
                         ${i < data.quizWords.length - 1 ? '<hr style="margin: 20px 0;">' : ''}`;
                 });
-                container.appendChild(exercise);
-                exercisesAdded++;
+                addExercise('Der, Die, or Das?', html);
             }
 
             if (data.matchingWords && data.matchingWords.length > 0) {
@@ -656,7 +648,6 @@
                         <button class="nav-btn" onclick="revealCrossword()">Reveal Solution</button>
                     </div>`);
                 generateCrossword(data.crosswordWords, 'crossword-container');
-                exercisesAdded++;
             }
 
             if (exercisesAdded === 0) container.innerHTML = `<p id="no-practice-message">No practice exercises available for this article.</p>`;
