@@ -348,7 +348,6 @@
             document.getElementById('loading').style.display = 'block';
             try {
                 // --- START: CONFIGURATION TO UPDATE ---
-                // Replace with your Google Sheet ID and API Key.
                 const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
                 const SHEET_NAME = 'Sheet1'; // Or your specific sheet name
                 const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
@@ -356,7 +355,6 @@
 
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
                 
-                // Fetch data from the Google Sheet
                 const response = await fetch(url);
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -369,7 +367,6 @@
                     throw new Error('No data found in the sheet or sheet is empty.');
                 }
                 
-                // This function will parse the live data from your sheet
                 articles = parseSheetData(data.values);
 
                 if (articles.length > 0) {
@@ -391,13 +388,13 @@
         }
 
         function parseSheetData(rows) {
-            const headers = rows[0].map(h => h.trim());
+            const headers = rows[0].map(h => h.trim().toUpperCase().replace(/\s+/g, '_'));
             const data = [];
-            const statusIndex = headers.indexOf('Status');
+            const statusIndex = headers.indexOf('STATUS');
 
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
-                if (row[statusIndex] && row[statusIndex].trim() === 'Published') {
+                if (statusIndex !== -1 && row[statusIndex] && row[statusIndex].trim() === 'Published') {
                     let article = {};
                     headers.forEach((header, index) => {
                         article[header] = row[index] || '';
@@ -405,10 +402,8 @@
                     data.push(article);
                 }
             }
-            // Sort by date descending to show the latest first
             return data.sort((a, b) => new Date(b.DATE) - new Date(a.DATE));
         }
-
 
         // --- Article Display & Navigation ---
         function displayLatestArticle() { if (articles.length > 0) displayArticle(articles[0]); }
@@ -416,7 +411,8 @@
             currentArticle = article;
             synth.cancel();
             const displayContainer = document.getElementById('article-display');
-            const safeGet = (field, fallback = '') => article[field] || fallback;
+            const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_')] || fallback;
+            
             displayContainer.innerHTML = `
                 <div id="audio-player-container">
                     <button id="play-pause-btn" class="audio-btn" title="Play/Pause">▶️</button>
@@ -501,6 +497,7 @@
             const container = document.getElementById('practice-page-content');
             container.innerHTML = '';
             let exercisesAdded = 0;
+            const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_')] || fallback;
 
             const addExercise = (title, content) => {
                 const exercise = document.createElement('div');
@@ -511,8 +508,8 @@
             };
             
             // Translate to German
-            const germanText = article.GERMAN_ARTICLE;
-            const englishText = article.ENGLISH_TRANSLATION;
+            const germanText = safeGet('GERMAN_ARTICLE');
+            const englishText = safeGet('ENGLISH_TRANSLATION');
             if (germanText && englishText) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = germanText;
@@ -527,7 +524,7 @@
             }
 
             // Listening Comprehension
-            const listeningSentence = article.PRACTICE_SENTENCES?.split('|')[0];
+            const listeningSentence = safeGet('PRACTICE_SENTENCES')?.split('|')[0];
             if (listeningSentence) {
                 addExercise('Listening Comprehension', `
                     <p>Click the button to hear a sentence, then type what you heard.</p>
@@ -539,7 +536,7 @@
             }
 
             // Fill in the Blanks
-            const lueckentext = article.FILL_IN_THE_BLANK;
+            const lueckentext = safeGet('FILL_IN_THE_BLANK');
             if (lueckentext) {
                 const match = lueckentext.match(/(.*){(.*)}(.*)/);
                 if (match) {
@@ -554,7 +551,7 @@
             }
 
             // Build the Sentence
-            const sentences = article.PRACTICE_SENTENCES?.split('|').filter(s => s.trim());
+            const sentences = safeGet('PRACTICE_SENTENCES')?.split('|').filter(s => s.trim());
             if (sentences && sentences.length > 0) {
                 const exercise = document.createElement('div');
                 exercise.className = 'practice-exercise';
@@ -577,7 +574,7 @@
             }
             
             // Der/Die/Das Quiz
-            const quizWords = article.ARTICLE_QUIZ_WORDS?.split(',').filter(w => w.includes(':'));
+            const quizWords = safeGet('ARTICLE_QUIZ_WORDS')?.split(',').filter(w => w.includes(':'));
             if (quizWords && quizWords.length > 0) {
                 const exercise = document.createElement('div');
                 exercise.className = 'practice-exercise';
@@ -599,7 +596,7 @@
             }
 
             // Vocabulary Matching Game
-            const matchingWords = article.MATCHING_WORDS?.split(',').filter(w => w.includes(':'));
+            const matchingWords = safeGet('MATCHING_WORDS')?.split(',').filter(w => w.includes(':'));
             if (matchingWords && matchingWords.length > 0) {
                 addExercise('Vocabulary Matching', `
                     <p>Match the German words with their English translations. Find all pairs as quickly as you can!</p>
@@ -610,7 +607,7 @@
             }
 
             // Crossword
-            const crosswordWords = article.CROSSWORD_WORDS?.split(',').filter(w => w.includes(':'));
+            const crosswordWords = safeGet('CROSSWORD_WORDS')?.split(',').filter(w => w.includes(':'));
             if (crosswordWords && crosswordWords.length > 0) {
                 addExercise('Vocabulary Crossword', `
                     <div id="crossword-container" class="crossword-container"></div>
