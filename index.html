@@ -79,10 +79,14 @@
         .article-section { margin-top: 20px; padding: 15px; border-radius: 8px; border-left: 4px solid transparent; }
         .vocabulary-section { background-color: #e8f4fd; border-left-color: #007bff; }
         .grammar-section { background-color: #e8f5e8; border-left-color: #28a745; }
-        .quotes-section { background-color: #fff5e6; border-left-color: #fd7e14; font-style: italic; }
+        .phrases-section { background-color: #fdf5e6; border-left-color: #fd7e14; }
+        .quotes-section { background-color: #f8e6ff; border-left-color: #6f42c1; font-style: italic; }
+        .conversation-section { background-color: #e6f9f1; border-left-color: #20c997; }
         body.dark-theme .vocabulary-section { background-color: #2a333d; }
         body.dark-theme .grammar-section { background-color: #2a352c; }
-        body.dark-theme .quotes-section { background-color: #3e332a; }
+        body.dark-theme .phrases-section { background-color: #3e3829; }
+        body.dark-theme .quotes-section { background-color: #342a3d; }
+        body.dark-theme .conversation-section { background-color: #2a3a34; }
         .article-section strong { display: block; margin-bottom: 8px; font-size: 16px; color: var(--header-text-color); }
         .article-section div { font-size: 15px; line-height: 1.5; }
         .nav-buttons { text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
@@ -393,7 +397,7 @@
         }
 
         function parseSheetData(rows) {
-            const headers = rows[0].map(h => h.trim().toUpperCase().replace(/\s+/g, '_'));
+            const headers = rows[0].map(h => h.trim().toUpperCase().replace(/\s+/g, '_').replace('&', 'AND'));
             const data = [];
             const statusIndex = headers.indexOf('STATUS');
 
@@ -416,7 +420,7 @@
             currentArticle = article;
             synth.cancel();
             const displayContainer = document.getElementById('article-display');
-            const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_')] || fallback;
+            const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
             
             displayContainer.innerHTML = `
                 <div id="audio-player-container">
@@ -428,7 +432,9 @@
                 <div class="english-text">${safeGet('ENGLISH_TRANSLATION')}</div>
                 <div class="article-section vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div><ul>${safeGet('VOCABULARY_USED').split(',').map(v => `<li>${v.trim()}</li>`).join('')}</ul></div></div>
                 <div class="article-section grammar-section"><strong>🧠 Grammar Lesson:</strong><div>${safeGet('GRAMMAR_LESSON')}</div></div>
-                <div class="article-section quotes-section"><strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_&_JOKE')}</div></div>
+                <div class="article-section phrases-section"><strong>💬 Phrase & Idiom:</strong><div>${safeGet('PHRASE_AND_IDIOM')}</div></div>
+                <div class="article-section quotes-section"><strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_AND_JOKE')}</div></div>
+                <div class="article-section conversation-section"><strong>🗣️ Conversation Time:</strong><div>${safeGet('CONVERSATION_TIME')}</div></div>
             `;
             setupAudioPlayer();
             updateArticleCounter();
@@ -500,11 +506,55 @@
         if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = populateVoiceList;
 
         // --- Practice Page Logic ---
+        function generatePracticeData(article) {
+            const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
+            const germanText = safeGet('GERMAN_ARTICLE');
+            const englishText = safeGet('ENGLISH_TRANSLATION');
+            const vocab = safeGet('VOCABULARY_USED');
+
+            const practiceData = {};
+
+            // Translation data
+            const germanSentences = germanText.split(/[.!?]/).filter(s => s.trim());
+            const englishSentences = englishText.split(/[.!?]/).filter(s => s.trim());
+            if (germanSentences.length > 0 && germanSentences.length === englishSentences.length) {
+                practiceData.translation = germanSentences.map((g, i) => ({ german: g.trim() + '.', english: englishSentences[i].trim() + '.' }));
+            }
+
+            // Listening & Build Sentence data
+            practiceData.buildSentences = germanSentences.slice(0, 2);
+
+            // Fill in the Blank data
+            const vocabList = vocab.split(',').map(v => v.split('-')[0].replace(/^(der|die|das)\s/,'').trim());
+            for (const v of vocabList) {
+                const sentence = germanSentences.find(s => s.toLowerCase().includes(v.toLowerCase()));
+                if (sentence) {
+                    const regex = new RegExp(`\\b${v}\\b`, 'i');
+                    practiceData.fillBlank = {
+                        sentence: sentence.replace(regex, '{' + v + '}'),
+                        answer: v
+                    };
+                    break;
+                }
+            }
+
+            // Matching, Quiz, Crossword data
+            const vocabPairs = vocab.split(',').map(v => v.trim().split(/\s*-\s*/)).filter(p => p.length === 2);
+            practiceData.matchingWords = vocabPairs.map(p => ({ german: p[0], english: p[1] }));
+            practiceData.quizWords = vocabPairs.map(p => p[0]).filter(g => /^(der|die|das)\s/i.test(g)).map(g => {
+                const parts = g.split(' ');
+                return { article: parts[0], noun: parts[1] };
+            });
+            practiceData.crosswordWords = vocabPairs.map(p => ({ word: p[0].replace(/^(der|die|das)\s/,''), clue: p[1] }));
+
+            return practiceData;
+        }
+
         function setupPracticeExercises(article) {
             const container = document.getElementById('practice-page-content');
             container.innerHTML = '';
+            const data = generatePracticeData(article);
             let exercisesAdded = 0;
-            const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_')] || fallback;
 
             const addExercise = (title, content) => {
                 const exercise = document.createElement('div');
@@ -514,64 +564,53 @@
                 exercisesAdded++;
             };
             
-            // Translate to German
-            const germanSentences = safeGet('GERMAN_ARTICLE').split(/[.!?]/).filter(s => s.trim());
-            const englishSentences = safeGet('ENGLISH_TRANSLATION').split(/[.!?]/).filter(s => s.trim());
-            if (germanSentences.length > 0 && germanSentences.length === englishSentences.length) {
-                let translationHTML = '<p>Read the English sentences below and type the German translation in the boxes.</p>';
-                germanSentences.forEach((gSentence, i) => {
-                    translationHTML += `
-                        <div class="english-text" style="margin-top: 15px;">${englishSentences[i]}.</div>
+            if (data.translation) {
+                let html = '<p>Read the English sentences below and type the German translation in the boxes.</p>';
+                data.translation.forEach((pair, i) => {
+                    html += `
+                        <div class="english-text" style="margin-top: 15px;">${pair.english}</div>
                         <textarea id="translation-input-${i}" class="translation-input" placeholder="Type the German sentence here..."></textarea>
-                        <button class="check-btn" onclick="checkTranslation('translation-input-${i}', \`${gSentence.trim()}.\`, 'feedback-translate-${i}')">Check</button>
+                        <button class="check-btn" onclick="checkTranslation('translation-input-${i}', \`${pair.german}\`, 'feedback-translate-${i}')">Check</button>
                         <div class="feedback-message" id="feedback-translate-${i}"></div>
-                        ${i < germanSentences.length - 1 ? '<hr style="margin: 20px 0;">' : ''}
+                        ${i < data.translation.length - 1 ? '<hr style="margin: 20px 0;">' : ''}
                     `;
                 });
-                addExercise('Translate to German', translationHTML);
+                addExercise('Translate to German', html);
             }
 
-            // Listening Comprehension
-            const listeningSentence = safeGet('PRACTICE_SENTENCES')?.split('|')[0];
-            if (listeningSentence) {
+            if (data.buildSentences && data.buildSentences[0]) {
                 addExercise('Listening Comprehension', `
                     <p>Click the button to hear a sentence, then type what you heard.</p>
-                    <button class="nav-btn" onclick="speak('${listeningSentence}')" style="margin-top:15px;">🔊 Play Audio</button>
+                    <button class="nav-btn" onclick="speak('${data.buildSentences[0]}')" style="margin-top:15px;">🔊 Play Audio</button>
                     <textarea id="listening-input-area" class="listening-input" placeholder="Type what you heard..."></textarea>
-                    <button class="check-btn" onclick="checkListening('${listeningSentence}')">Check</button>
+                    <button class="check-btn" onclick="checkListening('${data.buildSentences[0]}')">Check</button>
                     <div class="feedback-message" id="feedback-listening"></div>
                 `);
             }
 
-            // Fill in the Blanks
-            const lueckentext = safeGet('FILL_IN_THE_BLANK');
-            if (lueckentext) {
-                const match = lueckentext.match(/(.*){(.*)}(.*)/);
-                if (match) {
-                    const [_, before, answer, after] = match;
-                    addExercise('Fill in the Blank', `
-                        <p>Complete the sentence by typing the missing word.</p>
-                        <p style="font-size: 1.2em; margin: 15px 0;">${before} <input type="text" class="lueckentext-input" id="lueckentext-input"> ${after}</p>
-                        <button class="check-btn" onclick="checkLueckentext('${answer}')">Check</button>
-                        <div class="feedback-message" id="feedback-lueckentext"></div>
-                    `);
-                }
+            if (data.fillBlank) {
+                const { sentence, answer } = data.fillBlank;
+                const [before, after] = sentence.split(`{${answer}}`);
+                addExercise('Fill in the Blank', `
+                    <p>Complete the sentence by typing the missing word.</p>
+                    <p style="font-size: 1.2em; margin: 15px 0;">${before} <input type="text" class="lueckentext-input" id="lueckentext-input"> ${after}</p>
+                    <button class="check-btn" onclick="checkLueckentext('${answer}')">Check</button>
+                    <div class="feedback-message" id="feedback-lueckentext"></div>
+                `);
             }
 
-            // Build the Sentence
-            const sentences = safeGet('PRACTICE_SENTENCES')?.split('|').filter(s => s.trim());
-            if (sentences && sentences.length > 0) {
+            if (data.buildSentences) {
                 const exercise = document.createElement('div');
                 exercise.className = 'practice-exercise';
                 exercise.innerHTML = `<h2>Build the Sentences</h2>`;
-                sentences.forEach((sentence, i) => {
+                data.buildSentences.forEach((sentence, i) => {
                     exercise.innerHTML += `
                         <p style="margin-top:15px;">Drag the words to form the correct sentence.</p>
                         <div class="word-bank" id="word-bank-${i}"></div>
                         <div class="drop-zone" id="drop-zone-${i}"></div>
                         <button class="check-btn" onclick="checkSentence('drop-zone-${i}', \`${sentence}\`)">Check</button>
                         <div class="feedback-message" id="feedback-${i}"></div>
-                        ${i < sentences.length - 1 ? '<hr style="margin: 20px 0;">' : ''}`;
+                        ${i < data.buildSentences.length - 1 ? '<hr style="margin: 20px 0;">' : ''}`;
                     setTimeout(() => {
                         const wordBank = document.getElementById(`word-bank-${i}`);
                         if(wordBank) shuffleArray(sentence.split(' ')).forEach(word => { wordBank.innerHTML += `<div class="word-drag" draggable="true">${word}</div>`; });
@@ -581,14 +620,11 @@
                 exercisesAdded++;
             }
             
-            // Der/Die/Das Quiz
-            const quizWords = safeGet('ARTICLE_QUIZ_WORDS')?.split(',').filter(w => w.includes(':'));
-            if (quizWords && quizWords.length > 0) {
+            if (data.quizWords && data.quizWords.length > 0) {
                 const exercise = document.createElement('div');
                 exercise.className = 'practice-exercise';
                 exercise.innerHTML = `<h2>Der, Die, or Das?</h2><p>Choose the correct article for each noun.</p>`;
-                quizWords.forEach((pair, i) => {
-                     const [article, noun] = pair.split(':');
+                data.quizWords.forEach(({ article, noun }, i) => {
                      exercise.innerHTML += `
                         <div class="article-quiz-question">What is the article for <span class="noun">${noun}</span>?</div>
                         <div class="article-quiz-options" id="options-${i}">
@@ -597,33 +633,29 @@
                             <button class="article-quiz-btn" onclick="checkArticle(this, '${article}', 'feedback-quiz-${i}')">das</button>
                         </div>
                         <div class="feedback-message" id="feedback-quiz-${i}"></div>
-                        ${i < quizWords.length - 1 ? '<hr style="margin: 20px 0;">' : ''}`;
+                        ${i < data.quizWords.length - 1 ? '<hr style="margin: 20px 0;">' : ''}`;
                 });
                 container.appendChild(exercise);
                 exercisesAdded++;
             }
 
-            // Vocabulary Matching Game
-            const matchingWords = safeGet('MATCHING_WORDS')?.split(',').filter(w => w.includes(':'));
-            if (matchingWords && matchingWords.length > 0) {
+            if (data.matchingWords && data.matchingWords.length > 0) {
                 addExercise('Vocabulary Matching', `
                     <p>Match the German words with their English translations. Find all pairs as quickly as you can!</p>
                     <div class="memory-game-controls"><span id="memory-timer">Time: 0s</span></div>
                     <div class="memory-game-container" id="memory-game-container"></div>
                 `);
-                setupMemoryGame(matchingWords);
+                setupMemoryGame(data.matchingWords);
             }
 
-            // Crossword
-            const crosswordWords = safeGet('CROSSWORD_WORDS')?.split(',').filter(w => w.includes(':'));
-            if (crosswordWords && crosswordWords.length > 0) {
+            if (data.crosswordWords && data.crosswordWords.length > 0) {
                 addExercise('Vocabulary Crossword', `
                     <div id="crossword-container" class="crossword-container"></div>
                     <div class="crossword-controls">
                         <button class="nav-btn" onclick="checkCrossword()">Check Answers</button>
                         <button class="nav-btn" onclick="revealCrossword()">Reveal Solution</button>
                     </div>`);
-                generateCrossword(crosswordWords, 'crossword-container');
+                generateCrossword(data.crosswordWords, 'crossword-container');
                 exercisesAdded++;
             }
 
@@ -676,9 +708,8 @@
             const container = document.getElementById('memory-game-container');
             let cards = [];
             pairs.forEach((pair, index) => {
-                const [german, english] = pair.split(':');
-                cards.push({ content: german, id: index });
-                cards.push({ content: english, id: index });
+                cards.push({ content: pair.german, id: index });
+                cards.push({ content: pair.english, id: index });
             });
             
             shuffleArray(cards);
@@ -834,7 +865,7 @@
 
         // --- Crossword Generation ---
         function generateCrossword(wordsWithClues, containerId) {
-            const wordsData = wordsWithClues.map(w => ({ word: w.split(':')[0].toUpperCase(), clue: w.split(':')[1] }));
+            const wordsData = wordsWithClues.map(w => ({ word: w.word.toUpperCase(), clue: w.clue }));
             const layout = createCrosswordLayout(wordsData.map(d => d.word));
             if (!layout) return;
 
