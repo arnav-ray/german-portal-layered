@@ -72,7 +72,12 @@
         .search-container { margin-bottom: 20px; }
         .search-input { width: 100%; padding: 12px 20px; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); border-radius: 25px; font-size: 16px; transition: all 0.3s ease; }
         .search-input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); }
-        #article-display { background: var(--card-bg-color); padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px var(--shadow-color); }
+        #article-display-container { background: var(--card-bg-color); padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px var(--shadow-color); }
+        .sub-nav { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .sub-nav-tab { padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; background: transparent; color: var(--subtle-text-color); border-bottom: 3px solid transparent; margin-bottom: -1px; transition: all 0.3s ease; }
+        .sub-nav-tab.active { color: var(--primary-accent); border-bottom-color: var(--primary-accent); font-weight: bold; }
+        .sub-page { display: none; }
+        .sub-page.active { display: block; }
         .german-text { font-size: 18px; line-height: 1.8; margin-bottom: 30px; padding: 20px; background: var(--bg-color); border-left: 4px solid var(--primary-accent); border-radius: 5px; }
         .english-text { font-size: 16px; color: var(--subtle-text-color); font-style: italic; margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107; }
         body.dark-theme .english-text { background: #3e3829; }
@@ -81,16 +86,9 @@
         .german-text span { cursor: pointer; transition: background-color 0.2s ease-in-out; padding: 1px 2px; border-radius: 3px; }
         .german-text span:hover { background-color: #d0eaff; }
         body.dark-theme .german-text span:hover { background-color: #003c7a; }
-        .noun-m { color: #007bff; font-weight: bold; } /* Masculine (der) - Blue */
-        .noun-f { color: #dc3545; font-weight: bold; } /* Feminine (die) - Red */
-        .noun-n { color: #28a745; font-weight: bold; } /* Neuter (das) - Green */
-        .verb { color: #6f42c1; text-decoration: underline; } /* Purple */
-        .adjective { color: #fd7e14; } /* Orange */
-        .adverb { color: #6c757d; font-style: italic; } /* Gray */
-        .preposition { color: #E91E63; } /* Pink */
-        .conjunction { color: #20c997; } /* Teal */
-        .pronoun { color: #ffc107; } /* Yellow-Orange */
-        .article { color: #17a2b8; font-weight: bold; } /* Cyan */
+        .noun-m { color: #007bff; font-weight: bold; } .noun-f { color: #dc3545; font-weight: bold; } .noun-n { color: #28a745; font-weight: bold; }
+        .verb { color: #6f42c1; text-decoration: underline; } .adjective { color: #fd7e14; } .adverb { color: #6c757d; font-style: italic; }
+        .preposition { color: #E91E63; } .conjunction { color: #20c997; } .pronoun { color: #ffc107; } .article { color: #17a2b8; font-weight: bold; }
         .punctuation { color: var(--subtle-text-color); }
         /* --- End Grammar Coding --- */
 
@@ -122,7 +120,7 @@
         body.dark-theme .error-message { background-color: #4a2c2c; border-color: #dc3545; color: #f8d7da; }
         
         /* --- Practice Page Styles --- */
-        #practice-page-content { background-color: var(--card-bg-color); padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px var(--shadow-color); }
+        .practice-container { background-color: var(--card-bg-color); padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px var(--shadow-color); }
         .practice-exercise { margin-bottom: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         .practice-exercise:last-child { border-bottom: none; margin-bottom: 0; }
         .practice-exercise h2 { color: var(--header-text-color); padding-bottom: 10px; margin-bottom: 20px; font-size: 1.4em; }
@@ -201,7 +199,7 @@
             header h1 { text-align: center; font-size: 1.8em; margin-bottom: 15px; }
             .nav-buttons { flex-direction: column; align-items: center; }
             .nav-btn { width: 100%; max-width: 280px; }
-            #article-display, #practice-page-content { padding: 15px; }
+            #article-display-container, .practice-container { padding: 15px; }
             .german-text { font-size: 16px; }
         }
     </style>
@@ -220,7 +218,7 @@
 
         <nav id="main-nav">
             <button class="nav-tab active" data-page="articles-page">📖 Articles</button>
-            <button class="nav-tab" data-page="practice-page">✍️ Practice</button>
+            <button class="nav-tab" data-page="grammar-drill-page">✍️ Grammar Drill</button>
         </nav>
         
         <main id="main-content">
@@ -230,8 +228,17 @@
                 <div class="search-container" id="search-container" style="display: none;">
                     <input type="text" id="search-input" class="search-input" placeholder="Search articles, themes, or vocabulary...">
                 </div>
-                <div id="loading" style="display: none;">Loading articles...</div>
-                <div id="article-display" style="display: none;"></div>
+                <div id="loading">Loading articles...</div>
+                <div id="article-display-container" style="display: none;">
+                    <div class="sub-nav">
+                         <button class="sub-nav-tab active" data-target="article-content">Article</button>
+                         <button class="sub-nav-tab" data-target="deep-dive-content">Deep Dive Grammar</button>
+                         <button class="sub-nav-tab" data-target="practice-content">Practice</button>
+                    </div>
+                    <div id="article-content" class="sub-page active practice-container"></div>
+                    <div id="deep-dive-content" class="sub-page practice-container"></div>
+                    <div id="practice-content" class="sub-page practice-container"></div>
+                </div>
                 <div class="nav-buttons" id="nav-buttons" style="display: none;">
                     <button class="nav-btn" onclick="navigateArticle('previous')">← Previous Article</button>
                     <button class="nav-btn" onclick="resetSearch()">🔄 Show All / Latest</button>
@@ -242,10 +249,14 @@
                 </div>
             </div>
 
-            <!-- Practice Page Content -->
-            <div id="practice-page" class="page">
-                <div id="practice-page-content">
-                    <!-- Dynamic exercises will be injected here -->
+            <!-- Grammar Drill Page Content -->
+            <div id="grammar-drill-page" class="page">
+                <div class="practice-container">
+                    <h2>Grammar Drill</h2>
+                    <p>Select one or more grammar topics to practice them with new, unseen sentences.</p>
+                    <div id="grammar-topic-tags" class="word-bank"></div>
+                    <button id="start-drill-btn" class="check-btn">Start Drill</button>
+                    <div id="drill-container"></div>
                 </div>
             </div>
         </main>
@@ -291,10 +302,6 @@
     
     <script>
         // --- App Configuration & Global State ---
-        const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
-        const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
-        const SHEET_NAME = 'Sheet1';
-
         let articles = [];
         let filteredArticles = [];
         let currentArticle = null;
@@ -372,17 +379,23 @@
                     if (event.key === 'Home') { event.preventDefault(); resetSearch(); }
                 }
             });
+            document.getElementById('start-drill-btn').addEventListener('click', startGrammarDrill);
         }
 
         // --- Data Loading ---
         async function loadArticles() {
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('article-display').style.display = 'none';
-            document.getElementById('practice-page-content').innerHTML = '';
+            document.getElementById('article-display-container').style.display = 'none';
+            document.getElementById('practice-content').innerHTML = '';
             
+            const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
+            const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
+            const SHEET_NAME = 'Sheet1';
+
             if (!SHEET_ID || !API_KEY || SHEET_ID === 'YOUR_GOOGLE_SHEET_ID_HERE') {
-                showError("Please update the SHEET_ID and API_KEY in the code.");
-                document.getElementById('loading').style.display = 'none';
+                showError("Using sample data. Please update the SHEET_ID and API_KEY in the code to fetch live data.");
+                articles = getSampleData();
+                initializeContent();
                 return;
             }
 
@@ -402,22 +415,27 @@
                 }
                 
                 articles = parseSheetData(data.values);
+                initializeContent();
 
-                if (articles.length > 0) {
-                    filteredArticles = [...articles];
-                    setupLevelNavigation();
-                    displayLatestArticle();
-                    document.getElementById('search-container').style.display = 'block';
-                    document.getElementById('nav-buttons').style.display = 'flex';
-                    document.getElementById('article-info').style.display = 'block';
-                } else { 
-                    throw new Error('No "Published" articles found in the sheet.'); 
-                }
             } catch (error) {
                 console.error('Error loading articles:', error);
                 showError(error.message);
             } finally {
                 document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function initializeContent() {
+            if (articles.length > 0) {
+                filteredArticles = [...articles];
+                setupLevelNavigation();
+                displayLatestArticle();
+                setupGrammarDrill();
+                document.getElementById('search-container').style.display = 'block';
+                document.getElementById('nav-buttons').style.display = 'flex';
+                document.getElementById('article-info').style.display = 'block';
+            } else { 
+                showError('No "Published" articles found.'); 
             }
         }
 
@@ -444,10 +462,10 @@
         function displayArticle(article) {
             currentArticle = article;
             synth.cancel();
-            const displayContainer = document.getElementById('article-display');
+            const displayContainer = document.getElementById('article-display-container');
             const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
             
-            displayContainer.innerHTML = `
+            document.getElementById('article-content').innerHTML = `
                 <div id="audio-player-container">
                     <button id="play-pause-btn" class="audio-btn" title="Play/Pause">▶️</button>
                     <span id="audio-status">Read Aloud</span>
@@ -455,16 +473,24 @@
                 <div class="metadata"><strong>Level:</strong> ${safeGet('LEVEL')} | <strong>Theme:</strong> ${safeGet('THEME')}</div>
                 <div class="german-text">${safeGet('GERMAN_ARTICLE')}</div>
                 <div class="english-text">${safeGet('ENGLISH_TRANSLATION')}</div>
-                <div class="article-section vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div><ul>${safeGet('VOCABULARY_USED').split(',').map(v => `<li>${v.trim()}</li>`).join('')}</ul></div></div>
-                <div class="article-section grammar-section"><strong>🧠 Grammar Lesson:</strong><div>${safeGet('GRAMMAR_LESSON')}</div></div>
+                <div class="article-section vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${safeGet('VOCABULARY_USED')}</div></div>
                 <div class="article-section phrases-section"><strong>💬 Phrase & Idiom:</strong><div>${safeGet('PHRASE_AND_IDIOM')}</div></div>
                 <div class="article-section quotes-section"><strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_AND_JOKE')}</div></div>
                 <div class="article-section conversation-section"><strong>🗣️ Conversation Time:</strong><div>${safeGet('CONVERSATION_TIME')}</div></div>
             `;
+
+            document.getElementById('deep-dive-content').innerHTML = `
+                <div class="article-section grammar-section">
+                    <strong>🧠 Deep Dive Grammar:</strong>
+                    <div>${safeGet('DEEP_DIVE_GRAMMAR')}</div>
+                </div>
+            `;
+            
             displayContainer.style.display = 'block';
             setupAudioPlayer();
             updateArticleCounter();
             setupPracticeExercises(article);
+            setupSubNav();
         }
         function navigateArticle(direction) {
             const currentIndex = filteredArticles.indexOf(currentArticle);
@@ -477,6 +503,28 @@
             document.getElementById('current-article-number').textContent = currentIndex + 1;
             document.getElementById('total-articles').textContent = filteredArticles.length;
             document.getElementById('current-date').textContent = currentArticle.DATE;
+        }
+
+        function setupSubNav() {
+            const subNavTabs = document.querySelectorAll('.sub-nav-tab');
+            const subPages = document.querySelectorAll('.sub-page');
+            subNavTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    subNavTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const targetId = tab.dataset.target;
+                    subPages.forEach(page => {
+                        page.classList.toggle('active', page.id === targetId);
+                    });
+                });
+            });
+             // Reset to first tab
+            subNavTabs[0].classList.add('active');
+            subPages[0].classList.add('active');
+            for(let i = 1; i < subNavTabs.length; i++) {
+                subNavTabs[i].classList.remove('active');
+                subPages[i].classList.remove('active');
+            }
         }
 
         // --- Audio Player & Voice Loading ---
@@ -577,7 +625,7 @@
         }
 
         function setupPracticeExercises(article) {
-            const container = document.getElementById('practice-page-content');
+            const container = document.getElementById('practice-content');
             container.innerHTML = '';
             const data = generatePracticeData(article);
             let exercisesAdded = 0;
@@ -1014,6 +1062,97 @@
                 }
             }
             return true;
+        }
+
+        // --- Grammar Drill Logic ---
+        function setupGrammarDrill() {
+            const tagsContainer = document.getElementById('grammar-topic-tags');
+            const allTags = new Set();
+            articles.forEach(article => {
+                const tags = article['GRAMMAR_TOPIC_TAGS']?.split(',').map(t => t.trim()).filter(t => t);
+                if (tags) tags.forEach(tag => allTags.add(tag));
+            });
+            tagsContainer.innerHTML = '';
+            allTags.forEach(tag => {
+                const tagEl = document.createElement('div');
+                tagEl.className = 'word-drag'; // Re-using style
+                tagEl.textContent = tag;
+                tagEl.dataset.tag = tag;
+                tagEl.onclick = () => tagEl.classList.toggle('active'); // a simple selection visual
+                tagsContainer.appendChild(tagEl);
+            });
+        }
+
+        function startGrammarDrill() {
+            const selectedTags = [...document.querySelectorAll('#grammar-topic-tags .active')].map(el => el.dataset.tag);
+            if (selectedTags.length === 0) {
+                alert('Please select at least one grammar topic to drill.');
+                return;
+            }
+
+            const drillContainer = document.getElementById('drill-container');
+            drillContainer.innerHTML = '';
+            let drillSentences = [];
+            articles.forEach(article => {
+                const articleTags = article['GRAMMAR_TOPIC_TAGS']?.split(',').map(t => t.trim());
+                if (selectedTags.some(selTag => articleTags.includes(selTag))) {
+                    const sentences = article['DRILL_SENTENCES']?.split('|').filter(s => s.trim());
+                    if (sentences) drillSentences.push(...sentences);
+                }
+            });
+
+            if (drillSentences.length === 0) {
+                drillContainer.innerHTML = '<p>No drill sentences found for the selected topics.</p>';
+                return;
+            }
+            
+            shuffleArray(drillSentences).slice(0, 10).forEach((sentence, i) => {
+                const match = sentence.match(/(.*){(.*)}(.*)/);
+                if (match) {
+                    const [_, before, answer, after] = match;
+                    const drillItem = document.createElement('div');
+                    drillItem.className = 'practice-exercise';
+                    drillItem.innerHTML = `
+                        <p style="font-size: 1.2em; margin: 15px 0;">${i+1}. ${before} <input type="text" class="lueckentext-input" id="drill-input-${i}"> ${after}</p>
+                        <button class="check-btn" onclick="checkDrill('${answer}', 'drill-input-${i}', 'feedback-drill-${i}')">Check</button>
+                        <div class="feedback-message" id="feedback-drill-${i}"></div>
+                    `;
+                    drillContainer.appendChild(drillItem);
+                }
+            });
+        }
+
+        function checkDrill(correctAnswer, inputId, feedbackId) {
+            const userInput = document.getElementById(inputId).value;
+            const feedbackEl = document.getElementById(feedbackId);
+            feedbackEl.style.display = 'block';
+            if (userInput.trim().toLowerCase() === correctAnswer.toLowerCase()) {
+                feedbackEl.textContent = 'Correct! 👍';
+                feedbackEl.className = 'feedback-message correct';
+            } else {
+                feedbackEl.textContent = `Incorrect. The answer is: ${correctAnswer}`;
+                feedbackEl.className = 'feedback-message incorrect';
+            }
+        }
+
+        // --- Sample Data for Testing ---
+        function getSampleData() {
+            return [
+                {
+                    "DATE": "2025-07-05", "LEVEL": "B2", "THEME": "Job Interview", "STATUS": "Published",
+                    "GERMAN_ARTICLE": "<span class=\"pronoun\" title=\"Pronoun\">Ich</span> <span class=\"verb\" title=\"Verb\">hatte</span> <span class=\"adverb\" title=\"Adverb\">gestern</span> <span class=\"article\" title=\"Article\">ein</span> <span class=\"adjective\" title=\"Adjective\">wichtiges</span> <span class=\"noun-n\" title=\"Noun (das)\">Vorstellungsgespräch</span><span class=\"punctuation\" title=\"Punctuation\">.</span> <span class=\"article\" title=\"Article\">Der</span> <span class=\"noun-m\" title=\"Noun (der)\">Personalverantwortliche</span> <span class=\"verb\" title=\"Verb\">stellte</span> <span class=\"adjective\" title=\"Adjective\">viele</span> <span class=\"noun-f\" title=\"Noun (die)\">Fragen</span> <span class=\"preposition\" title=\"Preposition\">zu</span> <span class=\"adjective\" title=\"Adjective\">meiner</span> <span class=\"noun-f\" title=\"Noun (die)\">Berufserfahrung</span><span class=\"punctuation\" title=\"Punctuation\">.</span>",
+                    "GERMAN_ARTICLE_CLEAN": "Ich hatte gestern ein wichtiges Vorstellungsgespräch. Der Personalverantwortliche stellte viele Fragen zu meiner Berufserfahrung.",
+                    "ENGLISH_TRANSLATION": "I had an important job interview yesterday. The hiring manager asked many questions about my professional experience.",
+                    "VOCABULARY_USED": "das Vorstellungsgespräch - the job interview, der Personalverantwortliche - the hiring manager, die Berufserfahrung - professional experience",
+                    "GRAMMAR_LESSON": "This article uses the Präteritum (simple past tense) for narration.",
+                    "DEEP_DIVE_GRAMMAR": "<strong>The Simple Past (Präteritum)</strong><br><br>The Präteritum is one of Germany's past tenses, often used in written language like stories and reports. For regular verbs, you add a '-te' ending. For irregular verbs, the stem vowel often changes.<br><br><strong>Examples from the text:</strong><br><ul><li>Ich <strong>hatte</strong>... (from haben)</li><li>Er <strong>stellte</strong>... (from stellen)</li></ul>",
+                    "GRAMMAR_TOPIC_TAGS": "Präteritum, Nouns",
+                    "DRILL_SENTENCES": "Gestern {ging} ich ins Kino.|Sie {kaufte} ein neues Buch.",
+                    "PHRASE_AND_IDIOM": "<strong>Phrase:</strong> sich auf eine Stelle bewerben - to apply for a job<br><strong>Idiom:</strong> Daumen drücken - to keep one's fingers crossed",
+                    "QUOTE_AND_JOKE": "<strong>Quote:</strong> \"Der beste Weg, die Zukunft vorauszusagen, ist, sie zu gestalten.\" - Willy Brandt<br><strong>Joke:</strong> Was ist der Unterschied zwischen einem Informatiker und einem Pizza-Boten? Die Pizza kommt warm an.",
+                    "CONVERSATION_TIME": "<strong>Frage:</strong> Was war Ihr bisher schwierigstes Vorstellungsgespräch?<br><strong>Antwort:</strong> Mein schwierigstes Gespräch war, als ich technische Fragen auf Deutsch beantworten musste."
+                }
+            ];
         }
     </script>
 </body>
