@@ -435,9 +435,10 @@
 
         // --- Secure Configuration Management ---
         async function getSecureConfig() {
-            // OPTION 2: External Configuration File (activated for static deployment)
+            // OPTION 1: External Configuration File (for static deployment)
             try {
                 if (window.APP_CONFIG) {
+                    console.log('✅ Found config.js file');
                     return {
                         sheetId: window.APP_CONFIG.sheetId,
                         apiKey: window.APP_CONFIG.apiKey,
@@ -448,16 +449,7 @@
                 console.warn('External config not found');
             }
             
-            /* Disabled options:
-            // OPTION 1: Environment Variables (for build systems like Vite, Webpack, etc.)
-            // Note: These don't work with static HTML files on Netlify
-            return {
-                sheetId: import.meta.env.VITE_GOOGLE_SHEET_ID || process.env.REACT_APP_GOOGLE_SHEET_ID,
-                apiKey: import.meta.env.VITE_GOOGLE_API_KEY || process.env.REACT_APP_GOOGLE_API_KEY,
-                sheetName: 'Sheet1'
-            };
-            
-            // OPTION 4: URL Parameters (for development/testing only - NOT secure)
+            // OPTION 2: URL Parameters (for development/testing only - NOT secure)
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('dev') === 'true') {
                 console.warn('⚠️ DEVELOPMENT MODE: Using URL parameters - NOT secure for production!');
@@ -471,7 +463,6 @@
             // FALLBACK: Return empty config to trigger sample data
             console.warn('⚠️ No secure configuration found. Using sample data.');
             return { sheetId: '', apiKey: '', sheetName: 'Sheet1' };
-            */
         }
 
         // --- Data Loading ---
