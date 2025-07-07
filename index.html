@@ -435,14 +435,14 @@
         // --- Secure Configuration Management ---
         async function getSecureConfig() {
             // OPTION 1: Environment Variables (for build systems like Vite, Webpack, etc.)
-            // Uncomment and use for production builds:
-            /*
+            // Activated for Netlify deployment:
             return {
                 sheetId: import.meta.env.VITE_GOOGLE_SHEET_ID || process.env.REACT_APP_GOOGLE_SHEET_ID,
                 apiKey: import.meta.env.VITE_GOOGLE_API_KEY || process.env.REACT_APP_GOOGLE_API_KEY,
                 sheetName: 'Sheet1'
             };
-            */
+            
+            /* Other configuration options disabled for Netlify environment variables approach
             
             // OPTION 2: External Configuration File (config.js not in version control)
             // Create a config.js file with: window.APP_CONFIG = { sheetId: '...', apiKey: '...' };
@@ -483,6 +483,7 @@
             // FALLBACK: Return empty config to trigger sample data
             console.warn('⚠️ No secure configuration found. Using sample data.');
             return { sheetId: '', apiKey: '', sheetName: 'Sheet1' };
+            */
         }
 
         // --- Data Loading ---
