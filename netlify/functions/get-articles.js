@@ -1,7 +1,22 @@
 exports.handler = async (event, context) => {
-  const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
-  const API_KEY = 'AIzaSyDzkcT5B5E-JluZz-dHh-EpIzQTpsbLT7s';
+  // Get credentials from Netlify environment variables (secure!)
+  const SHEET_ID = process.env.VITE_GOOGLE_SHEET_ID;
+  const API_KEY = process.env.VITE_GOOGLE_API_KEY;
   const SHEET_NAME = 'Sheet1';
+  
+  // Validate environment variables exist
+  if (!SHEET_ID || !API_KEY) {
+    return {
+      statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        error: 'Missing configuration. Please check environment variables.' 
+      }),
+    };
+  }
   
   try {
     const response = await fetch(
