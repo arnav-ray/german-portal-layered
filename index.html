@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily German Learning</title>
-    <script src="config.js"></script>
     <meta name="description" content="Master German with themed articles, vocabulary, and interactive exercises">
     <style>
         /* --- CSS Variables for Theming --- */
@@ -435,18 +434,12 @@
 
         // --- Secure Configuration Management ---
         async function getSecureConfig() {
-            // OPTION 1: External Configuration File (for static deployment)
+            // OPTION 1: Netlify Functions (SECURE - API key stays on server)
             try {
-                if (window.APP_CONFIG) {
-                    console.log('✅ Found config.js file');
-                    return {
-                        sheetId: window.APP_CONFIG.sheetId,
-                        apiKey: window.APP_CONFIG.apiKey,
-                        sheetName: window.APP_CONFIG.sheetName || 'Sheet1'
-                    };
-                }
+                console.log('🔒 Using secure Netlify function');
+                return { useNetlifyFunction: true };
             } catch (e) {
-                console.warn('External config not found');
+                console.warn('Netlify function not available');
             }
             
             // OPTION 2: URL Parameters (for development/testing only - NOT secure)
@@ -471,30 +464,35 @@
             document.getElementById('article-display-container').style.display = 'none';
             document.getElementById('practice-content').innerHTML = '';
             
-            // SECURITY FIX: Get configuration from environment or external config
+            // SECURITY FIX: Get configuration from secure source
             const config = await getSecureConfig();
-            const SHEET_ID = config.sheetId;
-            const API_KEY = config.apiKey;
-            const SHEET_NAME = config.sheetName || 'Sheet1';
-
-            if (!SHEET_ID || !API_KEY || SHEET_ID === 'YOUR_GOOGLE_SHEET_ID_HERE') {
-                showError("Configuration not found. Using sample data for demonstration.");
-                articles = getSampleData();
-                initializeContent();
-                return;
-            }
-
+            
             try {
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+                let data;
                 
-                const response = await fetch(url);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    const errorMessage = errorData.error?.message || `API request failed with status ${response.status}`;
-                    throw new Error(`Failed to load from Google Sheets: ${errorMessage}`);
+                if (config.useNetlifyFunction) {
+                    // Use secure Netlify function
+                    console.log('📡 Fetching data via secure function...');
+                    const response = await fetch('/.netlify/functions/get-articles');
+                    if (!response.ok) {
+                        throw new Error(`Function request failed with status ${response.status}`);
+                    }
+                    data = await response.json();
+                } else if (config.sheetId && config.apiKey) {
+                    // Use direct API call (for dev mode)
+                    console.log('📡 Fetching data via direct API...');
+                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${config.sheetId}/values/${config.sheetName || 'Sheet1'}?key=${config.apiKey}`;
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        const errorMessage = errorData.error?.message || `API request failed with status ${response.status}`;
+                        throw new Error(`Failed to load from Google Sheets: ${errorMessage}`);
+                    }
+                    data = await response.json();
+                } else {
+                    throw new Error('No configuration available');
                 }
                 
-                const data = await response.json();
                 if (!data.values || data.values.length < 2) {
                     throw new Error('No data found in the sheet or sheet is empty.');
                 }
@@ -504,7 +502,9 @@
 
             } catch (error) {
                 console.error('Error loading articles:', error);
-                showError(error.message);
+                showError(`${error.message}. Using sample data for demonstration.`);
+                articles = getSampleData();
+                initializeContent();
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
@@ -1259,6 +1259,7 @@
         // --- Search and Filtering ---
         function setupLevelNavigation() {
             const navContainer = document.getElementById('level-navigation');
+            if (!navContainer) return; // Fix: Check if element exists
             navContainer.innerHTML = '';
             const articlesByLevel = articles.reduce((acc, article) => {
                 const level = article.LEVEL || 'Uncategorized';
