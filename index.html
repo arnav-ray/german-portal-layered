@@ -1259,6 +1259,7 @@
         // --- Search and Filtering ---
         function setupLevelNavigation() {
             const navContainer = document.getElementById('level-navigation');
+            if (!navContainer) return; // Fix: Check if element exists
             navContainer.innerHTML = '';
             const articlesByLevel = articles.reduce((acc, article) => {
                 const level = article.LEVEL || 'Uncategorized';
