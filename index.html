@@ -308,6 +308,56 @@
         const synth = window.speechSynthesis;
         let voices = [];
 
+        // --- Security: HTML Sanitization ---
+        function sanitizeHTML(input) {
+            if (typeof input !== 'string') return '';
+            
+            // Create a temporary div to parse HTML
+            const temp = document.createElement('div');
+            
+            // Set as text first to escape any dangerous content
+            temp.textContent = input;
+            
+            // For cases where we need basic HTML formatting, allow only safe tags
+            const allowedTags = ['b', 'strong', 'i', 'em', 'br', 'p', 'span', 'div'];
+            const allowedClasses = ['noun-m', 'noun-f', 'noun-n', 'verb', 'adjective', 'adverb', 
+                                   'preposition', 'conjunction', 'pronoun', 'article', 'punctuation'];
+            
+            return input
+                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+                .replace(/javascript:/gi, '') // Remove javascript: protocols
+                .replace(/on\w+\s*=/gi, '') // Remove event handlers
+                .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '') // Remove iframes
+                .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '') // Remove objects
+                .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, ''); // Remove embeds
+        }
+
+        function safeSetHTML(element, content) {
+            if (!element) return;
+            
+            // If content contains no HTML tags, use textContent for safety
+            if (!/[<>]/.test(content)) {
+                element.textContent = content;
+                return;
+            }
+            
+            // Otherwise, sanitize and set innerHTML
+            element.innerHTML = sanitizeHTML(content);
+        }
+
+        function safeAppendHTML(element, content) {
+            if (!element) return;
+            
+            const sanitized = sanitizeHTML(content);
+            const temp = document.createElement('div');
+            temp.innerHTML = sanitized;
+            
+            // Append each child node safely
+            while (temp.firstChild) {
+                element.appendChild(temp.firstChild);
+            }
+        }
+
         // --- DOM Elements ---
         const settingsBtn = document.getElementById('settings-btn');
         const settingsModal = document.getElementById('settings-modal');
@@ -382,18 +432,73 @@
             document.getElementById('start-drill-btn').addEventListener('click', startGrammarDrill);
         }
 
+        // --- Secure Configuration Management ---
+        async function getSecureConfig() {
+            // OPTION 1: Environment Variables (for build systems like Vite, Webpack, etc.)
+            // Uncomment and use for production builds:
+            /*
+            return {
+                sheetId: import.meta.env.VITE_GOOGLE_SHEET_ID || process.env.REACT_APP_GOOGLE_SHEET_ID,
+                apiKey: import.meta.env.VITE_GOOGLE_API_KEY || process.env.REACT_APP_GOOGLE_API_KEY,
+                sheetName: 'Sheet1'
+            };
+            */
+            
+            // OPTION 2: External Configuration File (config.js not in version control)
+            // Create a config.js file with: window.APP_CONFIG = { sheetId: '...', apiKey: '...' };
+            try {
+                if (window.APP_CONFIG) {
+                    return {
+                        sheetId: window.APP_CONFIG.sheetId,
+                        apiKey: window.APP_CONFIG.apiKey,
+                        sheetName: window.APP_CONFIG.sheetName || 'Sheet1'
+                    };
+                }
+            } catch (e) {
+                console.warn('External config not found');
+            }
+            
+            // OPTION 3: Server-side Proxy (RECOMMENDED for production)
+            // Instead of using Google Sheets API directly, call your own backend
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (e) {
+                console.warn('Server config not available');
+            }
+            
+            // OPTION 4: URL Parameters (for development/testing only - NOT secure)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('dev') === 'true') {
+                console.warn('⚠️ DEVELOPMENT MODE: Using URL parameters - NOT secure for production!');
+                return {
+                    sheetId: urlParams.get('sheetId') || '',
+                    apiKey: urlParams.get('apiKey') || '',
+                    sheetName: 'Sheet1'
+                };
+            }
+            
+            // FALLBACK: Return empty config to trigger sample data
+            console.warn('⚠️ No secure configuration found. Using sample data.');
+            return { sheetId: '', apiKey: '', sheetName: 'Sheet1' };
+        }
+
         // --- Data Loading ---
         async function loadArticles() {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('article-display-container').style.display = 'none';
             document.getElementById('practice-content').innerHTML = '';
             
-            const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
-            const API_KEY = 'AIzaSyBjd0EF0ghF3hZdpB-0wSbeEBkrSDhG1J8';
-            const SHEET_NAME = 'Sheet1';
+            // SECURITY FIX: Get configuration from environment or external config
+            const config = await getSecureConfig();
+            const SHEET_ID = config.sheetId;
+            const API_KEY = config.apiKey;
+            const SHEET_NAME = config.sheetName || 'Sheet1';
 
             if (!SHEET_ID || !API_KEY || SHEET_ID === 'YOUR_GOOGLE_SHEET_ID_HERE') {
-                showError("Using sample data. Please update the SHEET_ID and API_KEY in the code to fetch live data.");
+                showError("Configuration not found. Using sample data for demonstration.");
                 articles = getSampleData();
                 initializeContent();
                 return;
@@ -465,26 +570,95 @@
             const displayContainer = document.getElementById('article-display-container');
             const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
             
-            document.getElementById('article-content').innerHTML = `
-                <div id="audio-player-container">
-                    <button id="play-pause-btn" class="audio-btn" title="Play/Pause">▶️</button>
-                    <span id="audio-status">Read Aloud</span>
-                </div>
-                <div class="metadata"><strong>Level:</strong> ${safeGet('LEVEL')} | <strong>Theme:</strong> ${safeGet('THEME')}</div>
-                <div class="german-text">${safeGet('GERMAN_ARTICLE')}</div>
-                <div class="english-text">${safeGet('ENGLISH_TRANSLATION')}</div>
-                <div class="article-section vocabulary-section"><strong>🎯 Key Vocabulary:</strong><div>${safeGet('VOCABULARY_USED')}</div></div>
-                <div class="article-section phrases-section"><strong>💬 Phrase & Idiom:</strong><div>${safeGet('PHRASE_AND_IDIOM')}</div></div>
-                <div class="article-section quotes-section"><strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_AND_JOKE')}</div></div>
-                <div class="article-section conversation-section"><strong>🗣️ Conversation Time:</strong><div>${safeGet('CONVERSATION_TIME')}</div></div>
-            `;
+            const articleContent = document.getElementById('article-content');
+            articleContent.innerHTML = ''; // Clear existing content safely
+            
+            // Create audio player container
+            const audioContainer = document.createElement('div');
+            audioContainer.id = 'audio-player-container';
+            const playBtn = document.createElement('button');
+            playBtn.id = 'play-pause-btn';
+            playBtn.className = 'audio-btn';
+            playBtn.title = 'Play/Pause';
+            playBtn.textContent = '▶️';
+            const audioStatus = document.createElement('span');
+            audioStatus.id = 'audio-status';
+            audioStatus.textContent = 'Read Aloud';
+            audioContainer.appendChild(playBtn);
+            audioContainer.appendChild(audioStatus);
+            
+            // Create metadata section
+            const metadata = document.createElement('div');
+            metadata.className = 'metadata';
+            metadata.innerHTML = `<strong>Level:</strong> ${sanitizeHTML(safeGet('LEVEL'))} | <strong>Theme:</strong> ${sanitizeHTML(safeGet('THEME'))}`;
+            
+            // Create German text section (this needs to preserve grammar highlighting)
+            const germanText = document.createElement('div');
+            germanText.className = 'german-text';
+            safeSetHTML(germanText, safeGet('GERMAN_ARTICLE'));
+            
+            // Create English text section
+            const englishText = document.createElement('div');
+            englishText.className = 'english-text';
+            englishText.textContent = safeGet('ENGLISH_TRANSLATION');
+            
+            // Create vocabulary section
+            const vocabSection = document.createElement('div');
+            vocabSection.className = 'article-section vocabulary-section';
+            vocabSection.innerHTML = '<strong>🎯 Key Vocabulary:</strong>';
+            const vocabContent = document.createElement('div');
+            vocabContent.textContent = safeGet('VOCABULARY_USED');
+            vocabSection.appendChild(vocabContent);
+            
+            // Create phrases section
+            const phrasesSection = document.createElement('div');
+            phrasesSection.className = 'article-section phrases-section';
+            phrasesSection.innerHTML = '<strong>💬 Phrase & Idiom:</strong>';
+            const phrasesContent = document.createElement('div');
+            safeSetHTML(phrasesContent, safeGet('PHRASE_AND_IDIOM'));
+            phrasesSection.appendChild(phrasesContent);
+            
+            // Create quotes section
+            const quotesSection = document.createElement('div');
+            quotesSection.className = 'article-section quotes-section';
+            quotesSection.innerHTML = '<strong>😄 Quote & Joke:</strong>';
+            const quotesContent = document.createElement('div');
+            safeSetHTML(quotesContent, safeGet('QUOTE_AND_JOKE'));
+            quotesSection.appendChild(quotesContent);
+            
+            // Create conversation section
+            const conversationSection = document.createElement('div');
+            conversationSection.className = 'article-section conversation-section';
+            conversationSection.innerHTML = '<strong>🗣️ Conversation Time:</strong>';
+            const conversationContent = document.createElement('div');
+            safeSetHTML(conversationContent, safeGet('CONVERSATION_TIME'));
+            conversationSection.appendChild(conversationContent);
+            
+            // Append all sections safely
+            articleContent.appendChild(audioContainer);
+            articleContent.appendChild(metadata);
+            articleContent.appendChild(germanText);
+            articleContent.appendChild(englishText);
+            articleContent.appendChild(vocabSection);
+            articleContent.appendChild(phrasesSection);
+            articleContent.appendChild(quotesSection);
+            articleContent.appendChild(conversationSection);
 
-            document.getElementById('deep-dive-content').innerHTML = `
-                <div class="article-section grammar-section">
-                    <strong>🧠 Deep Dive Grammar:</strong>
-                    <div>${safeGet('DEEP_DIVE_GRAMMAR')}</div>
-                </div>
-            `;
+            const deepDiveContent = document.getElementById('deep-dive-content');
+            deepDiveContent.innerHTML = ''; // Clear existing content safely
+            
+            const grammarSection = document.createElement('div');
+            grammarSection.className = 'article-section grammar-section';
+            
+            const grammarTitle = document.createElement('strong');
+            grammarTitle.textContent = '🧠 Deep Dive Grammar:';
+            
+            const grammarContent = document.createElement('div');
+            safeSetHTML(grammarContent, safeGet('DEEP_DIVE_GRAMMAR'));
+            
+            grammarSection.appendChild(grammarTitle);
+            grammarSection.appendChild(grammarContent);
+            deepDiveContent.appendChild(grammarSection);
             
             displayContainer.style.display = 'block';
             setupAudioPlayer();
@@ -655,17 +829,26 @@
         function populateVoiceList() {
             voices = synth.getVoices();
             const voiceSelect = document.getElementById('voice-select');
+            if (!voiceSelect) return;
+            
             const settings = getSettings();
+            
+            // Clear existing options safely
             voiceSelect.innerHTML = '';
+            
             const germanVoices = voices.filter(voice => voice.lang.startsWith('de'));
             germanVoices.forEach(voice => {
                 const option = document.createElement('option');
-                option.textContent = `${voice.name} (${voice.lang})`;
-                option.value = voice.voiceURI;
+                // Sanitize voice names to prevent XSS
+                option.textContent = `${sanitizeHTML(voice.name)} (${sanitizeHTML(voice.lang)})`;
+                option.value = sanitizeHTML(voice.voiceURI);
                 option.selected = voice.voiceURI === settings.voiceURI;
                 voiceSelect.appendChild(option);
             });
-            if (!settings.voiceURI && germanVoices.length > 0) saveSettings({ voiceURI: germanVoices[0].voiceURI });
+            
+            if (!settings.voiceURI && germanVoices.length > 0) {
+                saveSettings({ voiceURI: germanVoices[0].voiceURI });
+            }
         }
         populateVoiceList();
         if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = populateVoiceList;
@@ -727,7 +910,16 @@
                 if (content && content.trim() !== '') {
                     const exercise = document.createElement('div');
                     exercise.className = 'practice-exercise';
-                    exercise.innerHTML = `<h2>${title}</h2>${content}`;
+                    
+                    const titleElement = document.createElement('h2');
+                    titleElement.textContent = title; // Safe title text
+                    exercise.appendChild(titleElement);
+                    
+                    // For content, we need to be more careful since it contains HTML
+                    const contentDiv = document.createElement('div');
+                    safeSetHTML(contentDiv, content);
+                    exercise.appendChild(contentDiv);
+                    
                     container.appendChild(exercise);
                     exercisesAdded++;
                 }
@@ -783,7 +975,15 @@
                 setTimeout(() => {
                     data.buildSentences.forEach((sentence, i) => {
                         const wordBank = document.getElementById(`word-bank-${i}`);
-                        if(wordBank) shuffleArray(sentence.split(' ')).forEach(word => { wordBank.innerHTML += `<div class="word-drag" draggable="true">${word}</div>`; });
+                        if(wordBank) {
+                            shuffleArray(sentence.split(' ')).forEach(word => {
+                                const wordDiv = document.createElement('div');
+                                wordDiv.className = 'word-drag';
+                                wordDiv.draggable = true;
+                                wordDiv.textContent = sanitizeHTML(word); // Sanitize individual words
+                                wordBank.appendChild(wordDiv);
+                            });
+                        }
                     });
                     setupDragAndDrop();
                 }, 0);
@@ -824,7 +1024,13 @@
                 generateCrossword(data.crosswordWords, 'crossword-container');
             }
 
-            if (exercisesAdded === 0) container.innerHTML = `<p id="no-practice-message">No practice exercises available for this article.</p>`;
+            if (exercisesAdded === 0) {
+                container.innerHTML = ''; // Clear safely
+                const noPracticeMsg = document.createElement('p');
+                noPracticeMsg.id = 'no-practice-message';
+                noPracticeMsg.textContent = 'No practice exercises available for this article.';
+                container.appendChild(noPracticeMsg);
+            }
         }
 
         function checkTranslation(inputId, correctText, feedbackId) {
@@ -888,12 +1094,24 @@
             });
             
             shuffleArray(cards);
-            container.innerHTML = cards.map(card => `
-                <div class="memory-card" data-id="${card.id}">
-                    <div class="front-face"></div>
-                    <div class="back-face">${card.content}</div>
-                </div>
-            `).join('');
+            container.innerHTML = ''; // Clear existing content safely
+            
+            cards.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'memory-card';
+                cardDiv.dataset.id = card.id;
+                
+                const frontFace = document.createElement('div');
+                frontFace.className = 'front-face';
+                
+                const backFace = document.createElement('div');
+                backFace.className = 'back-face';
+                backFace.textContent = sanitizeHTML(card.content); // Sanitize card content
+                
+                cardDiv.appendChild(frontFace);
+                cardDiv.appendChild(backFace);
+                container.appendChild(cardDiv);
+            });
 
             let hasFlippedCard = false, lockBoard = false;
             let firstCard, secondCard;
@@ -1071,7 +1289,16 @@
             ['A2-B1', 'B2', 'C1+'].filter(l => articlesByLevel[l]).forEach(level => {
                 const levelHeader = document.createElement('div');
                 levelHeader.className = 'level-header';
-                levelHeader.innerHTML = `<h3>${level}</h3><span class="toggle-icon">▶</span>`;
+                
+                const h3 = document.createElement('h3');
+                h3.textContent = level; // Safe text content
+                
+                const toggleIcon = document.createElement('span');
+                toggleIcon.className = 'toggle-icon';
+                toggleIcon.textContent = '▶';
+                
+                levelHeader.appendChild(h3);
+                levelHeader.appendChild(toggleIcon);
                 const themeList = document.createElement('div');
                 themeList.className = 'theme-list';
                 [...new Set(articlesByLevel[level].map(a => a.THEME))].forEach(theme => {
@@ -1105,9 +1332,17 @@
         }
         function showError(message) {
             const mainContent = document.getElementById('articles-page');
-            mainContent.innerHTML = `<div class="error-message">${message}</div>`;
+            mainContent.innerHTML = ''; // Clear existing content safely
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message; // Use textContent to prevent XSS
+            
+            mainContent.appendChild(errorDiv);
             mainContent.style.display = 'block';
-            document.getElementById('loading').style.display = 'none';
+            
+            const loadingEl = document.getElementById('loading');
+            if (loadingEl) loadingEl.style.display = 'none';
         }
 
         // --- Crossword Generation ---
@@ -1130,7 +1365,21 @@
             `;
             
             const container = document.getElementById(containerId);
-            container.innerHTML = `<table class="crossword-grid">${gridHtml}</table>${cluesHtml}`;
+            if (!container) return;
+            
+            container.innerHTML = ''; // Clear safely
+            
+            // Create table element safely
+            const table = document.createElement('table');
+            table.className = 'crossword-grid';
+            safeSetHTML(table, gridHtml); // Sanitize grid HTML
+            
+            // Create clues container safely
+            const cluesContainer = document.createElement('div');
+            safeSetHTML(cluesContainer, cluesHtml); // Sanitize clues HTML
+            
+            container.appendChild(table);
+            container.appendChild(cluesContainer);
         }
 
         function checkCrossword() {
@@ -1299,7 +1548,10 @@
             });
 
             if (drillSentences.length === 0) {
-                drillContainer.innerHTML = '<p>No drill sentences found for the selected topics.</p>';
+                drillContainer.innerHTML = ''; // Clear safely
+                const noDrillMsg = document.createElement('p');
+                noDrillMsg.textContent = 'No drill sentences found for the selected topics.';
+                drillContainer.appendChild(noDrillMsg);
                 return;
             }
             
@@ -1309,11 +1561,40 @@
                     const [_, before, answer, after] = match;
                     const drillItem = document.createElement('div');
                     drillItem.className = 'practice-exercise';
-                    drillItem.innerHTML = `
-                        <p style="font-size: 1.2em; margin: 15px 0;">${i+1}. ${before} <input type="text" class="lueckentext-input" id="drill-input-${i}"> ${after}</p>
-                        <button class="check-btn" onclick="checkDrill('${answer}', 'drill-input-${i}', 'feedback-drill-${i}')">Check</button>
-                        <div class="feedback-message" id="feedback-drill-${i}"></div>
-                    `;
+                    
+                    // Create the sentence paragraph safely
+                    const sentencePara = document.createElement('p');
+                    sentencePara.style.fontSize = '1.2em';
+                    sentencePara.style.margin = '15px 0';
+                    
+                    // Add text content safely
+                    sentencePara.textContent = `${i+1}. ${before} `;
+                    
+                    // Create and add input
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'lueckentext-input';
+                    input.id = `drill-input-${i}`;
+                    sentencePara.appendChild(input);
+                    
+                    // Add remaining text
+                    const afterText = document.createTextNode(` ${after}`);
+                    sentencePara.appendChild(afterText);
+                    
+                    // Create check button
+                    const checkBtn = document.createElement('button');
+                    checkBtn.className = 'check-btn';
+                    checkBtn.textContent = 'Check';
+                    checkBtn.onclick = () => checkDrill(answer, `drill-input-${i}`, `feedback-drill-${i}`);
+                    
+                    // Create feedback div
+                    const feedbackDiv = document.createElement('div');
+                    feedbackDiv.className = 'feedback-message';
+                    feedbackDiv.id = `feedback-drill-${i}`;
+                    
+                    drillItem.appendChild(sentencePara);
+                    drillItem.appendChild(checkBtn);
+                    drillItem.appendChild(feedbackDiv);
                     drillContainer.appendChild(drillItem);
                 }
             });
