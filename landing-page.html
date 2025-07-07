@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arnav Ray - Building the Future with AI & Innovation</title>
+    <meta name="description" content="Non-technical founder leveraging AI to build full-stack applications. Showcasing cloud architecture, API integrations, and innovative solutions.">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-content .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .hero-content .tagline {
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease-out 0.9s both;
+        }
+
+        .cta-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .section:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* About Section */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .about-text p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Journey Section */
+        .journey-timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 2rem;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            flex: 1;
+        }
+
+        .timeline-content h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Projects Section */
+        .project-showcase {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+
+        .project-info h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .project-description {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .achievement-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .achievement-list li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .achievement-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .architecture-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .arch-component {
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .arch-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .arch-arrow {
+            font-size: 2rem;
+            color: #667eea;
+        }
+
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .security-badge {
+            background: #e8f4fd;
+            color: #0066cc;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .skill-category {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .skill-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .skill-list {
+            list-style: none;
+            text-align: left;
+        }
+
+        .skill-list li {
+            padding: 0.3rem 0;
+            color: #666;
+        }
+
+        /* Contact Section */
+        .contact-content {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .contact-item {
+            text-align: center;
+        }
+
+        .contact-item .icon {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-grid,
+            .project-showcase {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .architecture-flow {
+                flex-direction: column;
+            }
+
+            .arch-arrow {
+                transform: rotate(90deg);
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">Arnav Ray</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#journey">Journey</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Building the Future with AI</h1>
+            <p class="subtitle">Non-Technical Founder • AI-Powered Solutions • Cloud Architecture</p>
+            <p class="tagline">Transforming ideas into full-stack applications without traditional coding</p>
+            <a href="#projects" class="cta-button">See My Work</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">About Me</h2>
+            <p class="section-subtitle">Bridging the gap between business vision and technical execution through AI collaboration</p>
+            
+            <div class="about-grid">
+                <div class="about-text">
+                    <h3>The Non-Traditional Tech Journey</h3>
+                    <p>I'm not your typical developer. With zero traditional coding background, I've leveraged AI as my development partner to build sophisticated web applications that solve real-world problems.</p>
+                    
+                    <p>My approach combines business acumen, problem-solving skills, and strategic AI collaboration to create solutions that work in production environments.</p>
+                    
+                    <p>I believe the future belongs to those who can effectively collaborate with AI to bring ideas to life, regardless of their technical background.</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Years Coding Experience</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">AI-Assisted Development</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">1</span>
+                        <span class="stat-label">Full-Stack Application</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label">Learning Potential</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Journey Section -->
+    <section id="journey" class="section">
+        <div class="container">
+            <h2 class="section-title">My Learning Journey</h2>
+            <p class="section-subtitle">From idea to deployment: How I built production-ready applications</p>
+            
+            <div class="journey-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">1</div>
+                    <div class="timeline-content">
+                        <h4>The Challenge</h4>
+                        <p>Identified a need for interactive German learning tools but had no technical background to build them.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-marker">2</div>
+                    <div class="timeline-content">
+                        <h4>AI Partnership</h4>
+                        <p>Began collaborating with AI to understand web development, APIs, and cloud architecture concepts.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-marker">3</div>
+                    <div class="timeline-content">
+                        <h4>Technical Deep Dive</h4>
+                        <p>Learned about serverless functions, API security, XSS prevention, and modern deployment practices.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-marker">4</div>
+                    <div class="timeline-content">
+                        <h4>Production Deployment</h4>
+                        <p>Successfully deployed a full-stack application with proper security measures and cloud architecture.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section">
+        <div class="container">
+            <h2 class="section-title">Featured Project</h2>
+            <p class="section-subtitle">A comprehensive German learning platform built from scratch</p>
+            
+            <div class="project-showcase">
+                <div class="project-info">
+                    <h3>Daily German Learning Platform</h3>
+                    <p class="project-description">An interactive web application that helps users learn German through themed articles, color-coded grammar analysis, and engaging exercises. Built entirely through AI collaboration without prior coding experience.</p>
+                    
+                    <ul class="achievement-list">
+                        <li>Built full-stack web application with 0 prior coding experience</li>
+                        <li>Integrated cloud APIs and serverless functions</li>
+                        <li>Implemented security best practices including XSS prevention</li>
+                        <li>Solved complex technical challenges through systematic debugging</li>
+                        <li>Created interactive exercises: drag & drop, memory games, crosswords</li>
+                        <li>Developed color-coded grammar analysis system</li>
+                        <li>Responsive design with dark/light theme support</li>
+                    </ul>
+                    
+                    <div class="project-links">
+                        <a href="https://german.arnavray.ca" class="btn btn-primary" target="_blank">Live Demo</a>
+                        <a href="#architecture" class="btn btn-secondary">View Architecture</a>
+                    </div>
+                </div>
+                
+                <div class="architecture-diagram" id="architecture">
+                    <h4 style="text-align: center; margin-bottom: 2rem; color: #333;">Technical Architecture</h4>
+                    <div class="architecture-flow">
+                        <div class="arch-component">
+                            <div class="arch-icon">🌐</div>
+                            <h5>Frontend</h5>
+                            <p>HTML/CSS/JavaScript<br>Responsive Design<br>Interactive UI</p>
+                        </div>
+                        
+                        <div class="arch-arrow">→</div>
+                        
+                        <div class="arch-component">
+                            <div class="arch-icon">⚡</div>
+                            <h5>Netlify Functions</h5>
+                            <p>Serverless Backend<br>API Proxy<br>Environment Variables</p>
+                        </div>
+                        
+                        <div class="arch-arrow">→</div>
+                        
+                        <div class="arch-component">
+                            <div class="arch-icon">📊</div>
+                            <h5>Google Sheets API</h5>
+                            <p>Content Management<br>Real-time Data<br>Cloud Storage</p>
+                        </div>
+                    </div>
+                    
+                    <div class="security-badges">
+                        <span class="security-badge">🔒 XSS Prevention</span>
+                        <span class="security-badge">🛡️ Input Sanitization</span>
+                        <span class="security-badge">🔑 Secure API Keys</span>
+                        <span class="security-badge">⚡ Rate Limiting</span>
+                        <span class="security-badge">🌐 CORS Handling</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section">
+        <div class="container">
+            <h2 class="section-title">Skills & Technologies</h2>
+            <p class="section-subtitle">What I've learned through AI-assisted development</p>
+            
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <div class="skill-icon">🌐</div>
+                    <h4>Frontend Development</h4>
+                    <ul class="skill-list">
+                        <li>HTML5 & CSS3</li>
+                        <li>JavaScript (ES6+)</li>
+                        <li>Responsive Design</li>
+                        <li>Interactive UI/UX</li>
+                        <li>Accessibility</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <div class="skill-icon">☁️</div>
+                    <h4>Cloud & APIs</h4>
+                    <ul class="skill-list">
+                        <li>Google Cloud Platform</li>
+                        <li>RESTful APIs</li>
+                        <li>Serverless Functions</li>
+                        <li>Environment Variables</li>
+                        <li>API Security</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <div class="skill-icon">🔒</div>
+                    <h4>Security & Best Practices</h4>
+                    <ul class="skill-list">
+                        <li>XSS Prevention</li>
+                        <li>Input Sanitization</li>
+                        <li>Secure Authentication</li>
+                        <li>Error Handling</li>
+                        <li>Code Security</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <div class="skill-icon">🚀</div>
+                    <h4>DevOps & Deployment</h4>
+                    <ul class="skill-list">
+                        <li>Git Version Control</li>
+                        <li>Netlify Deployment</li>
+                        <li>CI/CD Pipelines</li>
+                        <li>Domain Management</li>
+                        <li>Performance Optimization</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <div class="skill-icon">🤖</div>
+                    <h4>AI Collaboration</h4>
+                    <ul class="skill-list">
+                        <li>Prompt Engineering</li>
+                        <li>Technical Problem Solving</li>
+                        <li>Code Review & Debugging</li>
+                        <li>Architecture Planning</li>
+                        <li>Learning Optimization</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <div class="skill-icon">📚</div>
+                    <h4>Domain Expertise</h4>
+                    <ul class="skill-list">
+                        <li>Educational Technology</li>
+                        <li>German Language</li>
+                        <li>Content Strategy</li>
+                        <li>User Experience</li>
+                        <li>Product Development</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <div class="contact-content">
+                <h2 class="section-title">Let's Connect</h2>
+                <p class="section-subtitle">Interested in AI-assisted development, technical collaboration, or just want to chat about the future of coding?</p>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="icon">📧</div>
+                        <h4>Email</h4>
+                        <p>hello@arnavray.ca</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="icon">💼</div>
+                        <h4>LinkedIn</h4>
+                        <p>Connect with me</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="icon">🌐</div>
+                        <h4>Projects</h4>
+                        <p>german.arnavray.ca</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Arnav Ray. Built with AI assistance and human creativity.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll effect to header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>
