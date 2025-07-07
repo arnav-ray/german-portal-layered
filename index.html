@@ -538,31 +538,119 @@
             utterance.lang = 'de-DE';
             synth.speak(utterance);
         }
+        // Audio player state management
+        const audioPlayerState = {
+            isProcessing: false,
+            lastClickTime: 0,
+            debounceDelay: 300 // ms
+        };
+
         function setupAudioPlayer() {
             const playPauseBtn = document.getElementById('play-pause-btn');
             const germanTextElement = document.querySelector('.german-text');
-            if (!germanTextElement) return;
+            if (!germanTextElement || !playPauseBtn) return;
+            
             const textToSpeak = germanTextElement.textContent.trim();
             
-            playPauseBtn.onclick = () => {
-                if (!textToSpeak) return;
-                if (synth.speaking && !synth.paused) synth.pause();
-                else if (synth.paused) synth.resume();
-                else {
-                    const statusLabel = document.getElementById('audio-status');
-                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                    const settings = getSettings();
-                    utterance.voice = voices.find(v => v.voiceURI === settings.voiceURI);
-                    utterance.rate = settings.rate;
-                    utterance.pitch = settings.pitch;
-                    utterance.lang = 'de-DE';
-                    utterance.onstart = () => { playPauseBtn.textContent = '⏸️'; statusLabel.textContent = 'Playing...'; };
-                    utterance.onpause = () => { playPauseBtn.textContent = '▶️'; statusLabel.textContent = 'Paused'; };
-                    utterance.onresume = () => { playPauseBtn.textContent = '⏸️'; statusLabel.textContent = 'Playing...'; };
-                    utterance.onend = () => { playPauseBtn.textContent = '▶️'; statusLabel.textContent = 'Read Aloud'; synth.cancel(); };
-                    synth.speak(utterance);
+            playPauseBtn.onclick = (e) => {
+                e.preventDefault();
+                
+                // Debounce rapid clicks
+                const now = Date.now();
+                if (now - audioPlayerState.lastClickTime < audioPlayerState.debounceDelay) {
+                    return;
                 }
+                audioPlayerState.lastClickTime = now;
+                
+                // Prevent multiple simultaneous operations
+                if (audioPlayerState.isProcessing) return;
+                audioPlayerState.isProcessing = true;
+                
+                handleAudioPlayback(textToSpeak, playPauseBtn);
             };
+        }
+
+        function handleAudioPlayback(textToSpeak, playPauseBtn) {
+            try {
+                if (!textToSpeak) {
+                    audioPlayerState.isProcessing = false;
+                    return;
+                }
+
+                const statusLabel = document.getElementById('audio-status');
+                
+                if (synth.speaking && !synth.paused) {
+                    // Currently playing - pause it
+                    synth.pause();
+                    updateAudioUI(playPauseBtn, statusLabel, '▶️', 'Paused');
+                } else if (synth.paused) {
+                    // Currently paused - resume it
+                    synth.resume();
+                    updateAudioUI(playPauseBtn, statusLabel, '⏸️', 'Playing...');
+                } else {
+                    // Not playing - start new playback
+                    startNewAudioPlayback(textToSpeak, playPauseBtn, statusLabel);
+                }
+            } catch (error) {
+                console.error('Audio playback error:', error);
+                updateAudioUI(playPauseBtn, statusLabel, '▶️', 'Audio Error');
+            } finally {
+                // Reset processing state after a short delay
+                setTimeout(() => {
+                    audioPlayerState.isProcessing = false;
+                }, 100);
+            }
+        }
+
+        function startNewAudioPlayback(textToSpeak, playPauseBtn, statusLabel) {
+            // Cancel any existing speech
+            synth.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            const settings = getSettings();
+            
+            // Find and set the appropriate voice
+            const selectedVoice = voices.find(v => v.voiceURI === settings.voiceURI);
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+            
+            utterance.rate = settings.rate || 0.9;
+            utterance.pitch = settings.pitch || 1.0;
+            utterance.lang = 'de-DE';
+            
+            // Set up event handlers
+            utterance.onstart = () => {
+                updateAudioUI(playPauseBtn, statusLabel, '⏸️', 'Playing...');
+            };
+            
+            utterance.onpause = () => {
+                updateAudioUI(playPauseBtn, statusLabel, '▶️', 'Paused');
+            };
+            
+            utterance.onresume = () => {
+                updateAudioUI(playPauseBtn, statusLabel, '⏸️', 'Playing...');
+            };
+            
+            utterance.onend = () => {
+                updateAudioUI(playPauseBtn, statusLabel, '▶️', 'Read Aloud');
+                // Ensure clean state
+                synth.cancel();
+            };
+            
+            utterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+                updateAudioUI(playPauseBtn, statusLabel, '▶️', 'Audio Error');
+                synth.cancel();
+            };
+            
+            // Start playback
+            synth.speak(utterance);
+        }
+
+        function updateAudioUI(button, statusLabel, buttonText, statusText) {
+            if (button) button.textContent = buttonText;
+            if (statusLabel) statusLabel.textContent = statusText;
         }
         function populateVoiceList() {
             voices = synth.getVoices();
@@ -626,6 +714,11 @@
 
         function setupPracticeExercises(article) {
             const container = document.getElementById('practice-content');
+            
+            // Cleanup previous exercise listeners and timers
+            cleanupMemoryGame();
+            cleanupDragAndDrop();
+            
             container.innerHTML = '';
             const data = generatePracticeData(article);
             let exercisesAdded = 0;
@@ -775,8 +868,19 @@
             }
         }
 
+        // Global cleanup registry to track event listeners
+        const eventListenerCleanup = {
+            memoryGameListeners: [],
+            dragDropListeners: [],
+            currentTimers: []
+        };
+
         function setupMemoryGame(pairs) {
             const container = document.getElementById('memory-game-container');
+            
+            // Cleanup previous game instance
+            cleanupMemoryGame();
+            
             let cards = [];
             pairs.forEach((pair, index) => {
                 cards.push({ content: pair.german, id: index });
@@ -801,8 +905,10 @@
                 const timerEl = document.getElementById('memory-timer');
                 timerInterval = setInterval(() => {
                     seconds++;
-                    timerEl.textContent = `Time: ${seconds}s`;
+                    if (timerEl) timerEl.textContent = `Time: ${seconds}s`;
                 }, 1000);
+                // Track timer for cleanup
+                eventListenerCleanup.currentTimers.push(timerInterval);
             };
 
             const flipCard = (e) => {
@@ -824,6 +930,9 @@
                     resetBoard();
                     if (matchesFound === pairs.length) {
                         clearInterval(timerInterval);
+                        // Remove timer from cleanup registry
+                        const timerIndex = eventListenerCleanup.currentTimers.indexOf(timerInterval);
+                        if (timerIndex > -1) eventListenerCleanup.currentTimers.splice(timerIndex, 1);
                         setTimeout(() => alert('You found all matches!'), 500);
                     }
                 } else {
@@ -834,8 +943,31 @@
                     }, 1200);
                 }
             };
-            const resetBoard = () => { [hasFlippedCard, lockBoard] = [false, false]; [firstCard, secondCard] = [null, null]; };
-            document.querySelectorAll('.memory-card').forEach(card => card.addEventListener('click', flipCard));
+            
+            const resetBoard = () => { 
+                [hasFlippedCard, lockBoard] = [false, false]; 
+                [firstCard, secondCard] = [null, null]; 
+            };
+            
+            // Add listeners and track them for cleanup
+            const memoryCards = document.querySelectorAll('.memory-card');
+            memoryCards.forEach(card => {
+                card.addEventListener('click', flipCard);
+                // Store for cleanup
+                eventListenerCleanup.memoryGameListeners.push({ element: card, handler: flipCard });
+            });
+        }
+
+        function cleanupMemoryGame() {
+            // Remove all memory game event listeners
+            eventListenerCleanup.memoryGameListeners.forEach(({ element, handler }) => {
+                if (element) element.removeEventListener('click', handler);
+            });
+            eventListenerCleanup.memoryGameListeners = [];
+            
+            // Clear any running timers
+            eventListenerCleanup.currentTimers.forEach(timer => clearInterval(timer));
+            eventListenerCleanup.currentTimers = [];
         }
         
         function checkArticle(button, correctArticle, feedbackId) {
@@ -852,15 +984,59 @@
         }
 
         function setupDragAndDrop() {
+            // Cleanup previous drag and drop listeners
+            cleanupDragAndDrop();
+            
+            // Setup draggable elements
             document.querySelectorAll('.word-drag').forEach(draggable => {
-                draggable.addEventListener('dragstart', () => draggable.classList.add('dragging'));
-                draggable.addEventListener('dragend', () => draggable.classList.remove('dragging'));
+                const dragStartHandler = () => draggable.classList.add('dragging');
+                const dragEndHandler = () => draggable.classList.remove('dragging');
+                
+                draggable.addEventListener('dragstart', dragStartHandler);
+                draggable.addEventListener('dragend', dragEndHandler);
+                
+                // Track for cleanup
+                eventListenerCleanup.dragDropListeners.push(
+                    { element: draggable, event: 'dragstart', handler: dragStartHandler },
+                    { element: draggable, event: 'dragend', handler: dragEndHandler }
+                );
             });
+            
+            // Setup drop zones
             document.querySelectorAll('.drop-zone, .word-bank').forEach(zone => {
-                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); const d = document.querySelector('.dragging'); if (d) zone.appendChild(d); });
-                zone.addEventListener('dragleave', () => zone.classList.remove('over'));
-                zone.addEventListener('drop', () => zone.classList.remove('over'));
+                const dragOverHandler = (e) => { 
+                    e.preventDefault(); 
+                    zone.classList.add('over'); 
+                };
+                const dragLeaveHandler = () => zone.classList.remove('over');
+                const dropHandler = (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('over');
+                    const draggingElement = document.querySelector('.dragging');
+                    if (draggingElement) {
+                        zone.appendChild(draggingElement);
+                    }
+                };
+                
+                zone.addEventListener('dragover', dragOverHandler);
+                zone.addEventListener('dragleave', dragLeaveHandler);
+                zone.addEventListener('drop', dropHandler);
+                
+                // Track for cleanup
+                eventListenerCleanup.dragDropListeners.push(
+                    { element: zone, event: 'dragover', handler: dragOverHandler },
+                    { element: zone, event: 'dragleave', handler: dragLeaveHandler },
+                    { element: zone, event: 'drop', handler: dropHandler }
+                );
             });
+        }
+
+        function cleanupDragAndDrop() {
+            // Remove all drag and drop event listeners
+            eventListenerCleanup.dragDropListeners.forEach(({ element, event, handler }) => {
+                if (element) element.removeEventListener(event, handler);
+            });
+            eventListenerCleanup.dragDropListeners = [];
         }
         
         function checkSentence(dropZoneId, correctSentence) {
@@ -1002,9 +1178,13 @@
                             if (placed.word[i] === wordToPlace.word[j]) {
                                 let newRow, newCol, newDirection;
                                 if (placed.direction === 'across') {
-                                    newDirection = 'down'; newRow = placed.row - j; newCol = placed.col + i;
+                                    newDirection = 'down'; 
+                                    newRow = placed.row - j; 
+                                    newCol = placed.col + i;
                                 } else {
-                                    newDirection = 'across'; newRow = placed.row + i; newCol = placed.col - j;
+                                    newDirection = 'across'; 
+                                    newRow = placed.row + i; 
+                                    newCol = placed.col - j;
                                 }
                                 if (canPlace(wordToPlace.word, newRow, newCol, newDirection, grid)) {
                                     bestFit = { ...wordToPlace, row: newRow, col: newCol, direction: newDirection };
@@ -1020,15 +1200,22 @@
                 if (bestFit) {
                     for (let k = 0; k < bestFit.len; k++) {
                         if (bestFit.direction === 'across') {
-                            grid[bestFit.row][bestFit.col + k] = { char: bestFit.word[k], ...grid[bestFit.row][bestFit.col + k] };
+                            grid[bestFit.row][bestFit.col + k] = { 
+                                char: bestFit.word[k], 
+                                ...grid[bestFit.row][bestFit.col + k] 
+                            };
                         } else {
-                            grid[bestFit.row + k][bestFit.col] = { char: bestFit.word[k], ...grid[bestFit.row + k][bestFit.col] };
+                            grid[bestFit.row + k][bestFit.col] = { 
+                                char: bestFit.word[k], 
+                                ...grid[bestFit.row + k][bestFit.col] 
+                            };
                         }
                     }
                     placedWords.push(bestFit);
                 }
             }
 
+            // Assign word numbers
             let wordNum = 1;
             placedWords.sort((a,b) => a.row - b.row || a.col - b.col);
             for(const word of placedWords) {
@@ -1042,22 +1229,32 @@
             }
             return { grid, words: placedWords };
         }
+
         function canPlace(word, row, col, direction, grid) {
             if (row < 0 || col < 0) return false;
+            
             if (direction === 'across') {
                 if (col + word.length > grid[0].length) return false;
+                // Check for adjacent words that would create invalid intersections
                 if (grid[row]?.[col-1] || grid[row]?.[col+word.length]) return false;
+                
                 for (let i = 0; i < word.length; i++) {
                     const cell = grid[row][col + i];
+                    // If cell exists, it must match the character we want to place
                     if (cell && cell.char !== word[i]) return false;
+                    // If cell is empty, check for adjacent cells that would create invalid words
                     if (!cell && (grid[row-1]?.[col+i] || grid[row+1]?.[col+i])) return false;
                 }
             } else { // down
                 if (row + word.length > grid.length) return false;
-                 if (grid[row-1]?.[col] || grid[row+word.length]?.[col]) return false;
+                // Check for adjacent words that would create invalid intersections
+                if (grid[row-1]?.[col] || grid[row+word.length]?.[col]) return false;
+                
                 for (let i = 0; i < word.length; i++) {
                     const cell = grid[row + i]?.[col];
+                    // If cell exists, it must match the character we want to place
                     if (cell && cell.char !== word[i]) return false;
+                    // If cell is empty, check for adjacent cells that would create invalid words
                     if (!cell && (grid[row+i]?.[col-1] || grid[row+i]?.[col+1])) return false;
                 }
             }
