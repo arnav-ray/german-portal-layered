@@ -1,4 +1,4 @@
-// AI Conversation Handler for German Learning
+// AI Conversation Handler for German Learning (Updated for Google Gemini)
 exports.handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
@@ -23,11 +23,12 @@ exports.handler = async (event, context) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'Message is required' }) };
     }
 
-    const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+    // IMPORTANT: Use your Gemini API Key from Netlify environment variables
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
     // If no API key, return a helpful mock response
-    if (!ANTHROPIC_API_KEY) {
-      console.log('No Anthropic API key found, returning mock response.');
+    if (!GEMINI_API_KEY) {
+      console.log('No Gemini API key found, returning mock response.');
       return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
@@ -35,25 +36,53 @@ exports.handler = async (event, context) => {
           text: getMockResponse(message, conversationContext),
           corrections: getMockCorrections(message),
           metrics: { accuracy: 85, fluency: 70, grammar_accuracy: 80, vocabulary_usage: 75 },
-          suggestions: [{ type: 'general', action: 'Add an Anthropic API key for full AI features!' }]
+          suggestions: [{ type: 'general', action: 'Add a Google Gemini API key for full AI features!' }]
         })
       };
     }
     
-    // If API key exists, call the real API (logic for this would go here)
-    // For now, we can return a more advanced mock response to simulate it
+    // If API key exists, call the real Gemini API
     const systemPrompt = generateSystemPrompt(conversationContext);
-    
-    // This is where you would make the actual fetch call to the Anthropic API
-    // For now, we'll simulate a successful response
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+
+    // Format conversation history for Gemini
+    const geminiHistory = (history || []).map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.text }]
+    }));
+
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [
+                ...geminiHistory,
+                { role: 'user', parts: [{ text: message }] }
+            ],
+            systemInstruction: {
+                parts: [{ text: systemPrompt }]
+            }
+        })
+    });
+
+    if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`Gemini API error: ${response.status} - ${errorBody}`);
+    }
+
+    const data = await response.json();
+    const aiResponse = data.candidates[0].content.parts[0].text;
+    const corrections = analyzeGrammar(message);
+    const metrics = calculatePerformanceMetrics(message, corrections, conversationContext);
+
     return {
       statusCode: 200,
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        text: `(Simulated AI Response) Das ist eine sehr gute Frage zu: "${message}". Basierend auf dem Podcast, könnten wir diskutieren...`,
-        corrections: analyzeGrammar(message),
-        metrics: calculatePerformanceMetrics(message, analyzeGrammar(message), conversationContext),
-        suggestions: generateNextSteps(calculatePerformanceMetrics(message, analyzeGrammar(message), conversationContext))
+        text: aiResponse,
+        corrections: corrections,
+        metrics: metrics,
+        suggestions: generateNextSteps(metrics)
       })
     };
 
@@ -62,16 +91,16 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal server error' })
+      body: JSON.stringify({ error: 'Internal server error', details: error.message })
     };
   }
 };
 
-// --- Helper and Mocking Functions ---
+// --- Helper and Mocking Functions (No changes needed below) ---
 
 function generateSystemPrompt(context) {
     const { podcast, userLevel } = context || {};
-    return `You are a German language teacher for a ${userLevel || 'B2'} student. The student just listened to a podcast: "${podcast?.title || 'a German podcast'}". Your goal is to discuss the topic in German, correct their mistakes gently, and help them learn.`;
+    return `You are a German language teacher for a ${userLevel || 'B2'} student. The student just listened to a podcast: "${podcast?.title || 'a German podcast'}". Your goal is to discuss the topic in German, correct their mistakes gently, and help them learn. Keep your responses concise and friendly.`;
 }
 
 function getMockResponse(message, context) {
