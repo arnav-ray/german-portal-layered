@@ -1,4 +1,6 @@
 // netlify/functions/ai-conversation.js
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
 exports.handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
@@ -26,16 +28,103 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Simulate AI response with grammar corrections
-    const response = generateAIResponse(message, userContext, history);
+    // Check for Gemini API key
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
+    if (!GEMINI_API_KEY) {
+      console.log('Gemini API key not found, using fallback response');
+      // Fallback to simple response if no API key
+      return {
+        statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(generateFallbackResponse(message, userContext))
+      };
+    }
+
+    // Initialize Gemini AI
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+    // Build conversation context
+    const systemPrompt = `Du bist ein freundlicher Deutschlehrer. Deine Aufgabe ist es:
+1. Auf Deutsch zu antworten
+2. Grammatikfehler zu korrigieren (mit Erklärungen)
+3. Dem Schüler beim Deutschlernen zu helfen
+4. Das Niveau anzupassen (aktuell: ${userContext?.userLevel || 'B2'})
+
+Wenn der Schüler Fehler macht, korrigiere sie freundlich und erkläre warum.
+Antworte im JSON-Format:
+{
+  "text": "Deine Antwort auf Deutsch",
+  "corrections": [
+    {
+      "original": "falscher Text",
+      "corrected": "korrigierter Text",
+      "explanation": "Erklärung auf Deutsch"
+    }
+  ],
+  "metrics": {
+    "accuracy": 0-100,
+    "fluency": 0-100,
+    "grammar_accuracy": 0-100,
+    "vocabulary_usage": 0-100
+  },
+  "suggestions": [
+    {
+      "type": "Grammar/Vocabulary/Expression",
+      "action": "Konkrete Verbesserungsvorschläge"
+    }
+  ]
+}`;
+
+    // Build conversation history for context
+    let conversationContext = systemPrompt + "\n\n";
+    
+    if (userContext?.podcast) {
+      conversationContext += `Der Schüler hat gerade den Podcast "${userContext.podcast.title}" gehört.\n`;
+    }
+    
+    if (history && history.length > 0) {
+      conversationContext += "Bisheriger Gesprächsverlauf:\n";
+      history.slice(-5).forEach(h => {
+        conversationContext += `${h.sender === 'user' ? 'Schüler' : 'Lehrer'}: ${h.text}\n`;
+      });
+    }
+    
+    conversationContext += `\nSchüler: ${message}\n\nBitte antworte als Deutschlehrer im JSON-Format:`;
+
+    // Generate response with Gemini
+    const result = await model.generateContent(conversationContext);
+    const response = await result.response;
+    const responseText = response.text();
+    
+    // Try to parse as JSON, with fallback
+    let aiResponse;
+    try {
+      // Remove any markdown code blocks if present
+      const cleanedResponse = responseText.replace(/```json\n?|\n?```/g, '').trim();
+      aiResponse = JSON.parse(cleanedResponse);
+    } catch (parseError) {
+      console.error('Failed to parse Gemini response as JSON:', parseError);
+      // Fallback: create structured response from plain text
+      aiResponse = {
+        text: responseText,
+        corrections: extractCorrections(message),
+        metrics: calculateMetrics(message),
+        suggestions: generateSuggestions(message)
+      };
+    }
+
     return {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(response)
+      body: JSON.stringify(aiResponse)
     };
     
   } catch (error) {
@@ -49,103 +138,120 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ 
         error: 'Failed to process conversation',
         text: 'Entschuldigung, es gab einen Fehler. Bitte versuchen Sie es erneut.',
-        corrections: []
+        corrections: [],
+        metrics: { accuracy: 75, fluency: 75, grammar_accuracy: 75, vocabulary_usage: 75 },
+        suggestions: []
       })
     };
   }
 };
 
-function generateAIResponse(message, context, history) {
-  // Basic grammar checking patterns
-  const corrections = [];
+// Fallback response when no API key is available
+function generateFallbackResponse(message, context) {
+  const corrections = extractCorrections(message);
   
-  // Check for common German grammar mistakes
-  if (message.match(/\bich\s+habe\s+gegangen\b/i)) {
-    corrections.push({
-      original: 'ich habe gegangen',
-      corrected: 'ich bin gegangen',
-      explanation: 'Bewegungsverben bilden das Perfekt mit "sein", nicht mit "haben".'
-    });
-  }
-  
-  if (message.match(/\bich\s+bin\s+gemacht\b/i)) {
-    corrections.push({
-      original: 'ich bin gemacht',
-      corrected: 'ich habe gemacht',
-      explanation: '"Machen" bildet das Perfekt mit "haben".'
-    });
-  }
-  
-  // Check for article errors
-  if (message.match(/\bder\s+Frau\b/)) {
-    corrections.push({
-      original: 'der Frau',
-      corrected: 'die Frau',
-      explanation: '"Frau" ist feminin und benötigt den Artikel "die" im Nominativ.'
-    });
-  }
-  
-  // Generate contextual response
-  let responseText = '';
+  let responseText = 'Vielen Dank für deine Nachricht! ';
   
   if (context?.podcast) {
-    responseText = `Sehr gut! Ich sehe, dass du den Podcast "${context.podcast.title}" gehört hast. `;
+    responseText += `Ich hoffe, der Podcast "${context.podcast.title}" war interessant. `;
   }
   
   if (corrections.length > 0) {
-    responseText += 'Ich habe einige kleine Korrekturen für dich. Das ist völlig normal beim Deutschlernen! ';
+    responseText += 'Ich habe einige kleine Korrekturen für dich. ';
   }
   
-  // Add topic-specific responses
-  if (message.toLowerCase().includes('podcast')) {
-    responseText += 'Die Podcasts sind eine ausgezeichnete Möglichkeit, dein Hörverständnis zu verbessern. Hast du schon versucht, die Geschwindigkeit anzupassen?';
-  } else if (message.toLowerCase().includes('grammatik') || message.toLowerCase().includes('grammar')) {
-    responseText += 'Grammatik kann herausfordernd sein, aber mit Übung wird es einfacher. Möchtest du ein bestimmtes Thema üben?';
-  } else if (message.toLowerCase().includes('vokabeln') || message.toLowerCase().includes('vocabulary')) {
-    responseText += 'Ein guter Wortschatz ist die Grundlage für fließendes Sprechen. Ich empfehle, täglich 10 neue Wörter zu lernen.';
-  } else {
-    // Default conversational responses
-    const responses = [
-      'Das ist interessant! Erzähl mir mehr darüber.',
-      'Sehr gut formuliert! Dein Deutsch wird immer besser.',
-      'Eine ausgezeichnete Frage! Lass uns das gemeinsam erkunden.',
-      'Das verstehe ich. Wie können wir das weiter vertiefen?'
-    ];
-    responseText += responses[Math.floor(Math.random() * responses.length)];
-  }
+  responseText += 'Wie kann ich dir beim Deutschlernen helfen?';
   
-  // Calculate simple metrics
+  return {
+    text: responseText,
+    corrections: corrections,
+    metrics: calculateMetrics(message),
+    suggestions: generateSuggestions(message)
+  };
+}
+
+// Helper function to extract common grammar corrections
+function extractCorrections(message) {
+  const corrections = [];
+  
+  // Common German grammar mistakes
+  const patterns = [
+    {
+      regex: /\bich\s+habe\s+gegangen\b/i,
+      original: 'ich habe gegangen',
+      corrected: 'ich bin gegangen',
+      explanation: 'Bewegungsverben bilden das Perfekt mit "sein".'
+    },
+    {
+      regex: /\bich\s+bin\s+gemacht\b/i,
+      original: 'ich bin gemacht',
+      corrected: 'ich habe gemacht',
+      explanation: '"Machen" bildet das Perfekt mit "haben".'
+    },
+    {
+      regex: /\bder\s+Frau\b/,
+      original: 'der Frau',
+      corrected: 'die Frau',
+      explanation: '"Frau" ist feminin (Nominativ: die Frau).'
+    },
+    {
+      regex: /\bein\s+Haus\b/,
+      original: 'ein Haus',
+      corrected: 'ein Haus',
+      explanation: 'Korrekt! "Haus" ist Neutrum (ein Haus).'
+    }
+  ];
+  
+  patterns.forEach(pattern => {
+    if (message.match(pattern.regex)) {
+      corrections.push({
+        original: pattern.original,
+        corrected: pattern.corrected,
+        explanation: pattern.explanation
+      });
+    }
+  });
+  
+  return corrections;
+}
+
+// Calculate simple metrics based on message
+function calculateMetrics(message) {
   const wordCount = message.split(/\s+/).length;
-  const metrics = {
+  const corrections = extractCorrections(message);
+  
+  return {
     accuracy: Math.max(70, Math.min(95, 100 - (corrections.length * 10))),
     fluency: Math.min(90, 60 + wordCount * 2),
     grammar_accuracy: corrections.length === 0 ? 95 : 75,
     vocabulary_usage: Math.min(85, 70 + Math.floor(wordCount / 2))
   };
-  
-  // Generate suggestions
+}
+
+// Generate learning suggestions
+function generateSuggestions(message) {
   const suggestions = [];
+  const wordCount = message.split(/\s+/).length;
+  const corrections = extractCorrections(message);
+  
   if (corrections.length > 0) {
     suggestions.push({
       type: 'Grammar',
-      action: 'Review the corrections above and practice similar sentence structures'
+      action: 'Übe die korrigierten Strukturen mit ähnlichen Sätzen'
     });
   }
+  
   if (wordCount < 10) {
     suggestions.push({
       type: 'Expression',
-      action: 'Try to use longer, more complex sentences to express your thoughts'
+      action: 'Versuche längere, komplexere Sätze zu bilden'
     });
   }
+  
   suggestions.push({
     type: 'Vocabulary',
-    action: 'Incorporate new words from recent podcasts or articles into your responses'
+    action: 'Integriere neue Wörter aus Podcasts in deine Antworten'
   });
   
-  return {
-    text: responseText,
-    corrections: corrections,
-    metrics: metrics,
-    suggestions: suggestions
-  };
+  return suggestions;
 }
