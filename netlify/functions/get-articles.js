@@ -1,7 +1,7 @@
 exports.handler = async (event, context) => {
   // Get credentials from Netlify environment variables (secure!)
-  const SHEET_ID = process.env.VITE_GOOGLE_SHEET_ID;
-  const API_KEY = process.env.VITE_GOOGLE_API_KEY;
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+  const API_KEY = process.env.GOOGLE_API_KEY;
   const SHEET_NAME = 'Sheet1';
   
   // Validate environment variables exist

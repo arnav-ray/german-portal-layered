@@ -37,6 +37,11 @@ exports.handler = async (event, context) => {
       throw new Error(`Failed to fetch podcasts: ${response.status} ${response.statusText}`);
     }
 
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`Podcast service returned an unexpected response. Expected JSON, but got ${contentType}`);
+    }
+
     const data = await response.json();
 
     // The API returns episodes in an `episodes` array
