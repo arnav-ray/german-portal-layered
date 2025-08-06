@@ -1205,6 +1205,268 @@
                 corrections: corrections
             };
         }
+        // Add these functions to your index.html script section
+
+// --- Level Navigation Functions ---
+function setupLevelNavigation() {
+    const container = document.getElementById('level-navigation');
+    if (!container) return;
+    
+    // Group articles by level
+    const levels = {};
+    articles.forEach(article => {
+        const level = article.LEVEL || 'Unknown';
+        if (!levels[level]) levels[level] = [];
+        levels[level].push(article);
+    });
+    
+    // Create level sections
+    container.innerHTML = '';
+    const levelOrder = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    
+    levelOrder.forEach(level => {
+        if (levels[level] && levels[level].length > 0) {
+            const levelSection = document.createElement('div');
+            levelSection.className = 'level-section';
+            
+            const header = document.createElement('div');
+            header.className = 'level-header';
+            header.innerHTML = `
+                <h3>Level ${level} (${levels[level].length} articles)</h3>
+                <span class="toggle-icon">▶</span>
+            `;
+            
+            const themeList = document.createElement('div');
+            themeList.className = 'theme-list';
+            
+            // Group by theme within level
+            const themes = {};
+            levels[level].forEach(article => {
+                const theme = article.THEME || 'General';
+                if (!themes[theme]) themes[theme] = [];
+                themes[theme].push(article);
+            });
+            
+            Object.keys(themes).forEach(theme => {
+                const button = document.createElement('button');
+                button.className = 'theme-button';
+                button.textContent = `${theme} (${themes[theme].length})`;
+                button.onclick = () => filterByLevelAndTheme(level, theme);
+                themeList.appendChild(button);
+            });
+            
+            header.onclick = () => {
+                header.classList.toggle('active');
+                themeList.classList.toggle('active');
+            };
+            
+            levelSection.appendChild(header);
+            levelSection.appendChild(themeList);
+            container.appendChild(levelSection);
+        }
+    });
+}
+
+function filterByLevelAndTheme(level, theme) {
+    filteredArticles = articles.filter(article => 
+        article.LEVEL === level && article.THEME === theme
+    );
+    if (filteredArticles.length > 0) {
+        displayArticle(filteredArticles[0]);
+        updateArticleCounter();
+    }
+}
+
+// --- Search Functions ---
+function searchArticles(query) {
+    if (!query || query.trim() === '') {
+        resetSearch();
+        return;
+    }
+    
+    const searchTerm = query.toLowerCase();
+    filteredArticles = articles.filter(article => {
+        const searchableText = [
+            article.THEME,
+            article.LEVEL,
+            article.VOCABULARY_USED,
+            article.GERMAN_ARTICLE,
+            article.ENGLISH_TRANSLATION,
+            article.DATE
+        ].join(' ').toLowerCase();
+        
+        return searchableText.includes(searchTerm);
+    });
+    
+    if (filteredArticles.length > 0) {
+        displayArticle(filteredArticles[0]);
+        updateArticleCounter();
+        showSearchFeedback(`Found ${filteredArticles.length} article(s) matching "${query}"`);
+    } else {
+        showSearchFeedback(`No articles found matching "${query}"`);
+        resetSearch();
+    }
+}
+
+function resetSearch() {
+    filteredArticles = [...articles];
+    if (filteredArticles.length > 0) {
+        displayArticle(filteredArticles[0]);
+        updateArticleCounter();
+    }
+    document.getElementById('search-input').value = '';
+    hideSearchFeedback();
+}
+
+function showSearchFeedback(message) {
+    // Remove existing feedback if any
+    hideSearchFeedback();
+    
+    const searchContainer = document.querySelector('.search-container');
+    const feedback = document.createElement('div');
+    feedback.id = 'search-feedback';
+    feedback.style.cssText = `
+        padding: 10px;
+        margin-top: 10px;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        text-align: center;
+    `;
+    feedback.textContent = message;
+    searchContainer.appendChild(feedback);
+}
+
+function hideSearchFeedback() {
+    const feedback = document.getElementById('search-feedback');
+    if (feedback) feedback.remove();
+}
+
+// --- Grammar Drill Functions ---
+function setupGrammarDrill() {
+    const container = document.getElementById('grammar-topic-tags');
+    if (!container) return;
+    
+    // Extract unique grammar topics from articles
+    const grammarTopics = new Set();
+    articles.forEach(article => {
+        if (article.GRAMMAR_TOPIC_TAGS) {
+            const topics = article.GRAMMAR_TOPIC_TAGS.split(',').map(t => t.trim());
+            topics.forEach(topic => {
+                if (topic) grammarTopics.add(topic);
+            });
+        }
+    });
+    
+    // Create topic buttons
+    container.innerHTML = '';
+    const topicsArray = Array.from(grammarTopics).sort();
+    
+    if (topicsArray.length === 0) {
+        container.innerHTML = '<p style="color: var(--subtle-text-color); text-align: center; width: 100%;">No grammar topics available yet.</p>';
+        return;
+    }
+    
+    topicsArray.forEach(topic => {
+        const tag = document.createElement('div');
+        tag.className = 'word-drag';
+        tag.textContent = topic;
+        tag.style.cursor = 'pointer';
+        tag.dataset.selected = 'false';
+        
+        tag.onclick = () => {
+            if (tag.dataset.selected === 'true') {
+                tag.dataset.selected = 'false';
+                tag.style.background = 'var(--card-bg-color)';
+                tag.style.color = 'var(--text-color)';
+            } else {
+                tag.dataset.selected = 'true';
+                tag.style.background = 'var(--primary-accent)';
+                tag.style.color = 'white';
+            }
+        };
+        
+        container.appendChild(tag);
+    });
+}
+
+function startGrammarDrill() {
+    const container = document.getElementById('drill-container');
+    const selectedTags = document.querySelectorAll('#grammar-topic-tags .word-drag[data-selected="true"]');
+    
+    if (selectedTags.length === 0) {
+        alert('Please select at least one grammar topic to practice.');
+        return;
+    }
+    
+    const selectedTopics = Array.from(selectedTags).map(tag => tag.textContent);
+    
+    // Filter articles that have drill sentences for selected topics
+    const drillArticles = articles.filter(article => {
+        if (!article.GRAMMAR_TOPIC_TAGS || !article.DRILL_SENTENCES) return false;
+        const articleTopics = article.GRAMMAR_TOPIC_TAGS.split(',').map(t => t.trim());
+        return selectedTopics.some(topic => articleTopics.includes(topic));
+    });
+    
+    if (drillArticles.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--subtle-text-color); padding: 20px;">No drill exercises available for the selected topics.</p>';
+        return;
+    }
+    
+    // Generate drill exercises
+    container.innerHTML = '<h3>Complete the sentences:</h3>';
+    
+    const exercises = drillArticles.slice(0, 5).map(article => {
+        const sentence = article.DRILL_SENTENCES;
+        // Extract the word in curly braces as the answer
+        const match = sentence.match(/\{([^}]+)\}/);
+        if (!match) return null;
+        
+        const answer = match[1];
+        const blankedSentence = sentence.replace(/\{[^}]+\}/, '_____');
+        
+        return {
+            sentence: blankedSentence,
+            answer: answer,
+            topic: article.GRAMMAR_TOPIC_TAGS
+        };
+    }).filter(ex => ex !== null);
+    
+    exercises.forEach((exercise, index) => {
+        const exerciseDiv = document.createElement('div');
+        exerciseDiv.style.cssText = 'margin: 20px 0; padding: 15px; background: var(--bg-color); border-radius: 8px;';
+        exerciseDiv.innerHTML = `
+            <p style="margin-bottom: 10px;"><strong>Topic:</strong> ${exercise.topic}</p>
+            <p style="font-size: 1.1em; margin-bottom: 10px;">${exercise.sentence}</p>
+            <input type="text" 
+                   id="drill-input-${index}" 
+                   class="lueckentext-input" 
+                   placeholder="Your answer"
+                   style="width: 150px; margin-right: 10px;">
+            <button onclick="checkDrillAnswer(${index}, '${exercise.answer}')" 
+                    style="padding: 5px 15px; background: var(--primary-accent); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Check
+            </button>
+            <span id="drill-feedback-${index}" style="margin-left: 10px;"></span>
+        `;
+        container.appendChild(exerciseDiv);
+    });
+}
+
+function checkDrillAnswer(index, correctAnswer) {
+    const input = document.getElementById(`drill-input-${index}`);
+    const feedback = document.getElementById(`drill-feedback-${index}`);
+    
+    if (input.value.toLowerCase().trim() === correctAnswer.toLowerCase().trim()) {
+        feedback.innerHTML = '<span style="color: var(--success-accent); font-weight: bold;">✓ Correct!</span>';
+        input.style.borderColor = 'var(--success-accent)';
+    } else {
+        feedback.innerHTML = `<span style="color: var(--danger-accent);">✗ Try again. Hint: ${correctAnswer.substring(0, 2)}...</span>`;
+        input.style.borderColor = 'var(--danger-accent)';
+    }
+}
+        
     </script>
 </body>
 </html>
