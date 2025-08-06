@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -492,981 +493,324 @@
             </div>
         </div>
     </div>
+
     
-    <script>
-        // --- App Configuration & Global State ---
-        let articles = [];
-        let filteredArticles = [];
-        let currentArticle = null;
-        const synth = window.speechSynthesis;
-        let voices = [];
+<script>
+// --- App Configuration & Global State ---
+let articles = [];
+let filteredArticles = [];
+let currentArticle = null;
+const synth = window.speechSynthesis;
+let voices = [];
 
-        // --- Security: HTML Sanitization ---
-        function sanitizeHTML(input) {
-            if (typeof input !== 'string') return '';
-            const temp = document.createElement('div');
-            temp.textContent = input;
-            return temp.innerHTML;
-        }
+// --- Security: HTML Sanitization with Grammar Support ---
+function sanitizeHTML(input) {
+    if (typeof input !== 'string') return '';
+    
+    // For grammar-colored text, preserve the safe span classes
+    const allowedClasses = ['noun-m', 'noun-f', 'noun-n', 'verb', 'adjective', 'adverb', 
+                           'preposition', 'conjunction', 'pronoun', 'article', 'punctuation'];
+    
+    // First, protect our grammar spans
+    let protectedHTML = input;
+    allowedClasses.forEach(className => {
+        const regex = new RegExp(`<span class="${className}"[^>]*>([^<]*)</span>`, 'gi');
+        protectedHTML = protectedHTML.replace(regex, `{{SAFE_SPAN_${className}::$1}}`);
+    });
+    
+    // Remove dangerous content
+    protectedHTML = protectedHTML
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+\s*=/gi, '')
+        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+        .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+        .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '');
+    
+    // Restore safe grammar spans
+    allowedClasses.forEach(className => {
+        const regex = new RegExp(`{{SAFE_SPAN_${className}::([^}]*)}`, 'g');
+        protectedHTML = protectedHTML.replace(regex, `<span class="${className}" title="${getTitleForClass(className)}">$1</span>`);
+    });
+    
+    return protectedHTML;
+}
 
-        function safeSetHTML(element, content) {
-            if (!element) return;
-            // Using a simple sanitizer. For production, consider a library like DOMPurify.
-            element.innerHTML = sanitizeHTML(content);
-        }
+function getTitleForClass(className) {
+    const titles = {
+        'noun-m': 'Noun (der)',
+        'noun-f': 'Noun (die)', 
+        'noun-n': 'Noun (das)',
+        'verb': 'Verb',
+        'adjective': 'Adjective',
+        'adverb': 'Adverb',
+        'preposition': 'Preposition',
+        'conjunction': 'Conjunction',
+        'pronoun': 'Pronoun',
+        'article': 'Article',
+        'punctuation': 'Punctuation'
+    };
+    return titles[className] || '';
+}
 
-        // --- DOM Elements ---
-        const settingsBtn = document.getElementById('settings-btn');
-        const settingsModal = document.getElementById('settings-modal');
-        const themeToggle = document.getElementById('theme-checkbox');
-        
-        // --- MERGED INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', function() {
-            // From original script
-            loadSettings();
-            setupEventListeners();
-            loadArticles(); 
-            
-            // From new scripts
-            initializePodcastFeatures();
-            initializeAITeacher();
+function safeSetHTML(element, content) {
+    if (!element) return;
+    
+    // Check if content has grammar spans
+    if (content.includes('class="') && content.includes('span')) {
+        // This is formatted text with grammar highlighting
+        element.innerHTML = sanitizeHTML(content);
+    } else {
+        // Plain text - use textContent for safety
+        element.textContent = content;
+    }
+}
 
-            // Set today's date in the date picker
-            const today = new Date().toISOString().split('T')[0];
-            const dateInput = document.getElementById('podcast-date');
-            if (dateInput) {
-                dateInput.value = today;
-                dateInput.max = today;
-            }
+// --- DOM Elements ---
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const themeToggle = document.getElementById('theme-checkbox');
+
+// --- MERGED INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', function() {
+    loadSettings();
+    setupEventListeners();
+    loadArticles(); 
+    initializePodcastFeatures();
+    initializeAITeacher();
+
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('podcast-date');
+    if (dateInput) {
+        dateInput.value = today;
+        dateInput.max = today;
+    }
+});
+
+// --- Settings Management ---
+function loadSettings() {
+    const settings = getSettings();
+    document.body.classList.toggle('dark-theme', settings.theme === 'dark');
+    themeToggle.checked = settings.theme === 'dark';
+    document.getElementById('rate-control').value = settings.rate;
+    document.getElementById('rate-value').textContent = settings.rate;
+    document.getElementById('pitch-control').value = settings.pitch;
+    document.getElementById('pitch-value').textContent = settings.pitch;
+}
+
+function getSettings() {
+    const defaults = { theme: 'light', voiceURI: null, rate: 0.9, pitch: 1.0 };
+    const storedSettings = JSON.parse(localStorage.getItem('germanAppSettings')) || {};
+    return { ...defaults, ...storedSettings };
+}
+
+function saveSettings(newSettings) {
+    const currentSettings = getSettings();
+    localStorage.setItem('germanAppSettings', JSON.stringify({ ...currentSettings, ...newSettings }));
+}
+
+// --- Event Listeners Setup ---
+function setupEventListeners() {
+    settingsBtn.addEventListener('click', () => settingsModal.classList.add('visible'));
+    settingsModal.querySelector('.modal-close-btn').addEventListener('click', () => settingsModal.classList.remove('visible'));
+    settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('visible'); });
+    
+    themeToggle.addEventListener('change', (e) => {
+        const theme = e.target.checked ? 'dark' : 'light';
+        document.body.classList.toggle('dark-theme', e.target.checked);
+        saveSettings({ theme });
+    });
+
+    document.getElementById('voice-select').addEventListener('change', e => saveSettings({ voiceURI: e.target.value }));
+    
+    document.getElementById('rate-control').addEventListener('input', e => {
+        document.getElementById('rate-value').textContent = e.target.value;
+        saveSettings({ rate: parseFloat(e.target.value) });
+    });
+    
+    document.getElementById('pitch-control').addEventListener('input', e => {
+        document.getElementById('pitch-value').textContent = e.target.value;
+        saveSettings({ pitch: parseFloat(e.target.value) });
+    });
+
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            const targetPageId = e.target.getAttribute('data-page');
+            document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === targetPageId));
         });
-
-        // --- Settings Management ---
-        function loadSettings() {
-            const settings = getSettings();
-            document.body.classList.toggle('dark-theme', settings.theme === 'dark');
-            themeToggle.checked = settings.theme === 'dark';
-            document.getElementById('rate-control').value = settings.rate;
-            document.getElementById('rate-value').textContent = settings.rate;
-            document.getElementById('pitch-control').value = settings.pitch;
-            document.getElementById('pitch-value').textContent = settings.pitch;
-        }
-
-        function getSettings() {
-            const defaults = { theme: 'light', voiceURI: null, rate: 1.0, pitch: 1.0 };
-            const storedSettings = JSON.parse(localStorage.getItem('germanAppSettings')) || {};
-            return { ...defaults, ...storedSettings };
-        }
-
-        function saveSettings(newSettings) {
-            const currentSettings = getSettings();
-            localStorage.setItem('germanAppSettings', JSON.stringify({ ...currentSettings, ...newSettings }));
-        }
-
-        // --- Event Listeners Setup ---
-        function setupEventListeners() {
-            settingsBtn.addEventListener('click', () => settingsModal.classList.add('visible'));
-            settingsModal.querySelector('.modal-close-btn').addEventListener('click', () => settingsModal.classList.remove('visible'));
-            settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('visible'); });
-            
-            themeToggle.addEventListener('change', (e) => {
-                const theme = e.target.checked ? 'dark' : 'light';
-                document.body.classList.toggle('dark-theme', e.target.checked);
-                saveSettings({ theme });
-            });
-
-            document.getElementById('voice-select').addEventListener('change', e => saveSettings({ voiceURI: e.target.value }));
-            
-            document.getElementById('rate-control').addEventListener('input', e => {
-                document.getElementById('rate-value').textContent = e.target.value;
-                saveSettings({ rate: parseFloat(e.target.value) });
-            });
-            
-            document.getElementById('pitch-control').addEventListener('input', e => {
-                document.getElementById('pitch-value').textContent = e.target.value;
-                saveSettings({ pitch: parseFloat(e.target.value) });
-            });
-
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', (e) => {
-                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                    e.target.classList.add('active');
-                    const targetPageId = e.target.getAttribute('data-page');
-                    document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === targetPageId));
-                });
-            });
-            
-            const searchInput = document.getElementById('search-input');
-            searchInput.addEventListener('keypress', e => (e.key === 'Enter') && searchArticles(e.target.value));
-            
-            document.addEventListener('keydown', function(event) {
-                const activePage = document.querySelector('.page.active');
-                if (document.activeElement !== searchInput && activePage && activePage.id === 'articles-page') {
-                    if (event.key === 'ArrowLeft') navigateArticle('previous');
-                    if (event.key === 'ArrowRight') navigateArticle('next');
-                    if (event.key === 'Home') { event.preventDefault(); resetSearch(); }
-                }
-            });
-            
-            document.getElementById('start-drill-btn').addEventListener('click', startGrammarDrill);
-        }
-
-        // --- Data Loading ---
-        async function loadArticles() {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('article-display-container').style.display = 'none';
-            document.getElementById('practice-content').innerHTML = '';
-            
-            try {
-                const response = await fetch('/.netlify/functions/get-articles');
-                if (!response.ok) {
-                    throw new Error(`Function request failed with status ${response.status}`);
-                }
-                const data = await response.json();
-                
-                if (!data.values || data.values.length < 2) {
-                    throw new Error('No data found in the sheet or sheet is empty.');
-                }
-                
-                articles = parseSheetData(data.values);
-                initializeContent();
-
-            } catch (error) {
-                console.error('Error loading articles:', error);
-                showError(`${error.message}. Using sample data for demonstration.`);
-                articles = getSampleData();
-                initializeContent();
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
-        }
-
-        function initializeContent() {
-            if (articles.length > 0) {
-                filteredArticles = [...articles];
-                setupLevelNavigation();
-                displayLatestArticle();
-                setupGrammarDrill();
-                document.getElementById('search-container').style.display = 'block';
-                document.getElementById('nav-buttons').style.display = 'flex';
-                document.getElementById('article-info').style.display = 'block';
-            } else { 
-                showError('No "Published" articles found.'); 
-            }
-        }
-
-        function parseSheetData(rows) {
-            const headers = rows[0].map(h => h.trim().toUpperCase().replace(/\s+/g, '_').replace('&', 'AND'));
-            const data = [];
-            const statusIndex = headers.indexOf('STATUS');
-
-            for (let i = 1; i < rows.length; i++) {
-                const row = rows[i];
-                if (statusIndex !== -1 && row[statusIndex] && row[statusIndex].trim() === 'Published') {
-                    let article = {};
-                    headers.forEach((header, index) => {
-                        article[header] = row[index] || '';
-                    });
-                    data.push(article);
-                }
-            }
-            return data.sort((a, b) => new Date(b.DATE) - new Date(a.DATE));
-        }
-
-        // --- Article Display & Navigation ---
-        function displayLatestArticle() { if (articles.length > 0) displayArticle(articles[0]); }
-        function displayArticle(article) {
-            currentArticle = article;
-            synth.cancel();
-            const displayContainer = document.getElementById('article-display-container');
-            const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
-            
-            const articleContent = document.getElementById('article-content');
-            articleContent.innerHTML = ''; 
-            
-            const audioContainer = document.createElement('div');
-            audioContainer.id = 'audio-player-container';
-            audioContainer.innerHTML = `
-                <button id="play-pause-btn-article" class="audio-btn" title="Play/Pause">▶️</button>
-                <span id="audio-status">Read Aloud</span>`;
-            
-            const metadata = document.createElement('div');
-            metadata.className = 'metadata';
-            metadata.innerHTML = `<strong>Level:</strong> ${sanitizeHTML(safeGet('LEVEL'))} | <strong>Theme:</strong> ${sanitizeHTML(safeGet('THEME'))}`;
-            
-            const germanText = document.createElement('div');
-            germanText.className = 'german-text';
-            safeSetHTML(germanText, safeGet('GERMAN_ARTICLE'));
-            
-            const englishText = document.createElement('div');
-            englishText.className = 'english-text';
-            englishText.textContent = safeGet('ENGLISH_TRANSLATION');
-            
-            const vocabSection = document.createElement('div');
-            vocabSection.className = 'article-section vocabulary-section';
-            vocabSection.innerHTML = `<strong>🎯 Key Vocabulary:</strong><div>${sanitizeHTML(safeGet('VOCABULARY_USED'))}</div>`;
-            
-            const phrasesSection = document.createElement('div');
-            phrasesSection.className = 'article-section phrases-section';
-            phrasesSection.innerHTML = `<strong>💬 Phrase & Idiom:</strong><div>${safeGet('PHRASE_AND_IDIOM')}</div>`;
-            
-            const quotesSection = document.createElement('div');
-            quotesSection.className = 'article-section quotes-section';
-            quotesSection.innerHTML = `<strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_AND_JOKE')}</div>`;
-
-            const conversationSection = document.createElement('div');
-            conversationSection.className = 'article-section conversation-section';
-            conversationSection.innerHTML = `<strong>🗣️ Conversation Time:</strong><div>${safeGet('CONVERSATION_TIME')}</div>`;
-            
-            articleContent.append(audioContainer, metadata, germanText, englishText, vocabSection, phrasesSection, quotesSection, conversationSection);
-
-            const deepDiveContent = document.getElementById('deep-dive-content');
-            deepDiveContent.innerHTML = `<div class="article-section grammar-section"><strong>🧠 Deep Dive Grammar:</strong><div>${safeGet('DEEP_DIVE_GRAMMAR')}</div></div>`;
-            
-            displayContainer.style.display = 'block';
-            setupAudioPlayer();
-            updateArticleCounter();
-            setupPracticeExercises(article);
-            setupSubNav();
-        }
-        function navigateArticle(direction) {
-            const currentIndex = filteredArticles.indexOf(currentArticle);
-            if (currentIndex === -1) return;
-            let newIndex = (direction === 'next') ? (currentIndex + 1) % filteredArticles.length : (currentIndex - 1 + filteredArticles.length) % filteredArticles.length;
-            displayArticle(filteredArticles[newIndex]);
-        }
-        function updateArticleCounter() {
-            const currentIndex = filteredArticles.indexOf(currentArticle);
-            document.getElementById('current-article-number').textContent = currentIndex + 1;
-            document.getElementById('total-articles').textContent = filteredArticles.length;
-            document.getElementById('current-date').textContent = currentArticle.DATE;
-        }
-
-        function setupSubNav() {
-            const subNavTabs = document.querySelectorAll('.sub-nav-tab');
-            const subPages = document.querySelectorAll('.sub-page');
-            subNavTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    subNavTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    const targetId = tab.dataset.target;
-                    subPages.forEach(page => page.classList.toggle('active', page.id === targetId));
-                });
-            });
-            subNavTabs[0].click();
-        }
-
-        // --- Audio Player & Voice Loading ---
-        function setupAudioPlayer() {
-            const playPauseBtn = document.getElementById('play-pause-btn-article');
-            const germanTextElement = document.querySelector('#article-content .german-text');
-            if (!germanTextElement || !playPauseBtn) return;
-            
-            const textToSpeak = germanTextElement.textContent.trim();
-            
-            playPauseBtn.onclick = () => {
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                const settings = getSettings();
-                utterance.voice = voices.find(v => v.voiceURI === settings.voiceURI);
-                utterance.rate = settings.rate;
-                utterance.pitch = settings.pitch;
-                utterance.lang = 'de-DE';
-                synth.speak(utterance);
-            };
-        }
-        
-        function populateVoiceList() {
-            voices = synth.getVoices();
-            const voiceSelect = document.getElementById('voice-select');
-            if (!voiceSelect) return;
-            
-            const settings = getSettings();
-            voiceSelect.innerHTML = '';
-            
-            const germanVoices = voices.filter(voice => voice.lang.startsWith('de'));
-            germanVoices.forEach(voice => {
-                const option = document.createElement('option');
-                option.textContent = `${sanitizeHTML(voice.name)} (${sanitizeHTML(voice.lang)})`;
-                option.value = sanitizeHTML(voice.voiceURI);
-                option.selected = voice.voiceURI === settings.voiceURI;
-                voiceSelect.appendChild(option);
-            });
-            
-            if (!settings.voiceURI && germanVoices.length > 0) {
-                saveSettings({ voiceURI: germanVoices[0].voiceURI });
-            }
-        }
-        populateVoiceList();
-        if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = populateVoiceList;
-
-        // --- Practice Page Logic (abbreviated for brevity, full logic from original file) ---
-        function setupPracticeExercises(article) {
-            const container = document.getElementById('practice-content');
-            container.innerHTML = `<p id="no-practice-message">Practice exercises for this article will be generated here.</p>`;
-            // Full exercise generation logic would go here...
-        }
-        function startGrammarDrill() {
-             alert('Grammar drill started!');
-        }
-        function setupGrammarDrill() {
-            // Setup logic here
-        }
-
-        function showError(message) {
-            const mainContent = document.getElementById('articles-page');
-            mainContent.innerHTML = `<div class="error-message">${sanitizeHTML(message)}</div>`;
-            mainContent.style.display = 'block';
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        function getSampleData() {
-            return [{"DATE": "2025-07-05", "LEVEL": "B2", "THEME": "Job Interview", "STATUS": "Published", "GERMAN_ARTICLE": "Ich hatte gestern ein wichtiges Vorstellungsgespräch.", "GERMAN_ARTICLE_CLEAN": "Ich hatte gestern ein wichtiges Vorstellungsgespräch.", "ENGLISH_TRANSLATION": "I had an important job interview yesterday.", "VOCABULARY_USED": "das Vorstellungsgespräch - job interview", "DEEP_DIVE_GRAMMAR": "Präteritum tense is used here.", "GRAMMAR_TOPIC_TAGS": "Präteritum", "DRILL_SENTENCES": "Gestern {ging} ich ins Kino."}];
-        }
-
-        // ===================================================================
-        // NEW PODCAST AND AI TEACHER SCRIPT
-        // ===================================================================
-        
-        let currentPodcastEpisode = null;
-        let allEpisodes = [];
-        let isPodcastPlaying = false;
-
-        function initializePodcastFeatures() {
-            loadTodaysEpisodes();
-            document.getElementById('load-podcast-btn')?.addEventListener('click', loadPodcasts);
-            document.querySelectorAll('.cat-tab').forEach(tab => {
-                tab.addEventListener('click', (e) => {
-                    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-                    e.target.classList.add('active');
-                    filterEpisodesByCategory(e.target.dataset.cat);
-                });
-            });
-            loadPodcastVoices();
-        }
-
-        async function loadTodaysEpisodes() {
-            const today = new Date().toISOString().split('T')[0];
-            const lang = 'de'; // Hardcoded to German
-            const todayContainer = document.getElementById('today-container');
-            todayContainer.innerHTML = '<p>Loading today\'s episodes...</p>';
-            
-            try {
-                const response = await fetch(`/.netlify/functions/get-podcasts?language=${lang}&date=${today}`);
-                const data = await response.json();
-                if (data.success && data.episodes && data.episodes.length > 0) {
-                    allEpisodes = data.episodes;
-                    displayEpisodes(data.episodes, 'today-container');
-                } else {
-                    todayContainer.innerHTML = '<p>No episodes for today. Try selecting a category and date above.</p>';
-                }
-            } catch (error) {
-                console.error("Failed to load today's episodes", error);
-                todayContainer.innerHTML = '<p>Could not load today\'s episodes.</p>';
-            }
-        }
-
-        async function loadPodcasts() {
-            const category = document.getElementById('podcast-category').value;
-            const language = 'de'; // Hardcoded to German
-            const date = document.getElementById('podcast-date').value;
-            const loadingDiv = document.getElementById('podcast-loading');
-            const errorDiv = document.getElementById('podcast-error');
-            
-            loadingDiv.style.display = 'block';
-            errorDiv.style.display = 'none';
-            document.getElementById('episodes-container').innerHTML = '';
-
-            try {
-                const url = `/.netlify/functions/get-podcasts?language=${language}&category=${category}&date=${date}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.success && data.episodes && data.episodes.length > 0) {
-                    allEpisodes = data.episodes;
-                    displayEpisodes(data.episodes, 'episodes-container');
-                } else {
-                    document.getElementById('episodes-container').innerHTML = '<p>No episodes found for this selection.</p>';
-                }
-            } catch (error) {
-                console.error('Error loading podcasts:', error);
-                errorDiv.style.display = 'block';
-            } finally {
-                loadingDiv.style.display = 'none';
-            }
-        }
-
-        function displayEpisodes(episodes, containerId) {
-            const container = document.getElementById(containerId);
-            if (!episodes || episodes.length === 0) {
-                container.innerHTML = '<p>No episodes to display.</p>';
-                return;
-            }
-            container.innerHTML = episodes.map(episode => `
-                <div class="episode-card" onclick="loadEpisode('${episode.id}')">
-                    <h4>${episode.title || 'Untitled Episode'}</h4>
-                    <p>${episode.description || episode.bunch?.replace('-', ' ').toUpperCase() || 'No description'}</p>
-                    <div class="episode-meta">
-                        <span class="episode-badge badge-de">DE</span>
-                        <span>📅 ${episode.date || new Date().toLocaleDateString()}</span>
-                        <span>⏱️ ${episode.duration || '5:00'}</span>
-                        <span>📚 ${mapCategoryToLevel(episode.bunch)}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function filterEpisodesByCategory(category) {
-            const filtered = category === 'all' ? allEpisodes : allEpisodes.filter(ep => ep.bunch === category || ep.category === category);
-            displayEpisodes(filtered, 'episodes-container');
-        }
-
-        function loadEpisode(episodeId) {
-            const episode = allEpisodes.find(ep => ep.id === episodeId);
-            if (!episode) return;
-            
-            currentPodcastEpisode = episode;
-            document.getElementById('current-episode').style.display = 'block';
-            document.getElementById('episode-title').textContent = episode.title || 'Untitled Episode';
-            document.getElementById('episode-lang').textContent = 'DE';
-            
-            displayTranscript(episode.script);
-            displayVocabulary(episode);
-            updateVoiceSelection('de');
-            
-            document.getElementById('current-episode').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function displayTranscript(script) {
-            const container = document.getElementById('podcast-transcript');
-            if (!script) {
-                container.innerHTML = '<p>No transcript available.</p>';
-                return;
-            }
-            const lines = script.split('\n\n');
-            let formattedScript = lines.map(line => {
-                if (line.includes(':')) {
-                    const [speaker, ...text] = line.split(':');
-                    return `<div class="speaker-turn"><strong>${speaker}:</strong> ${applyGrammarColors(text.join(':').trim())}</div>`;
-                }
-                return `<p>${applyGrammarColors(line)}</p>`;
-            }).join('');
-            container.innerHTML = formattedScript;
-        }
-
-        function applyGrammarColors(text) {
-            if (!text) return '';
-            let colored = text;
-            colored = colored.replace(/\b(der|die|das|den|dem|des|ein|eine|einen|einem|einer|eines)\b/gi, '<span class="article" title="Article">$1</span>');
-            colored = colored.replace(/\b(ist|sind|war|waren|hat|haben|wird|werden|kann|muss|soll|will)\b/gi, '<span class="verb" title="Verb">$1</span>');
-            colored = colored.replace(/\b([A-ZÄÖÜ][a-zäöüß]+)\b/g, (match) => !['Der', 'Die', 'Das'].includes(match) ? `<span class="noun-m" title="Noun">${match}</span>` : match);
-            colored = colored.replace(/\b(gut|schlecht|groß|klein|neu|alt|schön|wichtig)\b/gi, '<span class="adjective" title="Adjective">$1</span>');
-            return colored;
-        }
-
-        function displayVocabulary(episode) {
-            const container = document.getElementById('episode-vocabulary');
-            if (!episode.script) {
-                container.innerHTML = '<p>No vocabulary available.</p>';
-                return;
-            }
-            const nouns = [...new Set(episode.script.match(/\b[A-ZÄÖÜ][a-zäöüß]{3,}\b/g) || [])];
-            const filtered = nouns.filter(word => !['Diese', 'Heute', 'Morgen', 'Gestern'].includes(word));
-            container.innerHTML = filtered.slice(0, 15).map(word => `
-                <div class="vocab-item">
-                    <span class="german-word">${word}</span>
-                    <button onclick="speakWord('${word}', 'de')">🔊</button>
-                </div>
-            `).join('');
-        }
-
-        function mapCategoryToLevel(category) {
-            const levelMap = {'sunday-specials': 'A2-B1', 'ai-tech': 'B2', 'finance-business': 'B2-C1', 'leadership-strategy': 'C1', 'science-innovation': 'B2-C1'};
-            return levelMap[category] || 'B2';
-        }
-
-        document.getElementById('play-pause-btn')?.addEventListener('click', togglePlayPause);
-        function togglePlayPause() {
-            if (!currentPodcastEpisode) return;
-            const btn = document.getElementById('play-pause-btn');
-            if (isPodcastPlaying) {
-                window.speechSynthesis.cancel();
-                isPodcastPlaying = false;
-                btn.textContent = '▶️';
-            } else {
-                speakEpisode(currentPodcastEpisode);
-                isPodcastPlaying = true;
-                btn.textContent = '⏸️';
-            }
-        }
-
-        function speakEpisode(episode) {
-            if (!episode.script) return;
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(episode.script);
-            utterance.lang = 'de-DE';
-            utterance.rate = parseFloat(document.getElementById('playback-speed').value);
-            const selectedVoice = document.getElementById('voice-select-podcast').value;
-            if (selectedVoice !== 'auto') {
-                const voice = voices.find(v => v.name === selectedVoice);
-                if (voice) utterance.voice = voice;
-            }
-            utterance.onend = () => {
-                isPodcastPlaying = false;
-                document.getElementById('play-pause-btn').textContent = '▶️';
-            };
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function speakWord(word, language = 'de') {
-            const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'de-DE';
-            utterance.rate = 0.8;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function loadPodcastVoices() {
-            const voiceSelect = document.getElementById('voice-select-podcast');
-            if (!voiceSelect) return;
-            const allVoices = window.speechSynthesis.getVoices();
-            voices = allVoices; // Update global voices array
-            voiceSelect.innerHTML = '<option value="auto">Auto</option>';
-            allVoices.forEach(voice => {
-                const option = document.createElement('option');
-                option.value = voice.name;
-                option.textContent = `${voice.name} (${voice.lang})`;
-                voiceSelect.appendChild(option);
-            });
-        }
-
-        function updateVoiceSelection(language) {
-            const voiceSelect = document.getElementById('voice-select-podcast');
-            const langCode = 'de';
-            const matchingVoices = voices.filter(v => v.lang.startsWith(langCode));
-            voiceSelect.innerHTML = '<option value="auto">Auto</option>';
-            matchingVoices.forEach(voice => {
-                const option = document.createElement('option');
-                option.value = voice.name;
-                option.textContent = `${voice.name} (${voice.lang})`;
-                voiceSelect.appendChild(option);
-            });
-        }
-
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                populateVoiceList(); // For articles
-                loadPodcastVoices(); // For podcasts
-            };
-        }
-
-        function toggleTranscript() {
-            const transcript = document.getElementById('podcast-transcript');
-            transcript.style.display = transcript.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function generateExercises() {
-            if (!currentPodcastEpisode) return;
-            const container = document.getElementById('episode-exercises');
-            const sentences = currentPodcastEpisode.script.split(/[.!?]/).filter(s => s.length > 20);
-            container.innerHTML = `<div class="exercise"><h4>Fill in the blanks:</h4>${sentences.slice(0, 3).map(s => `<p>${s.replace(/\b(\w{5,})\b/,'_____')}</p>`).join('')}</div>`;
-        }
-
-        // --- AI Teacher Functionality ---
-        let conversationHistory = [];
-        let currentUserLevel = 'B2';
-
-        function initializeAITeacher() {
-            const chatInput = document.getElementById('chat-input');
-            const sendBtn = document.getElementById('send-btn');
-            chatInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-            sendBtn?.addEventListener('click', sendMessage);
-            updateAIStatus('ready');
-        }
-
-        async function sendMessage() {
-            const chatInput = document.getElementById('chat-input');
-            const message = chatInput.value.trim();
-            if (!message) return;
-            
-            addMessageToChat('user', message);
-            chatInput.value = '';
-            updateAIStatus('thinking');
-            showTypingIndicator();
-            
-            try {
-                const context = {
-                    podcast: currentPodcastEpisode ? { title: currentPodcastEpisode.title, category: currentPodcastEpisode.bunch, language: currentPodcastEpisode.language } : null,
-                    userLevel: currentUserLevel,
-                };
-                
-                const response = await fetch('/.netlify/functions/ai-conversation', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ message, context, history: conversationHistory.slice(-10) })
-                });
-                
-                const data = await response.json();
-                removeTypingIndicator();
-                updateAIStatus('ready');
-                addMessageToChat('ai', data.text, data.corrections);
-                if (data.metrics) updateMetrics(data.metrics);
-                if (data.suggestions) showSuggestions(data.suggestions);
-
-            } catch (error) {
-                console.error('Error sending message:', error);
-                removeTypingIndicator();
-                updateAIStatus('error');
-                const fallbackResponse = generateLocalResponse(message);
-                addMessageToChat('ai', fallbackResponse.text, fallbackResponse.corrections);
-            }
-        }
-
-        function addMessageToChat(sender, text, corrections = null) {
-            const chatWindow = document.getElementById('chat-window');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            const avatar = sender === 'user' ? '👤' : '🤖';
-            let correctionHtml = '';
-            if (corrections && corrections.length > 0) {
-                correctionHtml = corrections.map(c => `<div class="grammar-correction"><strong>Korrektur:</strong> "${c.original}" → "${c.corrected}"<br><small>${c.explanation}</small></div>`).join('');
-            }
-            messageDiv.innerHTML = `<div class="message-avatar">${avatar}</div><div class="message-content"><div class="message-text">${text}</div>${correctionHtml}</div>`;
-            chatWindow.appendChild(messageDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-            conversationHistory.push({ sender, text, corrections });
-        }
-
-        function showTypingIndicator() {
-            const chatWindow = document.getElementById('chat-window');
-            if(document.getElementById('typing-indicator')) return;
-            const indicator = document.createElement('div');
-            indicator.className = 'message ai-message';
-            indicator.id = 'typing-indicator';
-            indicator.innerHTML = `<div class="message-avatar">🤖</div><div class="message-content"><div class="message-text" style="width: 50px;">...</div></div>`;
-            chatWindow.appendChild(indicator);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        function removeTypingIndicator() {
-            document.getElementById('typing-indicator')?.remove();
-        }
-
-        function updateAIStatus(status) {
-            const statusIndicator = document.getElementById('ai-status');
-            const statusText = document.getElementById('ai-status-text');
-            if (!statusIndicator || !statusText) return;
-            const statuses = {
-                ready: { color: '#10b981', text: 'Ready to chat' },
-                thinking: { color: '#f59e0b', text: 'Thinking...' },
-                error: { color: '#ef4444', text: 'Connection issue' }
-            };
-            statusIndicator.style.background = statuses[status].color;
-            statusText.textContent = statuses[status].text;
-        }
-
-        function updateMetrics(metrics) {
-            animateScore('accuracy-score', metrics.accuracy);
-            animateScore('fluency-score', metrics.fluency);
-            animateScore('grammar-score', metrics.grammar_accuracy);
-            animateScore('vocab-score', metrics.vocabulary_usage);
-        }
-
-        function animateScore(elementId, targetValue) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-            let current = parseInt(element.textContent) || 0;
-            const step = () => {
-                if (current < targetValue) {
-                    current++;
-                    element.textContent = `${current}%`;
-                    requestAnimationFrame(step);
-                } else if (current > targetValue) {
-                    current--;
-                    element.textContent = `${current}%`;
-                    requestAnimationFrame(step);
-                }
-            };
-            requestAnimationFrame(step);
-        }
-
-        function showSuggestions(suggestions) {
-            const panel = document.getElementById('suggestions-panel');
-            const list = document.getElementById('suggestions-list');
-            if (!panel || !list) return;
-            list.innerHTML = suggestions.map(s => `<li><strong>${s.type}:</strong> ${s.action}</li>`).join('');
-            panel.style.display = 'block';
-        }
-
-        function generateLocalResponse(message) {
-            let corrections = [];
-            if (message.match(/\bich\s+habe\s+gegangen\b/i)) {
-                corrections.push({original: 'ich habe gegangen', corrected: 'ich bin gegangen', explanation: 'Bewegungsverben bilden das Perfekt mit "sein".'});
-            }
-            return {
-                text: "Entschuldigung, es gibt ein Problem mit der Verbindung. Bitte versuchen Sie es später noch einmal.",
-                corrections: corrections
-            };
-        }
-        // Add these functions to your index.html script section
-
-// --- Level Navigation Functions ---
-function setupLevelNavigation() {
-    const container = document.getElementById('level-navigation');
-    if (!container) return;
-    
-    // Group articles by level
-    const levels = {};
-    articles.forEach(article => {
-        const level = article.LEVEL || 'Unknown';
-        if (!levels[level]) levels[level] = [];
-        levels[level].push(article);
     });
     
-    // Create level sections
-    container.innerHTML = '';
-    const levelOrder = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('keypress', e => (e.key === 'Enter') && searchArticles(e.target.value));
     
-    levelOrder.forEach(level => {
-        if (levels[level] && levels[level].length > 0) {
-            const levelSection = document.createElement('div');
-            levelSection.className = 'level-section';
-            
-            const header = document.createElement('div');
-            header.className = 'level-header';
-            header.innerHTML = `
-                <h3>Level ${level} (${levels[level].length} articles)</h3>
-                <span class="toggle-icon">▶</span>
-            `;
-            
-            const themeList = document.createElement('div');
-            themeList.className = 'theme-list';
-            
-            // Group by theme within level
-            const themes = {};
-            levels[level].forEach(article => {
-                const theme = article.THEME || 'General';
-                if (!themes[theme]) themes[theme] = [];
-                themes[theme].push(article);
-            });
-            
-            Object.keys(themes).forEach(theme => {
-                const button = document.createElement('button');
-                button.className = 'theme-button';
-                button.textContent = `${theme} (${themes[theme].length})`;
-                button.onclick = () => filterByLevelAndTheme(level, theme);
-                themeList.appendChild(button);
-            });
-            
-            header.onclick = () => {
-                header.classList.toggle('active');
-                themeList.classList.toggle('active');
-            };
-            
-            levelSection.appendChild(header);
-            levelSection.appendChild(themeList);
-            container.appendChild(levelSection);
-        }
-    });
-}
-
-function filterByLevelAndTheme(level, theme) {
-    filteredArticles = articles.filter(article => 
-        article.LEVEL === level && article.THEME === theme
-    );
-    if (filteredArticles.length > 0) {
-        displayArticle(filteredArticles[0]);
-        updateArticleCounter();
-    }
-}
-
-// --- Search Functions ---
-function searchArticles(query) {
-    if (!query || query.trim() === '') {
-        resetSearch();
-        return;
-    }
-    
-    const searchTerm = query.toLowerCase();
-    filteredArticles = articles.filter(article => {
-        const searchableText = [
-            article.THEME,
-            article.LEVEL,
-            article.VOCABULARY_USED,
-            article.GERMAN_ARTICLE,
-            article.ENGLISH_TRANSLATION,
-            article.DATE
-        ].join(' ').toLowerCase();
-        
-        return searchableText.includes(searchTerm);
-    });
-    
-    if (filteredArticles.length > 0) {
-        displayArticle(filteredArticles[0]);
-        updateArticleCounter();
-        showSearchFeedback(`Found ${filteredArticles.length} article(s) matching "${query}"`);
-    } else {
-        showSearchFeedback(`No articles found matching "${query}"`);
-        resetSearch();
-    }
-}
-
-function resetSearch() {
-    filteredArticles = [...articles];
-    if (filteredArticles.length > 0) {
-        displayArticle(filteredArticles[0]);
-        updateArticleCounter();
-    }
-    document.getElementById('search-input').value = '';
-    hideSearchFeedback();
-}
-
-function showSearchFeedback(message) {
-    // Remove existing feedback if any
-    hideSearchFeedback();
-    
-    const searchContainer = document.querySelector('.search-container');
-    const feedback = document.createElement('div');
-    feedback.id = 'search-feedback';
-    feedback.style.cssText = `
-        padding: 10px;
-        margin-top: 10px;
-        background: var(--bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        color: var(--text-color);
-        text-align: center;
-    `;
-    feedback.textContent = message;
-    searchContainer.appendChild(feedback);
-}
-
-function hideSearchFeedback() {
-    const feedback = document.getElementById('search-feedback');
-    if (feedback) feedback.remove();
-}
-
-// --- Grammar Drill Functions ---
-function setupGrammarDrill() {
-    const container = document.getElementById('grammar-topic-tags');
-    if (!container) return;
-    
-    // Extract unique grammar topics from articles
-    const grammarTopics = new Set();
-    articles.forEach(article => {
-        if (article.GRAMMAR_TOPIC_TAGS) {
-            const topics = article.GRAMMAR_TOPIC_TAGS.split(',').map(t => t.trim());
-            topics.forEach(topic => {
-                if (topic) grammarTopics.add(topic);
-            });
+    document.addEventListener('keydown', function(event) {
+        const activePage = document.querySelector('.page.active');
+        if (document.activeElement !== searchInput && activePage && activePage.id === 'articles-page') {
+            if (event.key === 'ArrowLeft') navigateArticle('previous');
+            if (event.key === 'ArrowRight') navigateArticle('next');
+            if (event.key === 'Home') { event.preventDefault(); resetSearch(); }
         }
     });
     
-    // Create topic buttons
-    container.innerHTML = '';
-    const topicsArray = Array.from(grammarTopics).sort();
-    
-    if (topicsArray.length === 0) {
-        container.innerHTML = '<p style="color: var(--subtle-text-color); text-align: center; width: 100%;">No grammar topics available yet.</p>';
-        return;
-    }
-    
-    topicsArray.forEach(topic => {
-        const tag = document.createElement('div');
-        tag.className = 'word-drag';
-        tag.textContent = topic;
-        tag.style.cursor = 'pointer';
-        tag.dataset.selected = 'false';
-        
-        tag.onclick = () => {
-            if (tag.dataset.selected === 'true') {
-                tag.dataset.selected = 'false';
-                tag.style.background = 'var(--card-bg-color)';
-                tag.style.color = 'var(--text-color)';
-            } else {
-                tag.dataset.selected = 'true';
-                tag.style.background = 'var(--primary-accent)';
-                tag.style.color = 'white';
-            }
-        };
-        
-        container.appendChild(tag);
-    });
+    document.getElementById('start-drill-btn').addEventListener('click', startGrammarDrill);
 }
 
-function startGrammarDrill() {
-    const container = document.getElementById('drill-container');
-    const selectedTags = document.querySelectorAll('#grammar-topic-tags .word-drag[data-selected="true"]');
+// --- Data Loading ---
+async function loadArticles() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('article-display-container').style.display = 'none';
+    document.getElementById('practice-content').innerHTML = '';
     
-    if (selectedTags.length === 0) {
-        alert('Please select at least one grammar topic to practice.');
-        return;
-    }
-    
-    const selectedTopics = Array.from(selectedTags).map(tag => tag.textContent);
-    
-    // Filter articles that have drill sentences for selected topics
-    const drillArticles = articles.filter(article => {
-        if (!article.GRAMMAR_TOPIC_TAGS || !article.DRILL_SENTENCES) return false;
-        const articleTopics = article.GRAMMAR_TOPIC_TAGS.split(',').map(t => t.trim());
-        return selectedTopics.some(topic => articleTopics.includes(topic));
-    });
-    
-    if (drillArticles.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--subtle-text-color); padding: 20px;">No drill exercises available for the selected topics.</p>';
-        return;
-    }
-    
-    // Generate drill exercises
-    container.innerHTML = '<h3>Complete the sentences:</h3>';
-    
-    const exercises = drillArticles.slice(0, 5).map(article => {
-        const sentence = article.DRILL_SENTENCES;
-        // Extract the word in curly braces as the answer
-        const match = sentence.match(/\{([^}]+)\}/);
-        if (!match) return null;
+    try {
+        const response = await fetch('/.netlify/functions/get-articles');
+        if (!response.ok) {
+            throw new Error(`Function request failed with status ${response.status}`);
+        }
+        const data = await response.json();
         
-        const answer = match[1];
-        const blankedSentence = sentence.replace(/\{[^}]+\}/, '_____');
+        if (!data.values || data.values.length < 2) {
+            throw new Error('No data found in the sheet or sheet is empty.');
+        }
         
-        return {
-            sentence: blankedSentence,
-            answer: answer,
-            topic: article.GRAMMAR_TOPIC_TAGS
-        };
-    }).filter(ex => ex !== null);
-    
-    exercises.forEach((exercise, index) => {
-        const exerciseDiv = document.createElement('div');
-        exerciseDiv.style.cssText = 'margin: 20px 0; padding: 15px; background: var(--bg-color); border-radius: 8px;';
-        exerciseDiv.innerHTML = `
-            <p style="margin-bottom: 10px;"><strong>Topic:</strong> ${exercise.topic}</p>
-            <p style="font-size: 1.1em; margin-bottom: 10px;">${exercise.sentence}</p>
-            <input type="text" 
-                   id="drill-input-${index}" 
-                   class="lueckentext-input" 
-                   placeholder="Your answer"
-                   style="width: 150px; margin-right: 10px;">
-            <button onclick="checkDrillAnswer(${index}, '${exercise.answer}')" 
-                    style="padding: 5px 15px; background: var(--primary-accent); color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Check
-            </button>
-            <span id="drill-feedback-${index}" style="margin-left: 10px;"></span>
-        `;
-        container.appendChild(exerciseDiv);
-    });
+        articles = parseSheetData(data.values);
+        initializeContent();
+
+    } catch (error) {
+        console.error('Error loading articles:', error);
+        showError(`${error.message}. Using sample data for demonstration.`);
+        articles = getSampleData();
+        initializeContent();
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+    }
 }
 
-function checkDrillAnswer(index, correctAnswer) {
-    const input = document.getElementById(`drill-input-${index}`);
-    const feedback = document.getElementById(`drill-feedback-${index}`);
-    
-    if (input.value.toLowerCase().trim() === correctAnswer.toLowerCase().trim()) {
-        feedback.innerHTML = '<span style="color: var(--success-accent); font-weight: bold;">✓ Correct!</span>';
-        input.style.borderColor = 'var(--success-accent)';
-    } else {
-        feedback.innerHTML = `<span style="color: var(--danger-accent);">✗ Try again. Hint: ${correctAnswer.substring(0, 2)}...</span>`;
-        input.style.borderColor = 'var(--danger-accent)';
+function initializeContent() {
+    if (articles.length > 0) {
+        filteredArticles = [...articles];
+        setupLevelNavigation();
+        displayLatestArticle();
+        setupGrammarDrill();
+        document.getElementById('search-container').style.display = 'block';
+        document.getElementById('nav-buttons').style.display = 'flex';
+        document.getElementById('article-info').style.display = 'block';
+    } else { 
+        showError('No "Published" articles found.'); 
     }
 }
-        
-    </script>
+
+function parseSheetData(rows) {
+    const headers = rows[0].map(h => h.trim().toUpperCase().replace(/\s+/g, '_').replace('&', 'AND'));
+    const data = [];
+    const statusIndex = headers.indexOf('STATUS');
+
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (statusIndex !== -1 && row[statusIndex] && row[statusIndex].trim() === 'Published') {
+            let article = {};
+            headers.forEach((header, index) => {
+                article[header] = row[index] || '';
+            });
+            data.push(article);
+        }
+    }
+    return data.sort((a, b) => new Date(b.DATE) - new Date(a.DATE));
+}
+
+// --- Article Display & Navigation ---
+function displayLatestArticle() { 
+    if (articles.length > 0) displayArticle(articles[0]); 
+}
+
+function displayArticle(article) {
+    currentArticle = article;
+    synth.cancel();
+    const displayContainer = document.getElementById('article-display-container');
+    const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
+    
+    const articleContent = document.getElementById('article-content');
+    articleContent.innerHTML = ''; 
+    
+    const audioContainer = document.createElement('div');
+    audioContainer.id = 'audio-player-container';
+    audioContainer.innerHTML = `
+        <button id="play-pause-btn-article" class="audio-btn" title="Play/Pause">▶️</button>
+        <span id="audio-status">Read Aloud</span>`;
+    
+    const metadata = document.createElement('div');
+    metadata.className = 'metadata';
+    metadata.innerHTML = `<strong>Level:</strong> ${sanitizeHTML(safeGet('LEVEL'))} | <strong>Theme:</strong> ${sanitizeHTML(safeGet('THEME'))}`;
+    
+    const germanText = document.createElement('div');
+    germanText.className = 'german-text';
+    // Use innerHTML for grammar-colored text
+    germanText.innerHTML = sanitizeHTML(safeGet('GERMAN_ARTICLE'));
+    
+    const englishText = document.createElement('div');
+    englishText.className = 'english-text';
+    englishText.textContent = safeGet('ENGLISH_TRANSLATION');
+    
+    const vocabSection = document.createElement('div');
+    vocabSection.className = 'article-section vocabulary-section';
+    vocabSection.innerHTML = `<strong>🎯 Key Vocabulary:</strong><div>${sanitizeHTML(safeGet('VOCABULARY_USED'))}</div>`;
+    
+    const phrasesSection = document.createElement('div');
+    phrasesSection.className = 'article-section phrases-section';
+    phrasesSection.innerHTML = `<strong>💬 Phrase & Idiom:</strong><div>${sanitizeHTML(safeGet('PHRASE_AND_IDIOM'))}</div>`;
+    
+    const quotesSection = document.createElement('div');
+    quotesSection.className = 'article-section quotes-section';
+    quotesSection.innerHTML = `<strong>😄 Quote & Joke:</strong><div>${sanitizeHTML(safeGet('QUOTE_AND_JOKE'))}</div>`;
+
+    const conversationSection = document.createElement('div');
+    conversationSection.className = 'article-section conversation-section';
+    conversationSection.innerHTML = `<strong>🗣️ Conversation Time:</strong><div>${sanitizeHTML(safeGet('CONVERSATION_TIME'))}</div>`;
+    
+    articleContent.append(audioContainer, metadata, germanText, englishText, vocabSection, phrasesSection, quotesSection, conversationSection);
+
+    const deepDiveContent = document.getElementById('deep-dive-content');
+    deepDiveContent.innerHTML = `<div class="article-section grammar-section"><strong>🧠 Deep Dive Grammar:</strong><div>${sanitizeHTML(safeGet('DEEP_DIVE_GRAMMAR'))}</div></div>`;
+    
+    displayContainer.style.display = 'block';
+    setupAudioPlayer();
+    updateArticleCounter();
+    setupPracticeExercises(article);
+    setupSubNav();
+}
+
+function navigateArticle(direction) {
+    const currentIndex = filteredArticles.indexOf(currentArticle);
+    if (currentIndex === -1) return;
+    let newIndex = (direction === 'next') ? 
+        (currentIndex + 1) % filteredArticles.length : 
+        (currentIndex - 1 + filteredArticles.length) % filteredArticles.length;
+    displayArticle(filteredArticles[newIndex]);
+}
+
+function updateArticleCounter() {
+    const currentIndex = filteredArticles.indexOf(currentArticle);
+    document.getElementById('current-article-number').textContent = currentIndex + 1;
+    document.getElementById('total-articles').textContent = filteredArticles.length;
+    document.getElementById('current-date').textContent = currentArticle.DATE;
+}
+
+function setupSubNav() {
+    const subNavTabs = document.querySelectorAll('.sub-nav-tab');
+    const subPages = document.querySelectorAll('.sub-page');
+    subNavTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            subNavTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const targetId = tab.dataset.target;
+            subPages.forEach(page => {
+                page.classList.toggle('active', page.id === targetId);
+            });
+        });
+    });
+    subNavTabs[0].click();
+}
+</script>
 </body>
 </html>
