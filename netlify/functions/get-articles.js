@@ -14,7 +14,7 @@ exports.handler = async (event, context) => {
   }
 
   // Get credentials from environment variables
-  const SHEET_ID = process.env.VITE_GOOGLE_SHEET_ID || '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
+  const SHEET_ID = process.env.VITE_GOOGLE_SHEET_ID;
   const API_KEY = process.env.VITE_GOOGLE_API_KEY;
   const SHEET_NAME = 'Sheet1';
   
