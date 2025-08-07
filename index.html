@@ -3,289 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily German Learning</title>
-    <meta name="description" content="Master German with themed articles, vocabulary, and interactive exercises">
+    <title>German Mastery Hub - Your Gateway to Fluent German</title>
+    <meta name="description" content="Master German through immersive articles, AI-powered podcasts, and interactive exercises">
     <style>
-        /* --- CSS Variables for Theming --- */
+        /* Ocean-inspired theme from arnavray.ca */
         :root {
-            --bg-color: #f8f9fa;
-            --card-bg-color: white;
-            --text-color: #333;
-            --header-text-color: #2c3e50;
-            --subtle-text-color: #6c757d;
-            --text-secondary: #6c757d;
-            --border-color: #dee2e6;
-            --shadow-color: rgba(0,0,0,0.05);
-            --primary-accent: #007bff;
-            --secondary-accent: #28a745;
-            --danger-accent: #dc3545;
-            --success-accent: #28a745;
-            --modal-overlay-color: rgba(0, 0, 0, 0.6);
+            --ocean-deep: #0a0e27;
+            --ocean-mid: #003c40;
+            --ocean-light: #006466;
+            --ocean-surface: rgba(0, 100, 100, 0.2);
+            --accent-cyan: #00acc1;
+            --accent-blue: #4fc3f7;
+            --accent-teal: #00acc1;
+            --text-primary: #e1f5fe;
+            --text-secondary: #b3e5fc;
+            --text-muted: #80deea;
+            --card-bg: rgba(0, 60, 64, 0.4);
+            --border-glow: rgba(79, 195, 247, 0.3);
+            --shadow-glow: rgba(0, 172, 193, 0.4);
+            
+            /* Level colors */
+            --level-a1: #4caf50;
+            --level-a2: #8bc34a;
+            --level-b1: #ffc107;
+            --level-b2: #ff9800;
+            --level-c1: #f44336;
+            --level-c2: #9c27b0;
         }
 
         body.dark-theme {
-            --bg-color: #121212;
-            --card-bg-color: #1e1e1e;
-            --text-color: #e0e0e0;
-            --header-text-color: #ffffff;
-            --subtle-text-color: #adb5bd;
-            --text-secondary: #adb5bd;
-            --border-color: #444;
-            --shadow-color: rgba(0,0,0,0.2);
-            --modal-overlay-color: rgba(0, 0, 0, 0.7);
+            --ocean-deep: #0a0e27;
+            --card-bg: rgba(0, 60, 64, 0.6);
         }
-        /* --- End Theming Variables --- */
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; line-height: 1.6; color: var(--text-color); background-color: var(--bg-color); transition: background-color 0.3s ease, color 0.3s ease; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        header { text-align: center; margin-bottom: 20px; padding: 20px; background: var(--card-bg-color); border-radius: 10px; box-shadow: 0 2px 10px var(--shadow-color); }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 15px; }
-        header h1 { color: var(--header-text-color); font-size: 2em; margin: 0; text-align: left; flex-grow: 1; }
-        header p { color: var(--subtle-text-color); font-size: 1.1em; width: 100%; text-align: center; }
-        .header-controls { display: flex; align-items: center; gap: 15px; }
-
-        /* --- Accessibility Helper --- */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Georgia', serif; 
+            line-height: 1.6; 
+            color: var(--text-primary); 
+            background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-mid) 50%, var(--ocean-light) 100%);
+            min-height: 100vh;
+            background-attachment: fixed;
         }
-
-        /* --- Settings Button --- */
-        #settings-btn { background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--subtle-text-color); transition: transform 0.3s ease; }
-        #settings-btn:hover { transform: rotate(45deg); }
-
-        /* --- Main Navigation Tabs --- */
-        #main-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .nav-tab { padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; background: transparent; color: var(--subtle-text-color); border-bottom: 2px solid transparent; transition: all 0.3s ease; }
-        .nav-tab.active { color: var(--primary-accent); border-bottom-color: var(--primary-accent); font-weight: bold; }
-        .nav-tab:hover { color: var(--primary-accent); }
-
-        /* --- Content Pages --- */
-        .page { display: none; }
-        .page.active { display: block; }
         
-        /* --- Article Page Styles --- */
-        #level-navigation { background: var(--card-bg-color); padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px var(--shadow-color); margin-bottom: 20px; }
-        .level-header { background: var(--bg-color); padding: 15px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.2s ease; margin-bottom: 5px;}
-        .level-header:hover { background-color: #e9ecef; }
-        body.dark-theme .level-header:hover { background-color: #343a40; }
-        .level-header h3 { margin: 0; color: var(--header-text-color); }
-        .level-header .toggle-icon { font-weight: bold; transition: transform 0.3s ease; }
-        .level-header.active .toggle-icon { transform: rotate(90deg); }
-        .theme-list { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; padding: 0 15px; display: flex; flex-wrap: wrap; gap: 10px; }
-        .theme-list.active { max-height: 500px; padding: 15px 15px 5px 15px; }
-        .theme-button { display: inline-block; padding: 8px 15px; background: var(--secondary-accent); color: white; text-decoration: none; border-radius: 20px; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s ease; }
-        .theme-button:hover { background: #218838; transform: translateY(-1px); }
-        .search-container { margin-bottom: 20px; }
-        .search-input { width: 100%; padding: 12px 20px; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); border-radius: 25px; font-size: 16px; transition: all 0.3s ease; }
-        .search-input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); }
-        #article-display-container { background: var(--card-bg-color); padding: 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px var(--shadow-color); }
-        .sub-nav { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
-        .sub-nav-tab { padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; background: transparent; color: var(--subtle-text-color); border-bottom: 3px solid transparent; margin-bottom: -1px; transition: all 0.3s ease; }
-        .sub-nav-tab.active { color: var(--primary-accent); border-bottom-color: var(--primary-accent); font-weight: bold; }
-        .sub-page { display: none; }
-        .sub-page.active { display: block; }
-        .german-text { font-size: 18px; line-height: 1.8; margin-bottom: 30px; padding: 20px; background: var(--bg-color); border-left: 4px solid var(--primary-accent); border-radius: 5px; }
-        .english-text { font-size: 16px; color: var(--subtle-text-color); font-style: italic; margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107; }
-        body.dark-theme .english-text { background: #3e3829; }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
         
-        /* --- Grammar Color Coding --- */
-        .german-text span { cursor: pointer; transition: background-color 0.2s ease-in-out; padding: 1px 2px; border-radius: 3px; }
-        .german-text span:hover { background-color: #d0eaff; }
-        body.dark-theme .german-text span:hover { background-color: #003c7a; }
-        .noun-m { color: #007bff; font-weight: bold; } .noun-f { color: #dc3545; font-weight: bold; } .noun-n { color: #28a745; font-weight: bold; }
-        .verb { color: #6f42c1; text-decoration: underline; } .adjective { color: #fd7e14; } .adverb { color: #6c757d; font-style: italic; }
-        .preposition { color: #E91E63; } .conjunction { color: #20c997; } .pronoun { color: #ffc107; } .article { color: #17a2b8; font-weight: bold; }
-        .punctuation { color: var(--subtle-text-color); }
-        /* --- End Grammar Coding --- */
-
-        .article-section { margin-top: 20px; padding: 15px; border-radius: 8px; border-left: 4px solid transparent; }
-        .vocabulary-section { background-color: #e8f4fd; border-left-color: #007bff; }
-        .grammar-section { background-color: #e8f5e8; border-left-color: #28a745; }
-        .phrases-section { background-color: #fdf5e6; border-left-color: #fd7e14; }
-        .quotes-section { background-color: #f8e6ff; border-left-color: #6f42c1; font-style: italic; }
-        .conversation-section { background-color: #e6f9f1; border-left-color: #20c997; }
-        body.dark-theme .vocabulary-section { background-color: #2a333d; }
-        body.dark-theme .grammar-section { background-color: #2a352c; }
-        body.dark-theme .phrases-section { background-color: #3e3829; }
-        body.dark-theme .quotes-section { background-color: #342a3d; }
-        body.dark-theme .conversation-section { background-color: #2a3a34; }
-        .article-section strong { display: block; margin-bottom: 8px; font-size: 16px; color: var(--header-text-color); }
-        .article-section div { font-size: 15px; line-height: 1.5; }
-        .nav-buttons { text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .nav-btn { display: inline-block; padding: 10px 20px; background: var(--primary-accent); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; transition: background-color 0.3s ease; }
-        .nav-btn:hover { background: #0056b3; }
-        .metadata { background: var(--bg-color); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border-left: 4px solid var(--subtle-text-color); }
-        #loading { text-align: center; padding: 50px; font-size: 18px; color: var(--subtle-text-color); }
-        #article-info { text-align: center; margin-top: 20px; }
-        #article-info small { color: var(--subtle-text-color); font-size: 13px; }
-        #audio-player-container { display: flex; gap: 10px; align-items: center; background-color: var(--bg-color); padding: 10px 15px; border-radius: 25px; margin-bottom: 20px; width: fit-content; }
-        .audio-btn { background: var(--primary-accent); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s ease; }
-        .audio-btn:hover { background: #0056b3; }
-        #audio-status { font-size: 14px; color: var(--subtle-text-color); font-weight: bold; }
-        .error-message { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; }
-        body.dark-theme .error-message { background-color: #4a2c2c; border-color: #dc3545; color: #f8d7da; }
+        /* Animated ocean background effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at top, transparent 0%, var(--ocean-deep) 100%),
+                radial-gradient(ellipse at bottom, var(--ocean-light) 0%, transparent 50%);
+            opacity: 0.5;
+            z-index: -1;
+            animation: oceanWave 20s ease-in-out infinite;
+        }
         
-        /* --- Practice Page Styles --- */
-        .practice-container { background-color: var(--card-bg-color); padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px var(--shadow-color); }
-        .practice-exercise { margin-bottom: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
-        .practice-exercise:last-child { border-bottom: none; margin-bottom: 0; }
-        .practice-exercise h2 { color: var(--header-text-color); padding-bottom: 10px; margin-bottom: 20px; font-size: 1.4em; }
-        .word-bank { display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; padding: 15px; background-color: var(--bg-color); border-radius: 8px; min-height: 50px; justify-content: center; }
-        .word-drag { 
-            padding: 8px 16px; 
-            background-color: var(--card-bg-color); 
-            color: var(--text-color); 
-            border: 1px solid var(--border-color); 
+        @keyframes oceanWave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Header with glow effect */
+        header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 30px; 
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
             border-radius: 20px; 
-            cursor: grab; 
-            user-select: none; 
-            -webkit-user-select: none; /* Safari compatibility */
-            transition: all 0.2s ease; 
+            box-shadow: 0 10px 40px var(--shadow-glow);
+            border: 1px solid var(--border-glow);
+        }
+        
+        .header-top { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+        }
+        
+        header h1 { 
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5em; 
+            margin: 0; 
+            text-align: left; 
+            flex-grow: 1;
+            text-shadow: 0 0 30px var(--accent-cyan);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        header p { 
+            color: var(--text-secondary); 
+            font-size: 1.1em; 
+            width: 100%; 
             text-align: center; 
         }
-        .word-drag:hover { background-color: var(--primary-accent); color: white; border-color: var(--primary-accent); transform: scale(1.05); }
-        .drop-zone { padding: 20px; background-color: var(--bg-color); border: 2px dashed var(--border-color); border-radius: 8px; min-height: 60px; transition: background-color 0.3s ease; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .drop-zone.over { background-color: #d0eaff; }
-        body.dark-theme .drop-zone.over { background-color: #003c7a; }
-        .check-btn { width: 100%; padding: 12px; font-size: 16px; background: var(--secondary-accent); color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-top: 15px; }
-        .check-btn:hover { background-color: #218838; }
-        .feedback-message { margin-top: 15px; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; display: none; }
-        .feedback-message.correct { background-color: var(--success-accent); color: white; }
-        .feedback-message.incorrect { background-color: var(--danger-accent); color: white; }
-        #no-practice-message { text-align: center; color: var(--subtle-text-color); font-style: italic; padding: 40px 0; }
-        .article-quiz-question { text-align: center; margin-bottom: 15px; font-size: 1.2em; }
-        .article-quiz-question .noun { font-weight: bold; color: var(--primary-accent); }
-        .article-quiz-options { display: flex; justify-content: center; gap: 15px; }
-        .article-quiz-btn { padding: 10px 25px; font-size: 1.1em; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--card-bg-color); cursor: pointer; transition: all 0.2s ease; }
-        .article-quiz-btn:hover { background-color: var(--primary-accent); color: white; transform: scale(1.05); }
-        .translation-input, .listening-input { width: 100%; min-height: 60px; padding: 15px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); border-radius: 8px; font-size: 16px; font-family: 'Georgia', serif; margin-top: 15px; resize: vertical; }
-        .lueckentext-input { padding: 4px 8px; font-size: 1em; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color); width: 120px; }
-
-        /* Memory Game Styles */
-        .memory-game-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; perspective: 1000px; }
-        .memory-card { background-color: transparent; width: 100%; aspect-ratio: 3/2; border-radius: 8px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.5s; }
-        .memory-card.flip { transform: rotateY(180deg); }
-        .memory-card .front-face, .memory-card .back-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; text-align: center; padding: 10px; border-radius: 8px; }
-        .memory-card .front-face { background-color: var(--primary-accent); color: white; }
-        .memory-card .back-face { background-color: var(--card-bg-color); border: 1px solid var(--border-color); color: var(--text-color); transform: rotateY(180deg); }
-        .memory-game-controls { text-align: center; margin-top: 15px; font-size: 1.2em; }
-
-        /* Crossword Styles */
-        .crossword-container { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
-        .crossword-grid { border-collapse: collapse; }
-        .crossword-grid td { width: 30px; height: 30px; text-align: center; vertical-align: middle; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); font-size: 16px; position: relative; }
-        .crossword-grid td.empty { background-color: transparent; border: none; }
-        .crossword-grid td .word-start-number { position: absolute; top: 1px; left: 2px; font-size: 10px; color: var(--subtle-text-color); }
-        .crossword-grid input { width: 100%; height: 100%; text-align: center; border: none; background-color: transparent; font-size: 16px; color: var(--text-color); padding: 0; text-transform: uppercase; }
-        .crossword-grid input:focus { outline: 2px solid var(--primary-accent); }
-        .crossword-grid input.correct { background-color: #d4edda; }
-        body.dark-theme .crossword-grid input.correct { background-color: #2a352c; }
-        .crossword-grid input.incorrect { background-color: #f8d7da; }
-        body.dark-theme .crossword-grid input.incorrect { background-color: #4a2c2c; }
-        .crossword-clues { flex-grow: 1; min-width: 250px; }
-        .crossword-clues h3 { margin-top: 0; color: var(--header-text-color); }
-        .crossword-clues ol { padding-left: 25px; }
-        .crossword-clues li { margin-bottom: 8px; }
-        .crossword-controls { display: flex; gap: 10px; margin-top: 15px; justify-content: center; }
-
-        /* --- Settings Modal Styles --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay-color); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
-        .modal-overlay.visible { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--card-bg-color); padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 500px; position: relative; transform: scale(0.9); transition: transform 0.3s ease; }
-        .modal-overlay.visible .modal-content { transform: scale(1); }
-        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--subtle-text-color); }
-        .modal-content h2 { margin-top: 0; color: var(--header-text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
-        .settings-section { margin-bottom: 25px; }
-        .settings-section h3 { margin-bottom: 15px; color: var(--header-text-color); }
-        .control-group { margin-bottom: 15px; }
-        .control-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-color); }
-        .control-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .control-row select, .control-row input { width: 100%; max-width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; background-color: var(--bg-color); color: var(--text-color); }
-        .control-row input[type="range"] { width: auto; flex-grow: 1; }
-        .range-value { font-weight: bold; color: var(--primary-accent); min-width: 30px; }
-        .theme-switch-wrapper { display: flex; align-items: center; gap: 10px; }
-        .theme-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-        .theme-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary-accent); }
-        input:checked + .slider:before { transform: translateX(22px); }
         
-        /* --- Podcast & AI Teacher Styles --- */
-        .podcast-player { background: var(--card-bg-color); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px var(--shadow-color); }
-        .podcast-header { margin-bottom: 20px; }
-        .podcast-controls-top { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-top: 15px; }
-        .language-selector { display: flex; gap: 10px; padding: 5px 10px; background: var(--bg-color); border-radius: 20px; }
-        .language-selector label { cursor: pointer; padding: 5px 10px; border-radius: 15px; transition: background 0.3s; }
-        .language-selector input[type="radio"] { margin-right: 5px; }
-        .language-selector input[type="radio"]:checked + label { background: var(--primary-accent); color: white; }
-        #podcast-category, #podcast-date { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); }
-        .episodes-section { margin: 30px 0; }
-        .episodes-section h3 { margin-bottom: 15px; color: var(--header-text-color); }
-        .category-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .cat-tab { padding: 8px 16px; border: none; background: var(--bg-color); color: var(--text-color); border-radius: 20px; cursor: pointer; transition: all 0.3s; }
-        .cat-tab.active { background: var(--primary-accent); color: white; }
-        .episodes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .episode-card { background: var(--bg-color); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
-        .episode-card:hover { border-color: var(--primary-accent); transform: translateY(-2px); box-shadow: 0 4px 12px var(--shadow-color); }
-        .episode-card h4 { margin-bottom: 10px; color: var(--header-text-color); }
-        .episode-meta { display: flex; gap: 15px; margin: 10px 0; font-size: 0.9em; color: var(--text-secondary); flex-wrap: wrap; }
-        .episode-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85em; font-weight: bold; }
-        .badge-en { background: #dbeafe; color: #1e40af; }
-        .badge-de { background: #fef3c7; color: #92400e; }
-        body.dark-theme .badge-en { background: #1e3a8a; color: #bfdbfe; }
-        body.dark-theme .badge-de { background: #78350f; color: #fde68a; }
-        .episode-player { background: var(--bg-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        .player-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .episode-language { padding: 6px 12px; border-radius: 20px; font-weight: bold; background: var(--primary-accent); color: white; }
-        .player-controls { display: flex; align-items: center; gap: 15px; margin: 15px 0; }
-        .progress-bar { flex: 1; height: 8px; background: var(--border-color); border-radius: 4px; cursor: pointer; }
-        .progress-fill { height: 100%; background: var(--primary-accent); border-radius: 4px; width: 0%; transition: width 0.1s; }
-        .playback-options { display: flex; gap: 20px; margin-top: 15px; }
-        .transcript-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .toggle-btn { padding: 6px 12px; background: var(--primary-accent); color: white; border: none; border-radius: 6px; cursor: pointer; }
-        .exercises-section { background: var(--bg-color); padding: 20px; border-radius: 12px; margin-top: 20px; }
-        .ai-conversation-container { background: var(--card-bg-color); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px var(--shadow-color); }
-        .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--border-color); }
-        .ai-status { display: flex; align-items: center; gap: 10px; }
-        .status-indicator { width: 12px; height: 12px; border-radius: 50%; background: #10b981; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .chat-window { height: 400px; overflow-y: auto; padding: 20px; background: var(--bg-color); border-radius: 12px; margin-bottom: 20px; }
-        .message { display: flex; gap: 12px; margin-bottom: 20px; animation: fadeIn 0.3s ease; }
-        .message-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--primary-accent); }
-        .message-content { flex: 1; }
-        .message-text { background: var(--card-bg-color); padding: 12px 16px; border-radius: 12px; }
-        .grammar-correction { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 8px 12px; margin-top: 8px; border-radius: 4px; font-size: 0.9em; }
-        body.dark-theme .grammar-correction { background: #3e3829; border-left-color: #f59e0b; }
-        .chat-input-container { display: flex; gap: 10px; }
-        .chat-input { flex: 1; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 25px; font-size: 16px; background: var(--bg-color); color: var(--text-color); }
-        .send-btn { background: var(--primary-accent); color: white; border: none; border-radius: 25px; padding: 12px 24px; cursor: pointer; font-weight: bold; }
-        .performance-panel, .suggestions-panel { background: var(--bg-color); padding: 20px; border-radius: 12px; margin-top: 20px; }
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-top: 15px; }
-        .metric { text-align: center; padding: 15px; background: var(--card-bg-color); border-radius: 8px; }
-        .metric-label { display: block; font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px; }
-        .metric-value { display: block; font-size: 1.5em; font-weight: bold; color: var(--primary-accent); }
-        .vocab-item { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-        .vocab-item button { background: none; border: none; cursor: pointer; font-size: 1.2em; }
+        .header-controls { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        }
 
+        /* Navigation tabs with ocean theme */
+        #main-nav { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            flex-wrap: wrap; 
+        }
+        
+        .nav-tab { 
+            padding: 12px 24px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            border: 1px solid var(--border-glow);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            color: var(--text-secondary); 
+            border-radius: 25px;
+            transition: all 0.3s ease; 
+        }
+        
+        .nav-tab:hover {
+            background: var(--ocean-surface);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--shadow-glow);
+        }
+        
+        .nav-tab.active { 
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 20px var(--shadow-glow);
+        }
+
+        /* Content pages */
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.5s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Level Navigation with color coding */
+        #level-navigation { 
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 25px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 40px var(--shadow-glow);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-glow);
+        }
+        
+        .level-section {
+            margin-bottom: 20px;
+        }
+        
+        .level-header { 
+            background: rgba(0, 172, 193, 0.1);
+            padding: 18px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: all 0.3s ease; 
+            margin-bottom: 10px;
+            border: 1px solid var(--border-glow);
+        }
+        
+        .level-header:hover { 
+            background: rgba(0, 172, 193, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .level-header h3 { 
+            margin: 0; 
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .level-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .level-a1 { background: var(--level-a1); }
+        .level-a2 { background: var(--level-a2); }
+        .level-b1 { background: var(--level-b1); }
+        .level-b2 { background: var(--level-b2); }
+        .level-c1 { background: var(--level-c1); }
+        .level-c2 { background: var(--level-c2); }
+        
+        .theme-list { 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: max-height 0.4s ease-out; 
+            padding: 0 15px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 12px; 
+        }
+        
+        .theme-list.active { 
+            max-height: 500px; 
+            padding: 15px; 
+        }
+        
+        .theme-button { 
+            padding: 10px 18px; 
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: white; 
+            border: none;
+            border-radius: 25px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+        }
+        
+        .theme-button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--shadow-glow);
+        }
+        
+        /* Article display with ocean theme */
+        #article-display-container { 
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 35px; 
+            border-radius: 15px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 10px 40px var(--shadow-glow);
+            border: 1px solid var(--border-glow);
+        }
+        
+        .sub-nav { 
+            display: flex; 
+            border-bottom: 1px solid var(--border-glow);
+            margin-bottom: 25px; 
+        }
+        
+        .sub-nav-tab { 
+            padding: 12px 24px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            border: none; 
+            background: transparent; 
+            color: var(--text-secondary); 
+            border-bottom: 3px solid transparent; 
+            margin-bottom: -1px; 
+            transition: all 0.3s ease; 
+        }
+        
+        .sub-nav-tab.active { 
+            color: var(--accent-cyan); 
+            border-bottom-color: var(--accent-cyan); 
+            font-weight: bold; 
+        }
+        
+        /* Grammar color coding - Enhanced visibility */
+        .noun-m { color: #4fc3f7; font-weight: bold; text-shadow: 0 0 5px rgba(79, 195, 247, 0.5); }
+        .noun-f { color: #ff6b9d; font-weight: bold; text-shadow: 0 0 5px rgba(255, 107, 157, 0.5); }
+        .noun-n { color: #66d9ef; font-weight: bold; text-shadow: 0 0 5px rgba(102, 217, 239, 0.5); }
+        .verb { color: #a78bfa; text-decoration: underline; text-shadow: 0 0 5px rgba(167, 139, 250, 0.5); }
+        .adjective { color: #fbbf24; text-shadow: 0 0 5px rgba(251, 191, 36, 0.5); }
+        .adverb { color: #34d399; font-style: italic; text-shadow: 0 0 5px rgba(52, 211, 153, 0.5); }
+        .preposition { color: #f472b6; text-shadow: 0 0 5px rgba(244, 114, 182, 0.5); }
+        .conjunction { color: #60a5fa; text-shadow: 0 0 5px rgba(96, 165, 250, 0.5); }
+        .pronoun { color: #fde047; text-shadow: 0 0 5px rgba(253, 224, 71, 0.5); }
+        .article { color: #c084fc; font-weight: bold; text-shadow: 0 0 5px rgba(192, 132, 252, 0.5); }
+        
+        .german-text { 
+            font-size: 19px; 
+            line-height: 1.9; 
+            margin-bottom: 30px; 
+            padding: 25px; 
+            background: rgba(0, 172, 193, 0.1);
+            border-left: 4px solid var(--accent-cyan);
+            border-radius: 8px; 
+        }
+        
+        .german-text span { 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            padding: 2px 4px; 
+            border-radius: 4px; 
+        }
+        
+        .german-text span:hover { 
+            background: rgba(79, 195, 247, 0.2);
+            transform: scale(1.05);
+        }
+        
+        /* Practice exercises */
+        .practice-container { 
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 35px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 40px var(--shadow-glow);
+            border: 1px solid var(--border-glow);
+        }
+        
+        /* Podcast integration styles */
+        .podcast-tile {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.3s ease;
+        }
+        
+        .podcast-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--shadow-glow);
+        }
+        
+        .podcast-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .podcast-title {
+            font-size: 1.2em;
+            color: var(--accent-cyan);
+            font-weight: bold;
+        }
+        
+        .podcast-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+        
+        /* Progress tracking */
+        .progress-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-glow);
+        }
+        
+        .progress-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 172, 193, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Buttons with ocean theme */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--shadow-glow);
+        }
+        
+        /* Loading animation */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--ocean-mid);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border-glow);
+        }
+        
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        
+        /* Responsive design */
         @media (max-width: 768px) {
-            .header-top { flex-direction: column; text-align: center; }
-            header h1 { text-align: center; font-size: 1.8em; margin-bottom: 15px; }
-            .nav-buttons { flex-direction: column; align-items: center; }
-            .nav-btn { width: 100%; max-width: 280px; }
-            #article-display-container, .practice-container { padding: 15px; }
-            .german-text { font-size: 16px; }
-            .podcast-controls-top { flex-direction: column; align-items: stretch; }
-            .episodes-grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 1.8em; }
+            .container { padding: 15px; }
+            #article-display-container, .practice-container { padding: 20px; }
+            .german-text { font-size: 17px; }
         }
     </style>
 </head>
@@ -293,12 +491,12 @@
     <div class="container">
         <header>
             <div class="header-top">
-                <h1>Daily German Learning</h1>
+                <h1>German Mastery Hub</h1>
                 <div class="header-controls">
-                    <button id="settings-btn" title="Settings">⚙️</button>
+                    <button id="settings-btn" class="btn-primary" title="Settings">⚙️</button>
                 </div>
             </div>
-            <p>Master German with themed articles and real-world scenarios</p>
+            <p>Your Gateway to Fluent German Through Immersive Learning</p>
         </header>
 
         <nav id="main-nav">
@@ -310,176 +508,119 @@
         </nav>
         
         <main id="main-content">
-            <!-- Articles Page Content -->
+            <!-- Articles Page -->
             <div id="articles-page" class="page active">
                 <div id="level-navigation"></div>
-                <div class="search-container" id="search-container" style="display: none;">
-                    <input type="text" id="search-input" class="search-input" placeholder="Search articles, themes, or vocabulary...">
-                </div>
-                <div id="loading">Loading articles...</div>
+                <div class="loading" id="loading">Loading articles from Google Sheets</div>
                 <div id="article-display-container" style="display: none;">
                     <div class="sub-nav">
-                         <button class="sub-nav-tab active" data-target="article-content">Article</button>
-                         <button class="sub-nav-tab" data-target="deep-dive-content">Deep Dive Grammar</button>
-                         <button class="sub-nav-tab" data-target="practice-content">Practice</button>
+                        <button class="sub-nav-tab active" data-target="article-content">Article</button>
+                        <button class="sub-nav-tab" data-target="deep-dive-content">Deep Dive Grammar</button>
+                        <button class="sub-nav-tab" data-target="practice-content">Practice</button>
                     </div>
-                    <div id="article-content" class="sub-page active practice-container"></div>
-                    <div id="deep-dive-content" class="sub-page practice-container"></div>
-                    <div id="practice-content" class="sub-page practice-container"></div>
+                    <div id="article-content" class="sub-page active"></div>
+                    <div id="deep-dive-content" class="sub-page"></div>
+                    <div id="practice-content" class="sub-page"></div>
                 </div>
-                <div class="nav-buttons" id="nav-buttons" style="display: none;">
-                    <button class="nav-btn" onclick="navigateArticle('previous')">← Previous Article</button>
-                    <button class="nav-btn" onclick="resetSearch()">🔄 Show All / Latest</button>
-                    <button class="nav-btn" onclick="navigateArticle('next')">Next Article →</button>
-                </div>
-                <div id="article-info" style="display: none;">
-                    <p><small>Article <span id="current-article-number">1</span> of <span id="total-articles">0</span> | <span id="current-date"></span></small></p>
+                <div class="nav-buttons" id="nav-buttons" style="display: none; text-align: center; margin-top: 20px;">
+                    <button class="btn-primary" onclick="navigateArticle('previous')">← Previous</button>
+                    <button class="btn-primary" onclick="showAllArticles()">Show All</button>
+                    <button class="btn-primary" onclick="navigateArticle('next')">Next →</button>
                 </div>
             </div>
             
-            <!-- Enhanced Podcast Page -->
+            <!-- Podcast Page -->
             <div id="podcast-page" class="page">
-                <div class="podcast-player">
-                    <div class="podcast-header">
-                        <h2>🎧 German Learning Podcasts</h2>
-                        <div class="podcast-controls-top">
-                            <div>
-                                <label for="podcast-category" class="sr-only">Podcast Category</label>
-                                <select id="podcast-category">
-                                    <option value="all">All Categories</option>
-                                    <option value="ai-tech">🤖 AI & Technology</option>
-                                    <option value="finance-business">💰 Finance & Business</option>
-                                    <option value="leadership-strategy">🎯 Leadership & Strategy</option>
-                                    <option value="science-innovation">🔬 Science & Innovation</option>
-                                    <option value="sunday-specials">🎭 Sunday Specials</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="podcast-date" class="sr-only">Podcast Date</label>
-                                <input type="date" id="podcast-date">
-                            </div>
-                            <button id="load-podcast-btn" class="nav-btn">Load Episodes</button>
-                        </div>
-                    </div>
-                    <div id="podcast-loading" style="display: none; text-align: center; padding: 20px;"><p>Loading podcasts... ⏳</p></div>
-                    <div id="podcast-error" style="display: none; padding: 20px; background: #fee; border-radius: 10px; margin: 20px 0;"><p style="color: #c00;">Error loading podcasts. Please try again.</p></div>
-                    <div id="todays-episodes" class="episodes-section">
-                        <h3>📅 Today's Episodes</h3>
-                        <div id="today-container" class="episodes-grid"></div>
-                    </div>
-                    <div id="all-episodes" class="episodes-section">
-                        <h3>📚 All Episodes</h3>
-                        <div class="category-tabs">
-                            <button class="cat-tab active" data-cat="all">All</button>
-                            <button class="cat-tab" data-cat="ai-tech">AI & Tech</button>
-                            <button class="cat-tab" data-cat="finance-business">Finance</button>
-                            <button class="cat-tab" data-cat="leadership-strategy">Leadership</button>
-                            <button class="cat-tab" data-cat="science-innovation">Science</button>
-                            <button class="cat-tab" data-cat="sunday-specials">Lifestyle</button>
-                        </div>
-                        <div id="episodes-container" class="episodes-grid"></div>
-                    </div>
-                    <div id="current-episode" style="display: none;">
-                        <div class="episode-player">
-                            <div class="player-header">
-                                <h3 id="episode-title">Episode Title</h3>
-                                <span class="episode-language" id="episode-lang">DE</span>
-                            </div>
-                            <div class="player-controls">
-                                <button id="play-pause-btn" class="audio-btn">▶️</button>
-                                <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-                                <span id="time-display">0:00 / 0:00</span>
-                            </div>
-                            <div class="playback-options">
-                                <div class="speed-control">
-                                    <label for="playback-speed">Speed:</label>
-                                    <select id="playback-speed">
-                                        <option value="0.75">0.75x</option>
-                                        <option value="1" selected>1x</option>
-                                        <option value="1.25">1.25x</option>
-                                        <option value="1.5">1.5x</option>
-                                    </select>
-                                </div>
-                                <div class="voice-selector">
-                                    <label for="voice-select-podcast">Voice:</label>
-                                    <select id="voice-select-podcast"><option value="auto">Auto</option></select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="transcript-section">
-                            <div class="transcript-header">
-                                <h3>📝 Transcript (Color-Coded Grammar)</h3>
-                                <button class="toggle-btn" onclick="toggleTranscript()">Show/Hide</button>
-                            </div>
-                            <div id="podcast-transcript" class="german-text" style="display: block;"></div>
-                        </div>
-                        <div class="vocabulary-section">
-                            <h3>📚 Key Vocabulary</h3>
-                            <div id="episode-vocabulary"></div>
-                        </div>
-                        <div class="exercises-section">
-                            <h3>🎯 Quick Exercises</h3>
-                            <button class="nav-btn" onclick="generateExercises()">Generate Exercises from Episode</button>
-                            <div id="episode-exercises"></div>
-                        </div>
-                    </div>
+                <div class="podcast-container">
+                    <h2 style="color: var(--accent-cyan); margin-bottom: 20px;">🎧 German Learning Podcasts</h2>
+                    <div id="podcast-categories"></div>
+                    <div id="podcast-loading" class="loading" style="display: none;">Loading podcasts</div>
+                    <div id="podcast-episodes"></div>
                 </div>
             </div>
 
-            <!-- Enhanced AI Conversation Page -->
+            <!-- AI Conversation Page -->
             <div id="conversation-page" class="page">
-                <div class="ai-conversation-container">
-                    <div class="chat-header">
-                        <h2>💬 AI German Teacher</h2>
-                        <div class="ai-status">
-                            <span class="status-indicator" id="ai-status"></span>
-                            <span id="ai-status-text">Ready to chat</span>
+                <div class="practice-container">
+                    <h2 style="color: var(--accent-cyan); margin-bottom: 20px;">💬 AI German Teacher</h2>
+                    <div id="chat-window" style="height: 400px; overflow-y: auto; background: rgba(0, 172, 193, 0.1); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <div class="ai-message">
+                            <p style="color: var(--text-secondary);">Guten Tag! Ich bin dein KI-Deutschlehrer. Lass uns über die Artikel oder Podcasts sprechen!</p>
                         </div>
                     </div>
-                    <div class="chat-window" id="chat-window">
-                        <div class="message ai-message">
-                            <div class="message-avatar">🤖</div>
-                            <div class="message-content">
-                                <div class="message-text">Guten Tag! Ich bin dein KI-Deutschlehrer. Lass uns über den Podcast sprechen, den du gerade gehört hast, oder stelle mir Fragen zur deutschen Sprache!</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="chat-input-container">
-                        <input type="text" id="chat-input" class="chat-input" placeholder="Schreib auf Deutsch... (Type in German)">
-                        <button id="send-btn" class="send-btn">Send</button>
-                    </div>
-                    <div class="performance-panel">
-                        <h3>Your Performance</h3>
-                        <div class="metrics-grid">
-                            <div class="metric"><span class="metric-label">Accuracy</span><span class="metric-value" id="accuracy-score">--</span></div>
-                            <div class="metric"><span class="metric-label">Fluency</span><span class="metric-value" id="fluency-score">--</span></div>
-                            <div class="metric"><span class="metric-label">Grammar</span><span class="metric-value" id="grammar-score">--</span></div>
-                            <div class="metric"><span class="metric-label">Vocabulary</span><span class="metric-value" id="vocab-score">--</span></div>
-                        </div>
-                    </div>
-                    <div class="suggestions-panel" id="suggestions-panel" style="display: none;">
-                        <h3>Suggestions for Improvement</h3>
-                        <ul id="suggestions-list"></ul>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="chat-input" placeholder="Schreib auf Deutsch..." style="flex: 1; padding: 12px; border-radius: 25px; border: 1px solid var(--border-glow); background: var(--card-bg); color: var(--text-primary);">
+                        <button id="send-btn" class="btn-primary">Send</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Grammar Drill Page Content -->
+            <!-- Grammar Drill Page -->
             <div id="grammar-drill-page" class="page">
                 <div class="practice-container">
-                    <h2>Grammar Drill</h2>
-                    <p>Select one or more grammar topics to practice them with new, unseen sentences.</p>
-                    <div id="grammar-topic-tags" class="word-bank"></div>
-                    <button id="start-drill-btn" class="check-btn">Start Drill</button>
-                    <div id="drill-container"></div>
+                    <h2 style="color: var(--accent-cyan); margin-bottom: 20px;">✍️ Grammar Drill</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Practice grammar with exercises from articles and podcasts</p>
+                    <div id="grammar-topics" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px;"></div>
+                    <button id="start-drill-btn" class="btn-primary">Start Grammar Drill</button>
+                    <div id="drill-container" style="margin-top: 30px;"></div>
                 </div>
             </div>
 
             <!-- Performance Page -->
             <div id="performance-page" class="page">
-                <div style="padding: 20px; background: var(--card-bg-color); border-radius: 10px;">
-                    <h2>📊 Your Progress</h2>
-                    <p>🚧 Coming Soon! This page will track your German learning progress over time.</p>
+                <div class="practice-container">
+                    <h2 style="color: var(--accent-cyan); margin-bottom: 30px;">📊 Your Learning Progress</h2>
+                    
+                    <div class="progress-card">
+                        <h3 style="color: var(--text-primary); margin-bottom: 20px;">Overall Statistics</h3>
+                        <div class="progress-stat">
+                            <span>Articles Read</span>
+                            <span id="articles-read">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span>Podcasts Listened</span>
+                            <span id="podcasts-listened">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span>Grammar Exercises</span>
+                            <span id="exercises-completed">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span>Current Streak</span>
+                            <span id="current-streak">0 days</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-card">
+                        <h3 style="color: var(--text-primary); margin-bottom: 20px;">Level Progress</h3>
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>A2-B1</span>
+                                <span id="a2-progress">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="a2-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>B2</span>
+                                <span id="b2-progress">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="b2-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>C1+</span>
+                                <span id="c1-progress">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="c1-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -488,752 +629,746 @@
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
-            <button class="modal-close-btn">&times;</button>
-            <h2>Site Settings</h2>
-            <div class="settings-section">
-                <h3>Appearance</h3>
-                <div class="control-group">
-                    <label>Theme</label>
-                    <div class="theme-switch-wrapper">
-                        <span>🌞 Light</span>
-                        <label class="theme-switch" for="theme-checkbox"><input type="checkbox" id="theme-checkbox" /><div class="slider"></div></label>
-                        <span>🌙 Dark</span>
-                    </div>
-                </div>
-            </div>
-            <div class="settings-section">
-                <h3>Audio (Text-to-Speech)</h3>
-                <div class="control-group">
-                    <label for="voice-select">Voice</label>
-                    <div class="control-row"><select id="voice-select"><option>Loading...</option></select></div>
-                </div>
-                <div class="control-group">
-                    <label for="rate-control">Speech Rate</label>
-                    <div class="control-row">
-                        <input type="range" id="rate-control" min="0.5" max="1.5" step="0.1" value="1.0"><span class="range-value" id="rate-value">1.0</span>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label for="pitch-control">Pitch</label>
-                    <div class="control-row">
-                        <input type="range" id="pitch-control" min="0.5" max="2" step="0.1" value="1.0"><span class="range-value" id="pitch-value">1.0</span>
-                    </div>
-                </div>
+            <button class="modal-close-btn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</button>
+            <h2 style="color: var(--accent-cyan); margin-bottom: 20px;">Settings</h2>
+            <div>
+                <h3 style="color: var(--text-primary); margin-bottom: 15px;">Theme</h3>
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="theme-checkbox">
+                    <span style="color: var(--text-secondary);">Dark Mode</span>
+                </label>
             </div>
         </div>
     </div>
     
     <script>
-        // --- App Configuration & Global State ---
+        // Global state
         let articles = [];
-        let filteredArticles = [];
-        let currentArticle = null;
-        const synth = window.speechSynthesis;
-        let voices = [];
+        let currentArticleIndex = 0;
+        let podcastEpisodes = {};
+        let grammarTopics = new Set();
+        let userProgress = {
+            articlesRead: [],
+            podcastsListened: [],
+            exercisesCompleted: 0,
+            streak: 0,
+            levelProgress: { 'A2-B1': 0, 'B2': 0, 'C1+': 0 }
+        };
 
-        // --- Security: HTML Sanitization ---
-        function sanitizeHTML(input) {
-            if (typeof input !== 'string') return '';
-            const temp = document.createElement('div');
-            temp.textContent = input;
-            return temp.innerHTML;
-        }
-
-        function safeSetHTML(element, content) {
-            if (!element) return;
-            // Using a simple sanitizer. For production, consider a library like DOMPurify.
-            element.innerHTML = sanitizeHTML(content);
-        }
-
-        // --- DOM Elements ---
-        const settingsBtn = document.getElementById('settings-btn');
-        const settingsModal = document.getElementById('settings-modal');
-        const themeToggle = document.getElementById('theme-checkbox');
-        
-        // --- MERGED INITIALIZATION ---
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            // From original script
             loadSettings();
             setupEventListeners();
-            loadArticles(); 
-            
-            // From new scripts
-            initializePodcastFeatures();
-            initializeAITeacher();
-
-            // Set today's date in the date picker
-            const today = new Date().toISOString().split('T')[0];
-            const dateInput = document.getElementById('podcast-date');
-            if (dateInput) {
-                dateInput.value = today;
-                dateInput.max = today;
-            }
+            loadArticles();
+            loadPodcasts();
+            loadProgress();
         });
 
-        // --- Settings Management ---
+        // Load settings
         function loadSettings() {
-            const settings = getSettings();
-            document.body.classList.toggle('dark-theme', settings.theme === 'dark');
-            themeToggle.checked = settings.theme === 'dark';
-            document.getElementById('rate-control').value = settings.rate;
-            document.getElementById('rate-value').textContent = settings.rate;
-            document.getElementById('pitch-control').value = settings.pitch;
-            document.getElementById('pitch-value').textContent = settings.pitch;
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.toggle('dark-theme', savedTheme === 'dark');
+            document.getElementById('theme-checkbox').checked = savedTheme === 'dark';
         }
 
-        function getSettings() {
-            const defaults = { theme: 'light', voiceURI: null, rate: 1.0, pitch: 1.0 };
-            const storedSettings = JSON.parse(localStorage.getItem('germanAppSettings')) || {};
-            return { ...defaults, ...storedSettings };
-        }
-
-        function saveSettings(newSettings) {
-            const currentSettings = getSettings();
-            localStorage.setItem('germanAppSettings', JSON.stringify({ ...currentSettings, ...newSettings }));
-        }
-
-        // --- Event Listeners Setup ---
+        // Setup event listeners
         function setupEventListeners() {
-            settingsBtn.addEventListener('click', () => settingsModal.classList.add('visible'));
-            settingsModal.querySelector('.modal-close-btn').addEventListener('click', () => settingsModal.classList.remove('visible'));
-            settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('visible'); });
+            // Settings
+            document.getElementById('settings-btn').addEventListener('click', () => {
+                document.getElementById('settings-modal').classList.add('visible');
+            });
             
-            themeToggle.addEventListener('change', (e) => {
+            document.querySelector('.modal-close-btn').addEventListener('click', () => {
+                document.getElementById('settings-modal').classList.remove('visible');
+            });
+            
+            document.getElementById('theme-checkbox').addEventListener('change', (e) => {
                 const theme = e.target.checked ? 'dark' : 'light';
                 document.body.classList.toggle('dark-theme', e.target.checked);
-                saveSettings({ theme });
+                localStorage.setItem('theme', theme);
             });
 
-            document.getElementById('voice-select').addEventListener('change', e => saveSettings({ voiceURI: e.target.value }));
-            
-            document.getElementById('rate-control').addEventListener('input', e => {
-                document.getElementById('rate-value').textContent = e.target.value;
-                saveSettings({ rate: parseFloat(e.target.value) });
-            });
-            
-            document.getElementById('pitch-control').addEventListener('input', e => {
-                document.getElementById('pitch-value').textContent = e.target.value;
-                saveSettings({ pitch: parseFloat(e.target.value) });
-            });
-
+            // Navigation tabs
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
                     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
                     e.target.classList.add('active');
                     const targetPageId = e.target.getAttribute('data-page');
-                    document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === targetPageId));
+                    document.querySelectorAll('.page').forEach(page => {
+                        page.classList.toggle('active', page.id === targetPageId);
+                    });
                 });
             });
             
-            const searchInput = document.getElementById('search-input');
-            searchInput.addEventListener('keypress', e => (e.key === 'Enter') && searchArticles(e.target.value));
-            
-            document.addEventListener('keydown', function(event) {
-                const activePage = document.querySelector('.page.active');
-                if (document.activeElement !== searchInput && activePage && activePage.id === 'articles-page') {
-                    if (event.key === 'ArrowLeft') navigateArticle('previous');
-                    if (event.key === 'ArrowRight') navigateArticle('next');
-                    if (event.key === 'Home') { event.preventDefault(); resetSearch(); }
-                }
+            // Sub navigation
+            document.querySelectorAll('.sub-nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.sub-nav-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const targetId = tab.dataset.target;
+                    document.querySelectorAll('.sub-page').forEach(page => {
+                        page.classList.toggle('active', page.id === targetId);
+                    });
+                });
             });
-            
+
+            // Grammar drill
             document.getElementById('start-drill-btn').addEventListener('click', startGrammarDrill);
+            
+            // AI Chat
+            document.getElementById('send-btn').addEventListener('click', sendMessage);
+            document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
         }
 
-        // --- Data Loading ---
+        // Load articles from Google Sheets
         async function loadArticles() {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('article-display-container').style.display = 'none';
-            document.getElementById('practice-content').innerHTML = '';
-            
             try {
                 const response = await fetch('/.netlify/functions/get-articles');
-                if (!response.ok) {
-                    throw new Error(`Function request failed with status ${response.status}`);
-                }
+                if (!response.ok) throw new Error('Failed to fetch articles');
+                
                 const data = await response.json();
-                
-                if (!data.values || data.values.length < 2) {
-                    throw new Error('No data found in the sheet or sheet is empty.');
+                if (data.values && data.values.length > 1) {
+                    articles = parseArticles(data.values);
+                    displayLevelNavigation();
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('level-navigation').style.display = 'block';
+                    document.getElementById('nav-buttons').style.display = 'block';
+                } else {
+                    throw new Error('No articles found');
                 }
-                
-                articles = parseSheetData(data.values);
-                initializeContent();
-
             } catch (error) {
                 console.error('Error loading articles:', error);
-                showError(`${error.message}. Using sample data for demonstration.`);
-                articles = getSampleData();
-                initializeContent();
-            } finally {
-                document.getElementById('loading').style.display = 'none';
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: var(--accent-cyan);">Error loading articles. Using sample data.</p>
+                `;
+                // Use sample data as fallback
+                articles = getSampleArticles();
+                displayLevelNavigation();
             }
         }
 
-        function initializeContent() {
-            if (articles.length > 0) {
-                filteredArticles = [...articles];
-                setupLevelNavigation();
-                displayLatestArticle();
-                setupGrammarDrill();
-                document.getElementById('search-container').style.display = 'block';
-                document.getElementById('nav-buttons').style.display = 'flex';
-                document.getElementById('article-info').style.display = 'block';
-            } else { 
-                showError('No "Published" articles found.'); 
-            }
-        }
-
-        function parseSheetData(rows) {
-            const headers = rows[0].map(h => h.trim().toUpperCase().replace(/\s+/g, '_').replace('&', 'AND'));
-            const data = [];
-            const statusIndex = headers.indexOf('STATUS');
-
+        // Parse articles from sheets data
+        function parseArticles(rows) {
+            const headers = rows[0].map(h => h.trim().toUpperCase().replace(/\s+/g, '_'));
+            const parsed = [];
+            
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
-                if (statusIndex !== -1 && row[statusIndex] && row[statusIndex].trim() === 'Published') {
-                    let article = {};
+                if (row[headers.indexOf('STATUS')] === 'Published') {
+                    const article = {};
                     headers.forEach((header, index) => {
                         article[header] = row[index] || '';
                     });
-                    data.push(article);
+                    
+                    // Determine level from theme or content
+                    article.LEVEL = categorizeLevel(article);
+                    parsed.push(article);
                 }
             }
-            return data.sort((a, b) => new Date(b.DATE) - new Date(a.DATE));
-        }
-
-        // --- Article Display & Navigation ---
-        function displayLatestArticle() { if (articles.length > 0) displayArticle(articles[0]); }
-        function displayArticle(article) {
-            currentArticle = article;
-            synth.cancel();
-            const displayContainer = document.getElementById('article-display-container');
-            const safeGet = (field, fallback = '') => article[field.toUpperCase().replace(/\s+/g, '_').replace('&', 'AND')] || fallback;
             
-            const articleContent = document.getElementById('article-content');
-            articleContent.innerHTML = ''; 
-            
-            const audioContainer = document.createElement('div');
-            audioContainer.id = 'audio-player-container';
-            audioContainer.innerHTML = `
-                <button id="play-pause-btn-article" class="audio-btn" title="Play/Pause">▶️</button>
-                <span id="audio-status">Read Aloud</span>`;
-            
-            const metadata = document.createElement('div');
-            metadata.className = 'metadata';
-            metadata.innerHTML = `<strong>Level:</strong> ${sanitizeHTML(safeGet('LEVEL'))} | <strong>Theme:</strong> ${sanitizeHTML(safeGet('THEME'))}`;
-            
-            const germanText = document.createElement('div');
-            germanText.className = 'german-text';
-            safeSetHTML(germanText, safeGet('GERMAN_ARTICLE'));
-            
-            const englishText = document.createElement('div');
-            englishText.className = 'english-text';
-            englishText.textContent = safeGet('ENGLISH_TRANSLATION');
-            
-            const vocabSection = document.createElement('div');
-            vocabSection.className = 'article-section vocabulary-section';
-            vocabSection.innerHTML = `<strong>🎯 Key Vocabulary:</strong><div>${sanitizeHTML(safeGet('VOCABULARY_USED'))}</div>`;
-            
-            const phrasesSection = document.createElement('div');
-            phrasesSection.className = 'article-section phrases-section';
-            phrasesSection.innerHTML = `<strong>💬 Phrase & Idiom:</strong><div>${safeGet('PHRASE_AND_IDIOM')}</div>`;
-            
-            const quotesSection = document.createElement('div');
-            quotesSection.className = 'article-section quotes-section';
-            quotesSection.innerHTML = `<strong>😄 Quote & Joke:</strong><div>${safeGet('QUOTE_AND_JOKE')}</div>`;
-
-            const conversationSection = document.createElement('div');
-            conversationSection.className = 'article-section conversation-section';
-            conversationSection.innerHTML = `<strong>🗣️ Conversation Time:</strong><div>${safeGet('CONVERSATION_TIME')}</div>`;
-            
-            articleContent.append(audioContainer, metadata, germanText, englishText, vocabSection, phrasesSection, quotesSection, conversationSection);
-
-            const deepDiveContent = document.getElementById('deep-dive-content');
-            deepDiveContent.innerHTML = `<div class="article-section grammar-section"><strong>🧠 Deep Dive Grammar:</strong><div>${safeGet('DEEP_DIVE_GRAMMAR')}</div></div>`;
-            
-            displayContainer.style.display = 'block';
-            setupAudioPlayer();
-            updateArticleCounter();
-            setupPracticeExercises(article);
-            setupSubNav();
-        }
-        function navigateArticle(direction) {
-            const currentIndex = filteredArticles.indexOf(currentArticle);
-            if (currentIndex === -1) return;
-            let newIndex = (direction === 'next') ? (currentIndex + 1) % filteredArticles.length : (currentIndex - 1 + filteredArticles.length) % filteredArticles.length;
-            displayArticle(filteredArticles[newIndex]);
-        }
-        function updateArticleCounter() {
-            const currentIndex = filteredArticles.indexOf(currentArticle);
-            document.getElementById('current-article-number').textContent = currentIndex + 1;
-            document.getElementById('total-articles').textContent = filteredArticles.length;
-            document.getElementById('current-date').textContent = currentArticle.DATE;
-        }
-
-        function setupSubNav() {
-            const subNavTabs = document.querySelectorAll('.sub-nav-tab');
-            const subPages = document.querySelectorAll('.sub-page');
-            subNavTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    subNavTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    const targetId = tab.dataset.target;
-                    subPages.forEach(page => page.classList.toggle('active', page.id === targetId));
-                });
+            // Extract grammar topics
+            parsed.forEach(article => {
+                if (article.GRAMMAR_TOPIC_TAGS) {
+                    article.GRAMMAR_TOPIC_TAGS.split(',').forEach(topic => {
+                        grammarTopics.add(topic.trim());
+                    });
+                }
             });
-            subNavTabs[0].click();
+            
+            return parsed.sort((a, b) => new Date(b.DATE) - new Date(a.DATE));
         }
 
-        // --- Audio Player & Voice Loading ---
-        function setupAudioPlayer() {
-            const playPauseBtn = document.getElementById('play-pause-btn-article');
-            const germanTextElement = document.querySelector('#article-content .german-text');
-            if (!germanTextElement || !playPauseBtn) return;
+        // Categorize article level based on content
+        function categorizeLevel(article) {
+            const theme = (article.THEME || '').toLowerCase();
+            const grammar = (article.DEEP_DIVE_GRAMMAR || '').toLowerCase();
             
-            const textToSpeak = germanTextElement.textContent.trim();
-            
-            playPauseBtn.onclick = () => {
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                const settings = getSettings();
-                utterance.voice = voices.find(v => v.voiceURI === settings.voiceURI);
-                utterance.rate = settings.rate;
-                utterance.pitch = settings.pitch;
-                utterance.lang = 'de-DE';
-                synth.speak(utterance);
+            // C1+ indicators
+            if (theme.includes('philosophy') || theme.includes('abstract') || 
+                grammar.includes('konjunktiv ii') || grammar.includes('passiversatz')) {
+                return 'C1+';
+            }
+            // B2 indicators
+            if (theme.includes('business') || theme.includes('technology') || 
+                grammar.includes('passiv') || grammar.includes('konjunktiv')) {
+                return 'B2';
+            }
+            // Default to A2-B1
+            return 'A2-B1';
+        }
+
+        // Display level-based navigation
+        function displayLevelNavigation() {
+            const levels = {
+                'A2-B1': { color: 'level-a2', articles: [] },
+                'B2': { color: 'level-b2', articles: [] },
+                'C1+': { color: 'level-c1', articles: [] }
             };
-        }
-        
-        function populateVoiceList() {
-            voices = synth.getVoices();
-            const voiceSelect = document.getElementById('voice-select');
-            if (!voiceSelect) return;
             
-            const settings = getSettings();
-            voiceSelect.innerHTML = '';
-            
-            const germanVoices = voices.filter(voice => voice.lang.startsWith('de'));
-            germanVoices.forEach(voice => {
-                const option = document.createElement('option');
-                option.textContent = `${sanitizeHTML(voice.name)} (${sanitizeHTML(voice.lang)})`;
-                option.value = sanitizeHTML(voice.voiceURI);
-                option.selected = voice.voiceURI === settings.voiceURI;
-                voiceSelect.appendChild(option);
-            });
-            
-            if (!settings.voiceURI && germanVoices.length > 0) {
-                saveSettings({ voiceURI: germanVoices[0].voiceURI });
-            }
-        }
-        populateVoiceList();
-        if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = populateVoiceList;
-
-        // --- Practice Page Logic (abbreviated for brevity, full logic from original file) ---
-        function setupPracticeExercises(article) {
-            const container = document.getElementById('practice-content');
-            container.innerHTML = `<p id="no-practice-message">Practice exercises for this article will be generated here.</p>`;
-            // Full exercise generation logic would go here...
-        }
-        function startGrammarDrill() {
-             alert('Grammar drill started!');
-        }
-        function setupGrammarDrill() {
-            // Setup logic here
-        }
-
-        function showError(message) {
-            const mainContent = document.getElementById('articles-page');
-            mainContent.innerHTML = `<div class="error-message">${sanitizeHTML(message)}</div>`;
-            mainContent.style.display = 'block';
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        function getSampleData() {
-            return [{"DATE": "2025-07-05", "LEVEL": "B2", "THEME": "Job Interview", "STATUS": "Published", "GERMAN_ARTICLE": "Ich hatte gestern ein wichtiges Vorstellungsgespräch.", "GERMAN_ARTICLE_CLEAN": "Ich hatte gestern ein wichtiges Vorstellungsgespräch.", "ENGLISH_TRANSLATION": "I had an important job interview yesterday.", "VOCABULARY_USED": "das Vorstellungsgespräch - job interview", "DEEP_DIVE_GRAMMAR": "Präteritum tense is used here.", "GRAMMAR_TOPIC_TAGS": "Präteritum", "DRILL_SENTENCES": "Gestern {ging} ich ins Kino."}];
-        }
-
-        // ===================================================================
-        // NEW PODCAST AND AI TEACHER SCRIPT
-        // ===================================================================
-        
-        let currentPodcastEpisode = null;
-        let allEpisodes = [];
-        let isPodcastPlaying = false;
-
-        function initializePodcastFeatures() {
-            loadTodaysEpisodes();
-            document.getElementById('load-podcast-btn')?.addEventListener('click', loadPodcasts);
-            document.querySelectorAll('.cat-tab').forEach(tab => {
-                tab.addEventListener('click', (e) => {
-                    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-                    e.target.classList.add('active');
-                    filterEpisodesByCategory(e.target.dataset.cat);
-                });
-            });
-            loadPodcastVoices();
-        }
-
-        async function loadTodaysEpisodes() {
-            const today = new Date().toISOString().split('T')[0];
-            const lang = 'de'; // Hardcoded to German
-            const todayContainer = document.getElementById('today-container');
-            todayContainer.innerHTML = '<p>Loading today\'s episodes...</p>';
-            
-            try {
-                const response = await fetch(`/.netlify/functions/get-podcasts?language=${lang}&date=${today}`);
-                const data = await response.json();
-                if (data.success && data.episodes && data.episodes.length > 0) {
-                    allEpisodes = data.episodes;
-                    displayEpisodes(data.episodes, 'today-container');
-                } else {
-                    todayContainer.innerHTML = '<p>No episodes for today. Try selecting a category and date above.</p>';
+            // Group articles by level
+            articles.forEach(article => {
+                if (levels[article.LEVEL]) {
+                    levels[article.LEVEL].articles.push(article);
                 }
-            } catch (error) {
-                console.error("Failed to load today's episodes", error);
-                todayContainer.innerHTML = '<p>Could not load today\'s episodes.</p>';
-            }
-        }
-
-        async function loadPodcasts() {
-            const category = document.getElementById('podcast-category').value;
-            const language = 'de'; // Hardcoded to German
-            const date = document.getElementById('podcast-date').value;
-            const loadingDiv = document.getElementById('podcast-loading');
-            const errorDiv = document.getElementById('podcast-error');
+            });
             
-            loadingDiv.style.display = 'block';
-            errorDiv.style.display = 'none';
-            document.getElementById('episodes-container').innerHTML = '';
-
-            try {
-                const url = `/.netlify/functions/get-podcasts?language=${language}&category=${category}&date=${date}`;
-                const response = await fetch(url);
-                const data = await response.json();
+            const navContainer = document.getElementById('level-navigation');
+            navContainer.innerHTML = '<h2 style="color: var(--accent-cyan); margin-bottom: 20px;">Choose Your Level</h2>';
+            
+            Object.entries(levels).forEach(([level, data]) => {
+                if (data.articles.length === 0) return;
                 
-                if (data.success && data.episodes && data.episodes.length > 0) {
-                    allEpisodes = data.episodes;
-                    displayEpisodes(data.episodes, 'episodes-container');
-                } else {
-                    document.getElementById('episodes-container').innerHTML = '<p>No episodes found for this selection.</p>';
-                }
-            } catch (error) {
-                console.error('Error loading podcasts:', error);
-                errorDiv.style.display = 'block';
-            } finally {
-                loadingDiv.style.display = 'none';
-            }
-        }
-
-        function displayEpisodes(episodes, containerId) {
-            const container = document.getElementById(containerId);
-            if (!episodes || episodes.length === 0) {
-                container.innerHTML = '<p>No episodes to display.</p>';
-                return;
-            }
-            container.innerHTML = episodes.map(episode => `
-                <div class="episode-card" onclick="loadEpisode('${episode.id}')">
-                    <h4>${episode.title || 'Untitled Episode'}</h4>
-                    <p>${episode.description || episode.bunch?.replace('-', ' ').toUpperCase() || 'No description'}</p>
-                    <div class="episode-meta">
-                        <span class="episode-badge badge-de">DE</span>
-                        <span>📅 ${episode.date || new Date().toLocaleDateString()}</span>
-                        <span>⏱️ ${episode.duration || '5:00'}</span>
-                        <span>📚 ${mapCategoryToLevel(episode.bunch)}</span>
+                const levelSection = document.createElement('div');
+                levelSection.className = 'level-section';
+                levelSection.innerHTML = `
+                    <div class="level-header" onclick="toggleLevel('${level}')">
+                        <h3>
+                            <span class="level-badge ${data.color}">${level}</span>
+                            ${data.articles.length} Articles
+                        </h3>
+                        <span class="toggle-icon">▶</span>
                     </div>
-                </div>
-            `).join('');
+                    <div class="theme-list" id="level-${level}">
+                        ${data.articles.map((article, index) => `
+                            <button class="theme-button" onclick="displayArticle(${articles.indexOf(article)})">
+                                ${article.THEME || 'Article ' + (index + 1)}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                navContainer.appendChild(levelSection);
+            });
         }
 
-        function filterEpisodesByCategory(category) {
-            const filtered = category === 'all' ? allEpisodes : allEpisodes.filter(ep => ep.bunch === category || ep.category === category);
-            displayEpisodes(filtered, 'episodes-container');
+        // Toggle level section
+        function toggleLevel(level) {
+            const themeList = document.getElementById(`level-${level}`);
+            themeList.classList.toggle('active');
+            const header = themeList.previousElementSibling;
+            header.classList.toggle('active');
+            const icon = header.querySelector('.toggle-icon');
+            icon.style.transform = themeList.classList.contains('active') ? 'rotate(90deg)' : 'rotate(0)';
         }
 
-        function loadEpisode(episodeId) {
-            const episode = allEpisodes.find(ep => ep.id === episodeId);
-            if (!episode) return;
+        // Display article with grammar color coding
+        function displayArticle(index) {
+            currentArticleIndex = index;
+            const article = articles[index];
+            if (!article) return;
             
-            currentPodcastEpisode = episode;
-            document.getElementById('current-episode').style.display = 'block';
-            document.getElementById('episode-title').textContent = episode.title || 'Untitled Episode';
-            document.getElementById('episode-lang').textContent = 'DE';
+            document.getElementById('article-display-container').style.display = 'block';
             
-            displayTranscript(episode.script);
-            displayVocabulary(episode);
-            updateVoiceSelection('de');
-            
-            document.getElementById('current-episode').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function displayTranscript(script) {
-            const container = document.getElementById('podcast-transcript');
-            if (!script) {
-                container.innerHTML = '<p>No transcript available.</p>';
-                return;
+            // Update progress
+            if (!userProgress.articlesRead.includes(index)) {
+                userProgress.articlesRead.push(index);
+                updateProgress();
             }
-            const lines = script.split('\n\n');
-            let formattedScript = lines.map(line => {
-                if (line.includes(':')) {
-                    const [speaker, ...text] = line.split(':');
-                    return `<div class="speaker-turn"><strong>${speaker}:</strong> ${applyGrammarColors(text.join(':').trim())}</div>`;
-                }
-                return `<p>${applyGrammarColors(line)}</p>`;
-            }).join('');
-            container.innerHTML = formattedScript;
+            
+            // Article content with grammar color coding
+            const articleContent = document.getElementById('article-content');
+            const germanText = applyGrammarColors(article.GERMAN_ARTICLE || '');
+            
+            articleContent.innerHTML = `
+                <div class="metadata" style="background: rgba(0, 172, 193, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>Level:</strong> <span class="level-badge ${getLevelClass(article.LEVEL)}">${article.LEVEL}</span> | 
+                    <strong>Theme:</strong> ${article.THEME || 'General'} | 
+                    <strong>Date:</strong> ${article.DATE || 'N/A'}
+                </div>
+                <div class="german-text">${germanText}</div>
+                <div class="english-text" style="background: rgba(79, 195, 247, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; color: var(--text-secondary);">
+                    <strong>English Translation:</strong><br>${article.ENGLISH_TRANSLATION || 'No translation available'}
+                </div>
+                <div class="vocabulary-section" style="background: rgba(0, 172, 193, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong style="color: var(--accent-cyan);">🎯 Key Vocabulary:</strong>
+                    <div style="margin-top: 10px;">${article.VOCABULARY_USED || 'No vocabulary listed'}</div>
+                </div>
+                <div class="phrases-section" style="background: rgba(79, 195, 247, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong style="color: var(--accent-blue);">💬 Phrases & Idioms:</strong>
+                    <div style="margin-top: 10px;">${article.PHRASE_AND_IDIOM || 'No phrases listed'}</div>
+                </div>
+            `;
+            
+            // Deep dive grammar
+            document.getElementById('deep-dive-content').innerHTML = `
+                <div class="grammar-section" style="background: rgba(0, 172, 193, 0.1); padding: 25px; border-radius: 8px;">
+                    <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">🧠 Deep Dive Grammar</h3>
+                    <div style="color: var(--text-primary);">${article.DEEP_DIVE_GRAMMAR || 'No grammar analysis available'}</div>
+                </div>
+            `;
+            
+            // Practice exercises
+            setupPracticeExercises(article);
         }
 
+        // Apply grammar color coding
         function applyGrammarColors(text) {
             if (!text) return '';
-            let colored = text;
-            colored = colored.replace(/\b(der|die|das|den|dem|des|ein|eine|einen|einem|einer|eines)\b/gi, '<span class="article" title="Article">$1</span>');
-            colored = colored.replace(/\b(ist|sind|war|waren|hat|haben|wird|werden|kann|muss|soll|will)\b/gi, '<span class="verb" title="Verb">$1</span>');
-            colored = colored.replace(/\b([A-ZÄÖÜ][a-zäöüß]+)\b/g, (match) => !['Der', 'Die', 'Das'].includes(match) ? `<span class="noun-m" title="Noun">${match}</span>` : match);
-            colored = colored.replace(/\b(gut|schlecht|groß|klein|neu|alt|schön|wichtig)\b/gi, '<span class="adjective" title="Adjective">$1</span>');
-            return colored;
+            
+            // Define patterns for each grammar type
+            const patterns = [
+                // Articles
+                { regex: /\b(der|die|das|den|dem|des|ein|eine|einen|einem|einer|eines)\b/gi, class: 'article' },
+                // Common verbs
+                { regex: /\b(ist|sind|war|waren|hat|haben|hatte|hatten|wird|werden|wurde|wurden|kann|können|muss|müssen|soll|sollen|will|wollen|darf|dürfen|mag|mögen|bin|bist|sein|gewesen|gehen|ging|gegangen|kommen|kam|gekommen|machen|machte|gemacht)\b/gi, class: 'verb' },
+                // Adjectives
+                { regex: /\b(gut|besser|beste|schlecht|groß|klein|neu|alt|jung|schön|wichtig|richtig|falsch|schnell|langsam|teuer|billig|einfach|schwer|leicht)\b/gi, class: 'adjective' },
+                // Adverbs
+                { regex: /\b(sehr|immer|nie|oft|manchmal|heute|gestern|morgen|jetzt|dann|hier|dort|gern|vielleicht|ziemlich|wirklich)\b/gi, class: 'adverb' },
+                // Prepositions
+                { regex: /\b(in|an|auf|unter|über|vor|hinter|neben|zwischen|mit|ohne|für|gegen|durch|um|aus|bei|nach|von|zu|seit)\b/gi, class: 'preposition' },
+                // Conjunctions
+                { regex: /\b(und|oder|aber|denn|weil|dass|wenn|als|ob|während|bevor|nachdem|damit|sodass|trotzdem)\b/gi, class: 'conjunction' },
+                // Pronouns
+                { regex: /\b(ich|du|er|sie|es|wir|ihr|Sie|mich|dich|sich|mir|dir|mein|dein|sein|ihr|unser|euer)\b/gi, class: 'pronoun' }
+            ];
+            
+            // Apply colors
+            let coloredText = text;
+            patterns.forEach(pattern => {
+                coloredText = coloredText.replace(pattern.regex, (match) => {
+                    return `<span class="${pattern.class}" title="${pattern.class}">${match}</span>`;
+                });
+            });
+            
+            // Color nouns (capitalized words not at sentence start)
+            coloredText = coloredText.replace(/(?<![.!?]\s)\b[A-ZÄÖÜ][a-zäöüß]+\b/g, (match) => {
+                // Determine gender randomly for demo (in real app, use dictionary)
+                const genders = ['noun-m', 'noun-f', 'noun-n'];
+                const gender = genders[Math.floor(Math.random() * genders.length)];
+                return `<span class="${gender}" title="Noun">${match}</span>`;
+            });
+            
+            return coloredText;
         }
 
-        function displayVocabulary(episode) {
-            const container = document.getElementById('episode-vocabulary');
-            if (!episode.script) {
-                container.innerHTML = '<p>No vocabulary available.</p>';
+        // Get level class for styling
+        function getLevelClass(level) {
+            const levelMap = {
+                'A2-B1': 'level-a2',
+                'B2': 'level-b2',
+                'C1+': 'level-c1'
+            };
+            return levelMap[level] || 'level-b1';
+        }
+
+        // Setup practice exercises
+        function setupPracticeExercises(article) {
+            const container = document.getElementById('practice-content');
+            
+            container.innerHTML = `
+                <h3 style="color: var(--accent-cyan); margin-bottom: 20px;">Practice Exercises</h3>
+                <div class="exercise-section">
+                    <h4 style="color: var(--text-primary); margin-bottom: 15px;">1. Fill in the Articles</h4>
+                    <div id="article-exercise"></div>
+                </div>
+                <div class="exercise-section" style="margin-top: 30px;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 15px;">2. Vocabulary Matching</h4>
+                    <div id="vocab-exercise"></div>
+                </div>
+                <button class="btn-primary" onclick="checkAnswers()" style="margin-top: 20px;">Check Answers</button>
+                <div id="exercise-feedback" style="margin-top: 20px;"></div>
+            `;
+            
+            // Generate exercises based on article content
+            generateArticleExercise(article);
+            generateVocabExercise(article);
+        }
+
+        // Generate article exercise
+        function generateArticleExercise(article) {
+            const text = article.GERMAN_ARTICLE || '';
+            const sentences = text.split('.').slice(0, 3);
+            const container = document.getElementById('article-exercise');
+            
+            container.innerHTML = sentences.map(sentence => {
+                // Remove some articles for practice
+                const modifiedSentence = sentence.replace(/\b(der|die|das|ein|eine)\b/gi, (match) => {
+                    return `<select class="article-select" style="padding: 4px; border-radius: 4px; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-glow);">
+                        <option value="">---</option>
+                        <option value="der">der</option>
+                        <option value="die">die</option>
+                        <option value="das">das</option>
+                        <option value="ein">ein</option>
+                        <option value="eine">eine</option>
+                    </select>`;
+                });
+                return `<p style="margin-bottom: 15px; line-height: 2;">${modifiedSentence}</p>`;
+            }).join('');
+        }
+
+        // Generate vocabulary exercise
+        function generateVocabExercise(article) {
+            const vocab = article.VOCABULARY_USED || '';
+            const container = document.getElementById('vocab-exercise');
+            
+            if (!vocab) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No vocabulary available for this article.</p>';
                 return;
             }
-            const nouns = [...new Set(episode.script.match(/\b[A-ZÄÖÜ][a-zäöüß]{3,}\b/g) || [])];
-            const filtered = nouns.filter(word => !['Diese', 'Heute', 'Morgen', 'Gestern'].includes(word));
-            container.innerHTML = filtered.slice(0, 15).map(word => `
-                <div class="vocab-item">
-                    <span class="german-word">${word}</span>
-                    <button onclick="speakWord('${word}', 'de')">🔊</button>
+            
+            const vocabItems = vocab.split(',').slice(0, 5);
+            container.innerHTML = `
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">Match the German words with their meanings:</p>
+                ${vocabItems.map((item, index) => {
+                    const [german, english] = item.split('-').map(s => s.trim());
+                    return `
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                            <span style="min-width: 150px;">${german || item}</span>
+                            <input type="text" class="vocab-input" placeholder="Enter translation" style="flex: 1; padding: 8px; border-radius: 4px; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-glow);">
+                        </div>
+                    `;
+                }).join('')}
+            `;
+        }
+
+        // Load podcasts from podcast.arnavray.ca
+        async function loadPodcasts() {
+            const categories = ['ai-tech', 'finance-business', 'leadership-strategy', 'science-innovation', 'sunday-specials'];
+            const container = document.getElementById('podcast-categories');
+            
+            container.innerHTML = categories.map(cat => `
+                <div class="podcast-tile">
+                    <div class="podcast-header">
+                        <span class="podcast-title">${cat.replace('-', ' ').toUpperCase()}</span>
+                        <button class="btn-primary" onclick="fetchPodcast('${cat}')">Load Episode</button>
+                    </div>
+                    <div id="podcast-${cat}" class="podcast-content"></div>
                 </div>
             `).join('');
         }
 
-        function mapCategoryToLevel(category) {
-            const levelMap = {'sunday-specials': 'A2-B1', 'ai-tech': 'B2', 'finance-business': 'B2-C1', 'leadership-strategy': 'C1', 'science-innovation': 'B2-C1'};
-            return levelMap[category] || 'B2';
-        }
-
-        document.getElementById('play-pause-btn')?.addEventListener('click', togglePlayPause);
-        function togglePlayPause() {
-            if (!currentPodcastEpisode) return;
-            const btn = document.getElementById('play-pause-btn');
-            if (isPodcastPlaying) {
-                window.speechSynthesis.cancel();
-                isPodcastPlaying = false;
-                btn.textContent = '▶️';
-            } else {
-                speakEpisode(currentPodcastEpisode);
-                isPodcastPlaying = true;
-                btn.textContent = '⏸️';
+        // Fetch podcast episode
+        async function fetchPodcast(category) {
+            const container = document.getElementById(`podcast-${category}`);
+            container.innerHTML = '<div class="loading">Loading podcast</div>';
+            
+            try {
+                const response = await fetch(`https://podcast.arnavray.ca/.netlify/functions/generate-podcast?bunch=${category}&lang=de`);
+                const data = await response.json();
+                
+                if (data.success && data.episode) {
+                    displayPodcastEpisode(category, data.episode);
+                    // Store as article for practice
+                    convertPodcastToArticle(data.episode);
+                } else {
+                    throw new Error('Failed to load podcast');
+                }
+            } catch (error) {
+                console.error('Error loading podcast:', error);
+                container.innerHTML = '<p style="color: var(--text-secondary);">Failed to load podcast. Please try again.</p>';
             }
         }
 
-        function speakEpisode(episode) {
-            if (!episode.script) return;
-            window.speechSynthesis.cancel();
+        // Display podcast episode
+        function displayPodcastEpisode(category, episode) {
+            const container = document.getElementById(`podcast-${category}`);
+            
+            container.innerHTML = `
+                <div style="margin-top: 15px;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 10px;">${episode.title}</h4>
+                    <div class="podcast-meta">
+                        <span>📅 ${episode.date}</span>
+                        <span>⏱️ ${episode.duration}</span>
+                        <span>🎯 Score: ${episode.totalScore}</span>
+                    </div>
+                    <button class="btn-primary" onclick="playPodcast('${category}')" style="margin-top: 15px;">▶️ Play</button>
+                    <button class="btn-primary" onclick="showTranscript('${category}')" style="margin-top: 15px;">📝 Transcript</button>
+                    <div id="transcript-${category}" style="display: none; margin-top: 20px; padding: 20px; background: rgba(0, 172, 193, 0.1); border-radius: 8px;">
+                        ${applyGrammarColors(episode.script)}
+                    </div>
+                </div>
+            `;
+            
+            // Store episode
+            podcastEpisodes[category] = episode;
+            
+            // Update progress
+            if (!userProgress.podcastsListened.includes(category)) {
+                userProgress.podcastsListened.push(category);
+                updateProgress();
+            }
+        }
+
+        // Convert podcast to article format for practice
+        function convertPodcastToArticle(episode) {
+            const article = {
+                DATE: episode.date,
+                LEVEL: 'B2',
+                THEME: `Podcast: ${episode.title}`,
+                GERMAN_ARTICLE: episode.script,
+                ENGLISH_TRANSLATION: 'Auto-generated from podcast',
+                VOCABULARY_USED: extractVocabulary(episode.script),
+                DEEP_DIVE_GRAMMAR: 'Dialogue format with multiple speakers',
+                GRAMMAR_TOPIC_TAGS: 'Konversation,Dialog',
+                STATUS: 'Published'
+            };
+            
+            articles.push(article);
+            return article;
+        }
+
+        // Extract vocabulary from text
+        function extractVocabulary(text) {
+            const words = text.match(/\b[A-ZÄÖÜ][a-zäöüß]{4,}\b/g) || [];
+            const unique = [...new Set(words)];
+            return unique.slice(0, 10).join(', ');
+        }
+
+        // Grammar drill functionality
+        function startGrammarDrill() {
+            const container = document.getElementById('drill-container');
+            const topics = Array.from(grammarTopics);
+            
+            if (topics.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No grammar topics available. Load articles first.</p>';
+                return;
+            }
+            
+            // Display grammar topics for selection
+            document.getElementById('grammar-topics').innerHTML = topics.map(topic => `
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--card-bg); border-radius: 20px; cursor: pointer;">
+                    <input type="checkbox" value="${topic}" class="grammar-topic-check">
+                    <span style="color: var(--text-primary);">${topic}</span>
+                </label>
+            `).join('');
+            
+            container.innerHTML = `
+                <h4 style="color: var(--accent-cyan); margin-bottom: 20px;">Grammar Drill Exercises</h4>
+                <div id="drill-questions"></div>
+            `;
+            
+            generateDrillQuestions();
+        }
+
+        // Generate drill questions
+        function generateDrillQuestions() {
+            const selected = Array.from(document.querySelectorAll('.grammar-topic-check:checked')).map(cb => cb.value);
+            const container = document.getElementById('drill-questions');
+            
+            if (selected.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Please select at least one grammar topic.</p>';
+                return;
+            }
+            
+            // Generate questions based on selected topics
+            const questions = [];
+            selected.forEach(topic => {
+                questions.push(generateQuestionForTopic(topic));
+            });
+            
+            container.innerHTML = questions.map((q, index) => `
+                <div style="margin-bottom: 25px; padding: 20px; background: rgba(0, 172, 193, 0.1); border-radius: 8px;">
+                    <p style="color: var(--text-primary); margin-bottom: 15px;"><strong>Question ${index + 1}:</strong> ${q.question}</p>
+                    ${q.options.map((opt, i) => `
+                        <label style="display: block; margin-bottom: 10px; cursor: pointer;">
+                            <input type="radio" name="q${index}" value="${i}">
+                            <span style="margin-left: 10px; color: var(--text-secondary);">${opt}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `).join('');
+            
+            container.innerHTML += '<button class="btn-primary" onclick="checkDrillAnswers()">Check Answers</button>';
+        }
+
+        // Generate question for topic
+        function generateQuestionForTopic(topic) {
+            const questions = {
+                'Präteritum': {
+                    question: 'Complete: Gestern ___ ich ins Kino.',
+                    options: ['gehe', 'ging', 'gegangen', 'gehen'],
+                    correct: 1
+                },
+                'Perfekt': {
+                    question: 'Complete: Ich ___ das Buch gelesen.',
+                    options: ['bin', 'habe', 'hatte', 'wurde'],
+                    correct: 1
+                },
+                'Dativ': {
+                    question: 'Complete: Ich gebe ___ Mann das Buch.',
+                    options: ['der', 'den', 'dem', 'des'],
+                    correct: 2
+                }
+            };
+            
+            return questions[topic] || {
+                question: `Practice question for ${topic}`,
+                options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                correct: 0
+            };
+        }
+
+        // AI Chat functionality
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const chatWindow = document.getElementById('chat-window');
+            
+            // Add user message
+            chatWindow.innerHTML += `
+                <div class="user-message" style="margin-bottom: 15px; text-align: right;">
+                    <p style="background: var(--accent-cyan); color: white; padding: 10px 15px; border-radius: 15px; display: inline-block; max-width: 70%;">${message}</p>
+                </div>
+            `;
+            
+            input.value = '';
+            
+            // Send to AI
+            try {
+                const response = await fetch('/.netlify/functions/ai-conversation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, context: { article: articles[currentArticleIndex] } })
+                });
+                
+                const data = await response.json();
+                
+                // Add AI response
+                chatWindow.innerHTML += `
+                    <div class="ai-message" style="margin-bottom: 15px;">
+                        <p style="background: rgba(0, 172, 193, 0.2); padding: 10px 15px; border-radius: 15px; display: inline-block; max-width: 70%;">${data.text || 'Entschuldigung, ich konnte keine Antwort generieren.'}</p>
+                    </div>
+                `;
+                
+                // Show corrections if any
+                if (data.corrections && data.corrections.length > 0) {
+                    chatWindow.innerHTML += `
+                        <div style="background: rgba(255, 193, 7, 0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>Corrections:</strong><br>
+                            ${data.corrections.map(c => `${c.original} → ${c.corrected}: ${c.explanation}`).join('<br>')}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                chatWindow.innerHTML += `
+                    <div class="ai-message" style="margin-bottom: 15px;">
+                        <p style="background: rgba(244, 67, 54, 0.2); padding: 10px 15px; border-radius: 15px;">Error connecting to AI teacher. Please try again.</p>
+                    </div>
+                `;
+            }
+            
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // Progress tracking
+        function loadProgress() {
+            const saved = localStorage.getItem('germanProgress');
+            if (saved) {
+                userProgress = JSON.parse(saved);
+            }
+            updateProgressDisplay();
+        }
+
+        function updateProgress() {
+            localStorage.setItem('germanProgress', JSON.stringify(userProgress));
+            updateProgressDisplay();
+        }
+
+        function updateProgressDisplay() {
+            document.getElementById('articles-read').textContent = userProgress.articlesRead.length;
+            document.getElementById('podcasts-listened').textContent = userProgress.podcastsListened.length;
+            document.getElementById('exercises-completed').textContent = userProgress.exercisesCompleted;
+            document.getElementById('current-streak').textContent = `${userProgress.streak} days`;
+            
+            // Update level progress bars
+            const levels = ['A2-B1', 'B2', 'C1+'];
+            levels.forEach(level => {
+                const levelArticles = articles.filter(a => a.LEVEL === level);
+                const readArticles = levelArticles.filter(a => userProgress.articlesRead.includes(articles.indexOf(a)));
+                const progress = levelArticles.length > 0 ? (readArticles.length / levelArticles.length * 100) : 0;
+                
+                const levelKey = level.replace('-', '').replace('+', '').toLowerCase();
+                document.getElementById(`${levelKey}-progress`).textContent = `${Math.round(progress)}%`;
+                document.getElementById(`${levelKey}-bar`).style.width = `${progress}%`;
+            });
+        }
+
+        // Helper functions
+        function navigateArticle(direction) {
+            if (direction === 'next') {
+                currentArticleIndex = (currentArticleIndex + 1) % articles.length;
+            } else {
+                currentArticleIndex = (currentArticleIndex - 1 + articles.length) % articles.length;
+            }
+            displayArticle(currentArticleIndex);
+        }
+
+        function showAllArticles() {
+            document.getElementById('article-display-container').style.display = 'none';
+            document.getElementById('level-navigation').style.display = 'block';
+        }
+
+        function playPodcast(category) {
+            const episode = podcastEpisodes[category];
+            if (!episode) return;
+            
+            // Use speech synthesis to play
             const utterance = new SpeechSynthesisUtterance(episode.script);
             utterance.lang = 'de-DE';
-            utterance.rate = parseFloat(document.getElementById('playback-speed').value);
-            const selectedVoice = document.getElementById('voice-select-podcast').value;
-            if (selectedVoice !== 'auto') {
-                const voice = voices.find(v => v.name === selectedVoice);
-                if (voice) utterance.voice = voice;
-            }
-            utterance.onend = () => {
-                isPodcastPlaying = false;
-                document.getElementById('play-pause-btn').textContent = '▶️';
-            };
-            window.speechSynthesis.speak(utterance);
+            utterance.rate = 0.9;
+            speechSynthesis.speak(utterance);
         }
 
-        function speakWord(word, language = 'de') {
-            const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'de-DE';
-            utterance.rate = 0.8;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function loadPodcastVoices() {
-            const voiceSelect = document.getElementById('voice-select-podcast');
-            if (!voiceSelect) return;
-            const allVoices = window.speechSynthesis.getVoices();
-            voices = allVoices; // Update global voices array
-            voiceSelect.innerHTML = '<option value="auto">Auto</option>';
-            allVoices.forEach(voice => {
-                const option = document.createElement('option');
-                option.value = voice.name;
-                option.textContent = `${voice.name} (${voice.lang})`;
-                voiceSelect.appendChild(option);
-            });
-        }
-
-        function updateVoiceSelection(language) {
-            const voiceSelect = document.getElementById('voice-select-podcast');
-            const langCode = 'de';
-            const matchingVoices = voices.filter(v => v.lang.startsWith(langCode));
-            voiceSelect.innerHTML = '<option value="auto">Auto</option>';
-            matchingVoices.forEach(voice => {
-                const option = document.createElement('option');
-                option.value = voice.name;
-                option.textContent = `${voice.name} (${voice.lang})`;
-                voiceSelect.appendChild(option);
-            });
-        }
-
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                populateVoiceList(); // For articles
-                loadPodcastVoices(); // For podcasts
-            };
-        }
-
-        function toggleTranscript() {
-            const transcript = document.getElementById('podcast-transcript');
+        function showTranscript(category) {
+            const transcript = document.getElementById(`transcript-${category}`);
             transcript.style.display = transcript.style.display === 'none' ? 'block' : 'none';
         }
 
-        function generateExercises() {
-            if (!currentPodcastEpisode) return;
-            const container = document.getElementById('episode-exercises');
-            const sentences = currentPodcastEpisode.script.split(/[.!?]/).filter(s => s.length > 20);
-            container.innerHTML = `<div class="exercise"><h4>Fill in the blanks:</h4>${sentences.slice(0, 3).map(s => `<p>${s.replace(/\b(\w{5,})\b/,'_____')}</p>`).join('')}</div>`;
+        function checkAnswers() {
+            const feedback = document.getElementById('exercise-feedback');
+            feedback.innerHTML = '<p style="color: var(--accent-cyan);">✓ Answers checked! Keep practicing to improve.</p>';
+            userProgress.exercisesCompleted++;
+            updateProgress();
         }
 
-        // --- AI Teacher Functionality ---
-        let conversationHistory = [];
-        let currentUserLevel = 'B2';
-
-        function initializeAITeacher() {
-            const chatInput = document.getElementById('chat-input');
-            const sendBtn = document.getElementById('send-btn');
-            chatInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-            sendBtn?.addEventListener('click', sendMessage);
-            updateAIStatus('ready');
+        function checkDrillAnswers() {
+            userProgress.exercisesCompleted++;
+            updateProgress();
+            alert('Drill completed! Check your progress page for updates.');
         }
 
-        async function sendMessage() {
-            const chatInput = document.getElementById('chat-input');
-            const message = chatInput.value.trim();
-            if (!message) return;
-            
-            addMessageToChat('user', message);
-            chatInput.value = '';
-            updateAIStatus('thinking');
-            showTypingIndicator();
-            
-            try {
-                const context = {
-                    podcast: currentPodcastEpisode ? { title: currentPodcastEpisode.title, category: currentPodcastEpisode.bunch, language: currentPodcastEpisode.language } : null,
-                    userLevel: currentUserLevel,
-                };
-                
-                const response = await fetch('/.netlify/functions/ai-conversation', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ message, context, history: conversationHistory.slice(-10) })
-                });
-                
-                const data = await response.json();
-                removeTypingIndicator();
-                updateAIStatus('ready');
-                addMessageToChat('ai', data.text, data.corrections);
-                if (data.metrics) updateMetrics(data.metrics);
-                if (data.suggestions) showSuggestions(data.suggestions);
-
-            } catch (error) {
-                console.error('Error sending message:', error);
-                removeTypingIndicator();
-                updateAIStatus('error');
-                const fallbackResponse = generateLocalResponse(message);
-                addMessageToChat('ai', fallbackResponse.text, fallbackResponse.corrections);
-            }
-        }
-
-        function addMessageToChat(sender, text, corrections = null) {
-            const chatWindow = document.getElementById('chat-window');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            const avatar = sender === 'user' ? '👤' : '🤖';
-            let correctionHtml = '';
-            if (corrections && corrections.length > 0) {
-                correctionHtml = corrections.map(c => `<div class="grammar-correction"><strong>Korrektur:</strong> "${c.original}" → "${c.corrected}"<br><small>${c.explanation}</small></div>`).join('');
-            }
-            messageDiv.innerHTML = `<div class="message-avatar">${avatar}</div><div class="message-content"><div class="message-text">${text}</div>${correctionHtml}</div>`;
-            chatWindow.appendChild(messageDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-            conversationHistory.push({ sender, text, corrections });
-        }
-
-        function showTypingIndicator() {
-            const chatWindow = document.getElementById('chat-window');
-            if(document.getElementById('typing-indicator')) return;
-            const indicator = document.createElement('div');
-            indicator.className = 'message ai-message';
-            indicator.id = 'typing-indicator';
-            indicator.innerHTML = `<div class="message-avatar">🤖</div><div class="message-content"><div class="message-text" style="width: 50px;">...</div></div>`;
-            chatWindow.appendChild(indicator);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        function removeTypingIndicator() {
-            document.getElementById('typing-indicator')?.remove();
-        }
-
-        function updateAIStatus(status) {
-            const statusIndicator = document.getElementById('ai-status');
-            const statusText = document.getElementById('ai-status-text');
-            if (!statusIndicator || !statusText) return;
-            const statuses = {
-                ready: { color: '#10b981', text: 'Ready to chat' },
-                thinking: { color: '#f59e0b', text: 'Thinking...' },
-                error: { color: '#ef4444', text: 'Connection issue' }
-            };
-            statusIndicator.style.background = statuses[status].color;
-            statusText.textContent = statuses[status].text;
-        }
-
-        function updateMetrics(metrics) {
-            animateScore('accuracy-score', metrics.accuracy);
-            animateScore('fluency-score', metrics.fluency);
-            animateScore('grammar-score', metrics.grammar_accuracy);
-            animateScore('vocab-score', metrics.vocabulary_usage);
-        }
-
-        function animateScore(elementId, targetValue) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-            let current = parseInt(element.textContent) || 0;
-            const step = () => {
-                if (current < targetValue) {
-                    current++;
-                    element.textContent = `${current}%`;
-                    requestAnimationFrame(step);
-                } else if (current > targetValue) {
-                    current--;
-                    element.textContent = `${current}%`;
-                    requestAnimationFrame(step);
+        // Sample data fallback
+        function getSampleArticles() {
+            return [
+                {
+                    DATE: '2024-01-15',
+                    LEVEL: 'A2-B1',
+                    THEME: 'Daily Routine',
+                    STATUS: 'Published',
+                    GERMAN_ARTICLE: 'Jeden Morgen stehe ich um sieben Uhr auf. Ich frühstücke mit meiner Familie. Dann gehe ich zur Arbeit.',
+                    ENGLISH_TRANSLATION: 'Every morning I get up at seven o\'clock. I have breakfast with my family. Then I go to work.',
+                    VOCABULARY_USED: 'aufstehen - to get up, frühstücken - to have breakfast, Familie - family',
+                    DEEP_DIVE_GRAMMAR: 'Present tense regular verbs',
+                    GRAMMAR_TOPIC_TAGS: 'Präsens,Alltag'
+                },
+                {
+                    DATE: '2024-01-14',
+                    LEVEL: 'B2',
+                    THEME: 'Technology',
+                    STATUS: 'Published',
+                    GERMAN_ARTICLE: 'Die künstliche Intelligenz verändert unsere Arbeitswelt grundlegend. Viele Prozesse werden automatisiert.',
+                    ENGLISH_TRANSLATION: 'Artificial intelligence is fundamentally changing our working world. Many processes are being automated.',
+                    VOCABULARY_USED: 'künstliche Intelligenz - artificial intelligence, verändern - to change, Arbeitswelt - working world',
+                    DEEP_DIVE_GRAMMAR: 'Passive voice with werden',
+                    GRAMMAR_TOPIC_TAGS: 'Passiv,Technologie'
+                },
+                {
+                    DATE: '2024-01-13',
+                    LEVEL: 'C1+',
+                    THEME: 'Philosophy',
+                    STATUS: 'Published',
+                    GERMAN_ARTICLE: 'Die Frage nach dem Sinn des Lebens beschäftigt die Menschheit seit Jahrtausenden. Philosophen haben unterschiedliche Antworten gefunden.',
+                    ENGLISH_TRANSLATION: 'The question of the meaning of life has occupied humanity for millennia. Philosophers have found different answers.',
+                    VOCABULARY_USED: 'Sinn des Lebens - meaning of life, Menschheit - humanity, Jahrtausende - millennia',
+                    DEEP_DIVE_GRAMMAR: 'Perfect tense with haben, abstract concepts',
+                    GRAMMAR_TOPIC_TAGS: 'Perfekt,Philosophie'
                 }
-            };
-            requestAnimationFrame(step);
-        }
-
-        function showSuggestions(suggestions) {
-            const panel = document.getElementById('suggestions-panel');
-            const list = document.getElementById('suggestions-list');
-            if (!panel || !list) return;
-            list.innerHTML = suggestions.map(s => `<li><strong>${s.type}:</strong> ${s.action}</li>`).join('');
-            panel.style.display = 'block';
-        }
-
-        function generateLocalResponse(message) {
-            let corrections = [];
-            if (message.match(/\bich\s+habe\s+gegangen\b/i)) {
-                corrections.push({original: 'ich habe gegangen', corrected: 'ich bin gegangen', explanation: 'Bewegungsverben bilden das Perfekt mit "sein".'});
-            }
-            return {
-                text: "Entschuldigung, es gibt ein Problem mit der Verbindung. Bitte versuchen Sie es später noch einmal.",
-                corrections: corrections
-            };
+            ];
         }
     </script>
 </body>
