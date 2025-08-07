@@ -3,1372 +3,1224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>German Mastery Hub - Your Gateway to Fluent German</title>
-    <meta name="description" content="Master German through immersive articles, AI-powered podcasts, and interactive exercises">
+    <title>German Mastery Hub - Learn German Effectively</title>
+    <meta name="description" content="Master German through articles, podcasts, and interactive exercises">
     <style>
-        /* Ocean-inspired theme from arnavray.ca */
+        /* Clean, professional design without heavy animations */
         :root {
-            --ocean-deep: #0a0e27;
-            --ocean-mid: #003c40;
-            --ocean-light: #006466;
-            --ocean-surface: rgba(0, 100, 100, 0.2);
-            --accent-cyan: #00acc1;
-            --accent-blue: #4fc3f7;
-            --accent-teal: #00acc1;
-            --text-primary: #e1f5fe;
-            --text-secondary: #b3e5fc;
-            --text-muted: #80deea;
-            --card-bg: rgba(0, 60, 64, 0.4);
-            --border-glow: rgba(79, 195, 247, 0.3);
-            --shadow-glow: rgba(0, 172, 193, 0.4);
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
             
-            /* Level colors */
-            --level-a1: #4caf50;
-            --level-a2: #8bc34a;
-            --level-b1: #ffc107;
-            --level-b2: #ff9800;
-            --level-c1: #f44336;
-            --level-c2: #9c27b0;
+            /* Grammar colors - simplified */
+            --noun-m: #2563eb;
+            --noun-f: #ec4899;
+            --noun-n: #10b981;
+            --verb: #8b5cf6;
+            --adjective: #f59e0b;
+            --adverb: #06b6d4;
+            --preposition: #f43f5e;
+            --conjunction: #14b8a6;
+            --pronoun: #eab308;
+            --article: #a855f7;
         }
 
-        body.dark-theme {
-            --ocean-deep: #0a0e27;
-            --card-bg: rgba(0, 60, 64, 0.6);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Georgia', serif; 
-            line-height: 1.6; 
-            color: var(--text-primary); 
-            background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-mid) 50%, var(--ocean-light) 100%);
-            min-height: 100vh;
-            background-attachment: fixed;
-        }
-        
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-        }
-        
-        /* Animated ocean background effect */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at top, transparent 0%, var(--ocean-deep) 100%),
-                radial-gradient(ellipse at bottom, var(--ocean-light) 0%, transparent 50%);
-            opacity: 0.5;
-            z-index: -1;
-            animation: oceanWave 20s ease-in-out infinite;
-        }
-        
-        @keyframes oceanWave {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        
-        /* Header with glow effect */
-        header { 
-            text-align: center; 
-            margin-bottom: 30px; 
-            padding: 30px; 
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px; 
-            box-shadow: 0 10px 40px var(--shadow-glow);
-            border: 1px solid var(--border-glow);
-        }
-        
-        .header-top { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px; 
-            flex-wrap: wrap; 
-            gap: 15px; 
-        }
-        
-        header h1 { 
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 2.5em; 
-            margin: 0; 
-            text-align: left; 
-            flex-grow: 1;
-            text-shadow: 0 0 30px var(--accent-cyan);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-        
-        @keyframes shimmer {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        
-        header p { 
-            color: var(--text-secondary); 
-            font-size: 1.1em; 
-            width: 100%; 
-            text-align: center; 
-        }
-        
-        .header-controls { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--background);
         }
 
-        /* Navigation tabs with ocean theme */
-        #main-nav { 
-            display: flex; 
-            justify-content: center; 
-            gap: 15px; 
-            margin-bottom: 30px; 
-            flex-wrap: wrap; 
-        }
-        
-        .nav-tab { 
-            padding: 12px 24px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            border: 1px solid var(--border-glow);
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            color: var(--text-secondary); 
-            border-radius: 25px;
-            transition: all 0.3s ease; 
-        }
-        
-        .nav-tab:hover {
-            background: var(--ocean-surface);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px var(--shadow-glow);
-        }
-        
-        .nav-tab.active { 
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 5px 20px var(--shadow-glow);
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        /* Content pages */
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.5s ease; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Level Navigation with color coding */
-        #level-navigation { 
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 25px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 40px var(--shadow-glow);
+        /* Header */
+        header {
+            background: var(--surface);
+            padding: 30px;
+            border-radius: 12px;
             margin-bottom: 30px;
-            border: 1px solid var(--border-glow);
+            box-shadow: 0 1px 3px var(--shadow);
         }
-        
+
+        header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+            color: var(--text);
+        }
+
+        .nav-tab:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Content sections */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Card styling */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .card h3 {
+            color: var(--text);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        /* Level badges */
+        .level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .level-a2 { background: var(--secondary); }
+        .level-b2 { background: var(--warning); }
+        .level-c1 { background: var(--danger); }
+
+        /* Grammar color classes */
+        .noun-m { color: var(--noun-m); font-weight: 600; }
+        .noun-f { color: var(--noun-f); font-weight: 600; }
+        .noun-n { color: var(--noun-n); font-weight: 600; }
+        .verb { color: var(--verb); font-weight: 500; border-bottom: 1px dashed var(--verb); }
+        .adjective { color: var(--adjective); }
+        .adverb { color: var(--adverb); font-style: italic; }
+        .preposition { color: var(--preposition); }
+        .conjunction { color: var(--conjunction); }
+        .pronoun { color: var(--pronoun); }
+        .article { color: var(--article); font-weight: 600; }
+
+        /* German text display */
+        .german-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            padding: 20px;
+            background: var(--surface);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .german-text span {
+            cursor: help;
+            position: relative;
+        }
+
+        .german-text span:hover {
+            background: rgba(37, 99, 235, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        /* Level navigation */
+        .level-nav {
+            margin-bottom: 30px;
+        }
+
         .level-section {
             margin-bottom: 20px;
         }
-        
-        .level-header { 
-            background: rgba(0, 172, 193, 0.1);
-            padding: 18px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            transition: all 0.3s ease; 
-            margin-bottom: 10px;
-            border: 1px solid var(--border-glow);
-        }
-        
-        .level-header:hover { 
-            background: rgba(0, 172, 193, 0.2);
-            transform: translateX(5px);
-        }
-        
-        .level-header h3 { 
-            margin: 0; 
-            color: var(--text-primary);
+
+        .level-header {
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
             display: flex;
+            justify-content: space-between;
             align-items: center;
+            transition: background 0.2s;
+        }
+
+        .level-header:hover {
+            background: var(--border);
+        }
+
+        .article-list {
+            display: none;
+            padding: 15px;
             gap: 10px;
         }
-        
-        .level-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-            color: white;
-        }
-        
-        .level-a1 { background: var(--level-a1); }
-        .level-a2 { background: var(--level-a2); }
-        .level-b1 { background: var(--level-b1); }
-        .level-b2 { background: var(--level-b2); }
-        .level-c1 { background: var(--level-c1); }
-        .level-c2 { background: var(--level-c2); }
-        
-        .theme-list { 
-            max-height: 0; 
-            overflow: hidden; 
-            transition: max-height 0.4s ease-out; 
-            padding: 0 15px; 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 12px; 
-        }
-        
-        .theme-list.active { 
-            max-height: 500px; 
-            padding: 15px; 
-        }
-        
-        .theme-button { 
-            padding: 10px 18px; 
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: white; 
-            border: none;
-            border-radius: 25px; 
-            font-size: 14px; 
-            cursor: pointer; 
-            transition: all 0.3s ease; 
-        }
-        
-        .theme-button:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px var(--shadow-glow);
-        }
-        
-        /* Article display with ocean theme */
-        #article-display-container { 
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 35px; 
-            border-radius: 15px; 
-            margin-bottom: 30px; 
-            box-shadow: 0 10px 40px var(--shadow-glow);
-            border: 1px solid var(--border-glow);
-        }
-        
-        .sub-nav { 
-            display: flex; 
-            border-bottom: 1px solid var(--border-glow);
-            margin-bottom: 25px; 
-        }
-        
-        .sub-nav-tab { 
-            padding: 12px 24px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            border: none; 
-            background: transparent; 
-            color: var(--text-secondary); 
-            border-bottom: 3px solid transparent; 
-            margin-bottom: -1px; 
-            transition: all 0.3s ease; 
-        }
-        
-        .sub-nav-tab.active { 
-            color: var(--accent-cyan); 
-            border-bottom-color: var(--accent-cyan); 
-            font-weight: bold; 
-        }
-        
-        /* Grammar color coding - Enhanced visibility */
-        .noun-m { color: #4fc3f7; font-weight: bold; text-shadow: 0 0 5px rgba(79, 195, 247, 0.5); }
-        .noun-f { color: #ff6b9d; font-weight: bold; text-shadow: 0 0 5px rgba(255, 107, 157, 0.5); }
-        .noun-n { color: #66d9ef; font-weight: bold; text-shadow: 0 0 5px rgba(102, 217, 239, 0.5); }
-        .verb { color: #a78bfa; text-decoration: underline; text-shadow: 0 0 5px rgba(167, 139, 250, 0.5); }
-        .adjective { color: #fbbf24; text-shadow: 0 0 5px rgba(251, 191, 36, 0.5); }
-        .adverb { color: #34d399; font-style: italic; text-shadow: 0 0 5px rgba(52, 211, 153, 0.5); }
-        .preposition { color: #f472b6; text-shadow: 0 0 5px rgba(244, 114, 182, 0.5); }
-        .conjunction { color: #60a5fa; text-shadow: 0 0 5px rgba(96, 165, 250, 0.5); }
-        .pronoun { color: #fde047; text-shadow: 0 0 5px rgba(253, 224, 71, 0.5); }
-        .article { color: #c084fc; font-weight: bold; text-shadow: 0 0 5px rgba(192, 132, 252, 0.5); }
-        
-        .german-text { 
-            font-size: 19px; 
-            line-height: 1.9; 
-            margin-bottom: 30px; 
-            padding: 25px; 
-            background: rgba(0, 172, 193, 0.1);
-            border-left: 4px solid var(--accent-cyan);
-            border-radius: 8px; 
-        }
-        
-        .german-text span { 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            padding: 2px 4px; 
-            border-radius: 4px; 
-        }
-        
-        .german-text span:hover { 
-            background: rgba(79, 195, 247, 0.2);
-            transform: scale(1.05);
-        }
-        
-        /* Practice exercises */
-        .practice-container { 
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 35px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 40px var(--shadow-glow);
-            border: 1px solid var(--border-glow);
-        }
-        
-        /* Podcast integration styles */
-        .podcast-tile {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-glow);
-            transition: all 0.3s ease;
-        }
-        
-        .podcast-tile:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px var(--shadow-glow);
-        }
-        
-        .podcast-header {
+
+        .article-list.active {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
-        
-        .podcast-title {
-            font-size: 1.2em;
-            color: var(--accent-cyan);
-            font-weight: bold;
-        }
-        
-        .podcast-meta {
-            display: flex;
-            gap: 15px;
-            color: var(--text-muted);
-            font-size: 0.9em;
-        }
-        
-        /* Progress tracking */
-        .progress-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-glow);
-        }
-        
-        .progress-stat {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(0, 172, 193, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-        
-        /* Buttons with ocean theme */
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+
+        .article-btn {
+            padding: 8px 16px;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 28px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.2s;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px var(--shadow-glow);
+
+        .article-btn:hover {
+            background: var(--primary-dark);
         }
-        
-        /* Loading animation */
+
+        /* Sub navigation */
+        .sub-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .sub-nav-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 16px;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .sub-nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .sub-page {
+            display: none;
+        }
+
+        .sub-page.active {
+            display: block;
+        }
+
+        /* Podcast tiles */
+        .podcast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .podcast-tile {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .podcast-tile h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        /* Chat interface */
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .ai-message {
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        /* Progress stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Progress bars */
+        .progress-bar {
+            background: var(--border);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            background: var(--primary);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        /* Loading state */
         .loading {
             text-align: center;
-            padding: 50px;
-            font-size: 18px;
+            padding: 40px;
             color: var(--text-secondary);
         }
-        
-        .loading::after {
-            content: '...';
-            animation: dots 1.5s steps(3, end) infinite;
+
+        /* Error state */
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
-        
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
+
+        /* Exercises */
+        .exercise-container {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
-        
-        /* Modal styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+
+        .exercise-question {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .exercise-options {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            flex-direction: column;
+            gap: 10px;
         }
-        
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
+
+        .exercise-option {
+            padding: 10px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        
-        .modal-content {
-            background: var(--ocean-mid);
-            padding: 35px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 600px;
-            position: relative;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            border: 1px solid var(--border-glow);
+
+        .exercise-option:hover {
+            background: var(--surface);
+            border-color: var(--primary);
         }
-        
-        .modal-overlay.visible .modal-content {
-            transform: scale(1);
+
+        .exercise-option.selected {
+            background: var(--primary);
+            color: white;
         }
-        
-        /* Responsive design */
+
+        /* Responsive */
         @media (max-width: 768px) {
-            header h1 { font-size: 1.8em; }
-            .container { padding: 15px; }
-            #article-display-container, .practice-container { padding: 20px; }
-            .german-text { font-size: 17px; }
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .podcast-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="header-top">
-                <h1>German Mastery Hub</h1>
-                <div class="header-controls">
-                    <button id="settings-btn" class="btn-primary" title="Settings">⚙️</button>
-                </div>
-            </div>
-            <p>Your Gateway to Fluent German Through Immersive Learning</p>
+            <h1>🎓 German Mastery Hub</h1>
+            <p>Learn German effectively through articles, podcasts, and practice</p>
         </header>
 
-        <nav id="main-nav">
-            <button class="nav-tab active" data-page="articles-page">📖 Articles</button>
-            <button class="nav-tab" data-page="podcast-page">🎧 Podcasts</button>
-            <button class="nav-tab" data-page="conversation-page">💬 AI Teacher</button>
-            <button class="nav-tab" data-page="grammar-drill-page">✍️ Grammar Drill</button>
-            <button class="nav-tab" data-page="performance-page">📊 My Progress</button>
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-page="articles">📖 Articles</button>
+            <button class="nav-tab" data-page="podcasts">🎧 Podcasts</button>
+            <button class="nav-tab" data-page="ai-teacher">💬 AI Teacher</button>
+            <button class="nav-tab" data-page="grammar">✍️ Grammar Drill</button>
+            <button class="nav-tab" data-page="progress">📊 Progress</button>
         </nav>
-        
-        <main id="main-content">
-            <!-- Articles Page -->
-            <div id="articles-page" class="page active">
-                <div id="level-navigation"></div>
-                <div class="loading" id="loading">Loading articles from Google Sheets</div>
-                <div id="article-display-container" style="display: none;">
-                    <div class="sub-nav">
-                        <button class="sub-nav-tab active" data-target="article-content">Article</button>
-                        <button class="sub-nav-tab" data-target="deep-dive-content">Deep Dive Grammar</button>
-                        <button class="sub-nav-tab" data-target="practice-content">Practice</button>
-                    </div>
-                    <div id="article-content" class="sub-page active"></div>
-                    <div id="deep-dive-content" class="sub-page"></div>
-                    <div id="practice-content" class="sub-page"></div>
-                </div>
-                <div class="nav-buttons" id="nav-buttons" style="display: none; text-align: center; margin-top: 20px;">
-                    <button class="btn-primary" onclick="navigateArticle('previous')">← Previous</button>
-                    <button class="btn-primary" onclick="showAllArticles()">Show All</button>
-                    <button class="btn-primary" onclick="navigateArticle('next')">Next →</button>
-                </div>
-            </div>
-            
-            <!-- Podcast Page -->
-            <div id="podcast-page" class="page">
-                <div class="podcast-container">
-                    <h2 style="color: var(--accent-cyan); margin-bottom: 20px;">🎧 German Learning Podcasts</h2>
-                    <div id="podcast-categories"></div>
-                    <div id="podcast-loading" class="loading" style="display: none;">Loading podcasts</div>
-                    <div id="podcast-episodes"></div>
+
+        <!-- Articles Page -->
+        <div id="articles" class="page active">
+            <div class="card">
+                <h2>German Articles by Level</h2>
+                <div id="level-nav" class="level-nav">
+                    <div class="loading">Loading articles...</div>
                 </div>
             </div>
 
-            <!-- AI Conversation Page -->
-            <div id="conversation-page" class="page">
-                <div class="practice-container">
-                    <h2 style="color: var(--accent-cyan); margin-bottom: 20px;">💬 AI German Teacher</h2>
-                    <div id="chat-window" style="height: 400px; overflow-y: auto; background: rgba(0, 172, 193, 0.1); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                        <div class="ai-message">
-                            <p style="color: var(--text-secondary);">Guten Tag! Ich bin dein KI-Deutschlehrer. Lass uns über die Artikel oder Podcasts sprechen!</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="chat-input" placeholder="Schreib auf Deutsch..." style="flex: 1; padding: 12px; border-radius: 25px; border: 1px solid var(--border-glow); background: var(--card-bg); color: var(--text-primary);">
-                        <button id="send-btn" class="btn-primary">Send</button>
-                    </div>
+            <div id="article-display" class="card" style="display: none;">
+                <div class="sub-nav">
+                    <button class="sub-nav-tab active" data-target="reading">Reading</button>
+                    <button class="sub-nav-tab" data-target="grammar">Grammar</button>
+                    <button class="sub-nav-tab" data-target="practice">Practice</button>
+                </div>
+
+                <div id="reading" class="sub-page active">
+                    <div id="article-meta"></div>
+                    <div id="article-german" class="german-text"></div>
+                    <div id="article-english"></div>
+                    <div id="article-vocab"></div>
+                </div>
+
+                <div id="grammar" class="sub-page">
+                    <h3>Grammar Analysis</h3>
+                    <div id="grammar-content"></div>
+                </div>
+
+                <div id="practice" class="sub-page">
+                    <h3>Practice Exercises</h3>
+                    <div id="practice-content"></div>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-secondary" onclick="previousArticle()">← Previous</button>
+                    <button class="btn btn-primary" onclick="backToList()">All Articles</button>
+                    <button class="btn btn-secondary" onclick="nextArticle()">Next →</button>
                 </div>
             </div>
+        </div>
 
-            <!-- Grammar Drill Page -->
-            <div id="grammar-drill-page" class="page">
-                <div class="practice-container">
-                    <h2 style="color: var(--accent-cyan); margin-bottom: 20px;">✍️ Grammar Drill</h2>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Practice grammar with exercises from articles and podcasts</p>
-                    <div id="grammar-topics" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px;"></div>
-                    <button id="start-drill-btn" class="btn-primary">Start Grammar Drill</button>
-                    <div id="drill-container" style="margin-top: 30px;"></div>
+        <!-- Podcasts Page -->
+        <div id="podcasts" class="page">
+            <div class="card">
+                <h2>German Learning Podcasts</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    Click on any category to load the latest German podcast episode
+                </p>
+                
+                <div class="podcast-grid" id="podcast-grid">
+                    <!-- Podcasts will be loaded here -->
+                </div>
+
+                <div id="podcast-player" style="display: none;">
+                    <h3 id="podcast-title"></h3>
+                    <div style="margin: 20px 0;">
+                        <button class="btn btn-primary" onclick="playPodcast()">▶️ Play</button>
+                        <button class="btn btn-secondary" onclick="stopPodcast()">⏹️ Stop</button>
+                    </div>
+                    <div id="podcast-transcript" class="german-text"></div>
                 </div>
             </div>
+        </div>
 
-            <!-- Performance Page -->
-            <div id="performance-page" class="page">
-                <div class="practice-container">
-                    <h2 style="color: var(--accent-cyan); margin-bottom: 30px;">📊 Your Learning Progress</h2>
-                    
-                    <div class="progress-card">
-                        <h3 style="color: var(--text-primary); margin-bottom: 20px;">Overall Statistics</h3>
-                        <div class="progress-stat">
-                            <span>Articles Read</span>
-                            <span id="articles-read">0</span>
+        <!-- AI Teacher Page -->
+        <div id="ai-teacher" class="page">
+            <div class="card">
+                <h2>AI German Teacher</h2>
+                <div class="chat-container" id="chat-container">
+                    <div class="message ai-message">
+                        Guten Tag! Ich bin dein Deutschlehrer. Schreib mir auf Deutsch und ich helfe dir beim Lernen!
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" class="chat-input" placeholder="Type in German...">
+                    <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grammar Drill Page -->
+        <div id="grammar" class="page">
+            <div class="card">
+                <h2>Grammar Drill</h2>
+                <p style="margin-bottom: 20px;">Practice German grammar with targeted exercises</p>
+                
+                <div id="grammar-topics" style="margin-bottom: 20px;">
+                    <h3>Select Topics:</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                        <label><input type="checkbox" value="articles"> Articles (der/die/das)</label>
+                        <label><input type="checkbox" value="verbs"> Verb Conjugation</label>
+                        <label><input type="checkbox" value="cases"> Cases (Nom/Acc/Dat)</label>
+                        <label><input type="checkbox" value="perfect"> Perfect Tense</label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="startDrill()">Start Drill</button>
+                
+                <div id="drill-content" style="margin-top: 30px;"></div>
+            </div>
+        </div>
+
+        <!-- Progress Page -->
+        <div id="progress" class="page">
+            <div class="card">
+                <h2>Your Learning Progress</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-articles">0</div>
+                        <div class="stat-label">Articles Read</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-podcasts">0</div>
+                        <div class="stat-label">Podcasts Heard</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-exercises">0</div>
+                        <div class="stat-label">Exercises Done</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-streak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Level Progress</h3>
+                <div style="margin-top: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>A2-B1</span>
+                            <span id="progress-a2">0%</span>
                         </div>
-                        <div class="progress-stat">
-                            <span>Podcasts Listened</span>
-                            <span id="podcasts-listened">0</span>
-                        </div>
-                        <div class="progress-stat">
-                            <span>Grammar Exercises</span>
-                            <span id="exercises-completed">0</span>
-                        </div>
-                        <div class="progress-stat">
-                            <span>Current Streak</span>
-                            <span id="current-streak">0 days</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-bar-a2" style="width: 0%"></div>
                         </div>
                     </div>
-                    
-                    <div class="progress-card">
-                        <h3 style="color: var(--text-primary); margin-bottom: 20px;">Level Progress</h3>
-                        <div style="margin-bottom: 20px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                <span>A2-B1</span>
-                                <span id="a2-progress">0%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="a2-bar" style="width: 0%"></div>
-                            </div>
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>B2</span>
+                            <span id="progress-b2">0%</span>
                         </div>
-                        <div style="margin-bottom: 20px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                <span>B2</span>
-                                <span id="b2-progress">0%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="b2-bar" style="width: 0%"></div>
-                            </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-bar-b2" style="width: 0%"></div>
                         </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                <span>C1+</span>
-                                <span id="c1-progress">0%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="c1-bar" style="width: 0%"></div>
-                            </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>C1+</span>
+                            <span id="progress-c1">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-bar-c1" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close-btn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</button>
-            <h2 style="color: var(--accent-cyan); margin-bottom: 20px;">Settings</h2>
-            <div>
-                <h3 style="color: var(--text-primary); margin-bottom: 15px;">Theme</h3>
-                <label style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="theme-checkbox">
-                    <span style="color: var(--text-secondary);">Dark Mode</span>
-                </label>
             </div>
         </div>
     </div>
-    
+
     <script>
         // Global state
         let articles = [];
         let currentArticleIndex = 0;
-        let podcastEpisodes = {};
-        let grammarTopics = new Set();
+        let currentPodcast = null;
         let userProgress = {
-            articlesRead: [],
-            podcastsListened: [],
-            exercisesCompleted: 0,
+            articles: [],
+            podcasts: [],
+            exercises: 0,
             streak: 0,
-            levelProgress: { 'A2-B1': 0, 'B2': 0, 'C1+': 0 }
+            lastVisit: new Date().toDateString()
         };
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSettings();
-            setupEventListeners();
+        document.addEventListener('DOMContentLoaded', () => {
+            setupNavigation();
             loadArticles();
-            loadPodcasts();
+            setupPodcasts();
             loadProgress();
+            updateProgressDisplay();
         });
 
-        // Load settings
-        function loadSettings() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.body.classList.toggle('dark-theme', savedTheme === 'dark');
-            document.getElementById('theme-checkbox').checked = savedTheme === 'dark';
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            // Settings
-            document.getElementById('settings-btn').addEventListener('click', () => {
-                document.getElementById('settings-modal').classList.add('visible');
-            });
-            
-            document.querySelector('.modal-close-btn').addEventListener('click', () => {
-                document.getElementById('settings-modal').classList.remove('visible');
-            });
-            
-            document.getElementById('theme-checkbox').addEventListener('change', (e) => {
-                const theme = e.target.checked ? 'dark' : 'light';
-                document.body.classList.toggle('dark-theme', e.target.checked);
-                localStorage.setItem('theme', theme);
-            });
-
-            // Navigation tabs
+        // Navigation setup
+        function setupNavigation() {
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
                     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    
                     e.target.classList.add('active');
-                    const targetPageId = e.target.getAttribute('data-page');
-                    document.querySelectorAll('.page').forEach(page => {
-                        page.classList.toggle('active', page.id === targetPageId);
-                    });
-                });
-            });
-            
-            // Sub navigation
-            document.querySelectorAll('.sub-nav-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.sub-nav-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    const targetId = tab.dataset.target;
-                    document.querySelectorAll('.sub-page').forEach(page => {
-                        page.classList.toggle('active', page.id === targetId);
-                    });
+                    const pageId = e.target.dataset.page;
+                    document.getElementById(pageId).classList.add('active');
                 });
             });
 
-            // Grammar drill
-            document.getElementById('start-drill-btn').addEventListener('click', startGrammarDrill);
-            
-            // AI Chat
-            document.getElementById('send-btn').addEventListener('click', sendMessage);
-            document.getElementById('chat-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendMessage();
+            document.querySelectorAll('.sub-nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const parent = e.target.closest('.card');
+                    parent.querySelectorAll('.sub-nav-tab').forEach(t => t.classList.remove('active'));
+                    parent.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+                    
+                    e.target.classList.add('active');
+                    const targetId = e.target.dataset.target;
+                    parent.querySelector(`#${targetId}`).classList.add('active');
+                });
             });
         }
 
-        // Load articles from Google Sheets
+        // Load articles
         async function loadArticles() {
             try {
                 const response = await fetch('/.netlify/functions/get-articles');
-                if (!response.ok) throw new Error('Failed to fetch articles');
-                
                 const data = await response.json();
+                
                 if (data.values && data.values.length > 1) {
                     articles = parseArticles(data.values);
-                    displayLevelNavigation();
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('level-navigation').style.display = 'block';
-                    document.getElementById('nav-buttons').style.display = 'block';
                 } else {
-                    throw new Error('No articles found');
+                    articles = getSampleArticles();
                 }
+                
+                displayLevelNavigation();
             } catch (error) {
                 console.error('Error loading articles:', error);
-                document.getElementById('loading').innerHTML = `
-                    <p style="color: var(--accent-cyan);">Error loading articles. Using sample data.</p>
-                `;
-                // Use sample data as fallback
                 articles = getSampleArticles();
                 displayLevelNavigation();
             }
         }
 
-        // Parse articles from sheets data
+        // Parse articles from sheet data
         function parseArticles(rows) {
-            const headers = rows[0].map(h => h.trim().toUpperCase().replace(/\s+/g, '_'));
+            const headers = rows[0];
             const parsed = [];
             
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
-                if (row[headers.indexOf('STATUS')] === 'Published') {
-                    const article = {};
-                    headers.forEach((header, index) => {
-                        article[header] = row[index] || '';
-                    });
-                    
-                    // Determine level from theme or content
-                    article.LEVEL = categorizeLevel(article);
+                const article = {};
+                
+                headers.forEach((header, index) => {
+                    article[header] = row[index] || '';
+                });
+                
+                if (article.STATUS === 'Published') {
+                    article.level = detectLevel(article);
                     parsed.push(article);
                 }
             }
             
-            // Extract grammar topics
-            parsed.forEach(article => {
-                if (article.GRAMMAR_TOPIC_TAGS) {
-                    article.GRAMMAR_TOPIC_TAGS.split(',').forEach(topic => {
-                        grammarTopics.add(topic.trim());
-                    });
-                }
-            });
-            
-            return parsed.sort((a, b) => new Date(b.DATE) - new Date(a.DATE));
+            return parsed;
         }
 
-        // Categorize article level based on content
-        function categorizeLevel(article) {
+        // Detect article level
+        function detectLevel(article) {
             const theme = (article.THEME || '').toLowerCase();
             const grammar = (article.DEEP_DIVE_GRAMMAR || '').toLowerCase();
             
-            // C1+ indicators
-            if (theme.includes('philosophy') || theme.includes('abstract') || 
-                grammar.includes('konjunktiv ii') || grammar.includes('passiversatz')) {
+            if (theme.includes('philosophy') || grammar.includes('konjunktiv ii')) {
                 return 'C1+';
-            }
-            // B2 indicators
-            if (theme.includes('business') || theme.includes('technology') || 
-                grammar.includes('passiv') || grammar.includes('konjunktiv')) {
+            } else if (theme.includes('technology') || theme.includes('business')) {
                 return 'B2';
             }
-            // Default to A2-B1
             return 'A2-B1';
         }
 
-        // Display level-based navigation
+        // Display level navigation
         function displayLevelNavigation() {
-            const levels = {
-                'A2-B1': { color: 'level-a2', articles: [] },
-                'B2': { color: 'level-b2', articles: [] },
-                'C1+': { color: 'level-c1', articles: [] }
-            };
+            const container = document.getElementById('level-nav');
+            const levels = { 'A2-B1': [], 'B2': [], 'C1+': [] };
             
-            // Group articles by level
             articles.forEach(article => {
-                if (levels[article.LEVEL]) {
-                    levels[article.LEVEL].articles.push(article);
+                if (levels[article.level]) {
+                    levels[article.level].push(article);
                 }
             });
             
-            const navContainer = document.getElementById('level-navigation');
-            navContainer.innerHTML = '<h2 style="color: var(--accent-cyan); margin-bottom: 20px;">Choose Your Level</h2>';
-            
-            Object.entries(levels).forEach(([level, data]) => {
-                if (data.articles.length === 0) return;
-                
-                const levelSection = document.createElement('div');
-                levelSection.className = 'level-section';
-                levelSection.innerHTML = `
-                    <div class="level-header" onclick="toggleLevel('${level}')">
-                        <h3>
-                            <span class="level-badge ${data.color}">${level}</span>
-                            ${data.articles.length} Articles
-                        </h3>
-                        <span class="toggle-icon">▶</span>
-                    </div>
-                    <div class="theme-list" id="level-${level}">
-                        ${data.articles.map((article, index) => `
-                            <button class="theme-button" onclick="displayArticle(${articles.indexOf(article)})">
-                                ${article.THEME || 'Article ' + (index + 1)}
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
-                navContainer.appendChild(levelSection);
+            let html = '';
+            Object.entries(levels).forEach(([level, items]) => {
+                if (items.length > 0) {
+                    html += `
+                        <div class="level-section">
+                            <div class="level-header" onclick="toggleLevel('${level}')">
+                                <div>
+                                    <span class="level-badge level-${level.toLowerCase().replace('+', '')}">${level}</span>
+                                    <span style="margin-left: 10px;">${items.length} articles</span>
+                                </div>
+                                <span>▼</span>
+                            </div>
+                            <div class="article-list" id="list-${level}">
+                                ${items.map((article, index) => `
+                                    <button class="article-btn" onclick="showArticle(${articles.indexOf(article)})">
+                                        ${article.THEME || 'Article ' + (index + 1)}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
             });
+            
+            container.innerHTML = html;
         }
 
         // Toggle level section
         function toggleLevel(level) {
-            const themeList = document.getElementById(`level-${level}`);
-            themeList.classList.toggle('active');
-            const header = themeList.previousElementSibling;
-            header.classList.toggle('active');
-            const icon = header.querySelector('.toggle-icon');
-            icon.style.transform = themeList.classList.contains('active') ? 'rotate(90deg)' : 'rotate(0)';
+            const list = document.getElementById(`list-${level}`);
+            list.classList.toggle('active');
         }
 
-        // Display article with grammar color coding
-        function displayArticle(index) {
+        // Show article
+        function showArticle(index) {
             currentArticleIndex = index;
             const article = articles[index];
-            if (!article) return;
             
-            document.getElementById('article-display-container').style.display = 'block';
+            document.getElementById('level-nav').parentElement.style.display = 'none';
+            document.getElementById('article-display').style.display = 'block';
             
-            // Update progress
-            if (!userProgress.articlesRead.includes(index)) {
-                userProgress.articlesRead.push(index);
-                updateProgress();
+            // Display article metadata
+            document.getElementById('article-meta').innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <span class="level-badge level-${article.level.toLowerCase().replace('+', '')}">${article.level}</span>
+                    <span style="margin-left: 15px;"><strong>Theme:</strong> ${article.THEME}</span>
+                    <span style="margin-left: 15px;"><strong>Date:</strong> ${article.DATE}</span>
+                </div>
+            `;
+            
+            // Display German text with grammar colors
+            const coloredText = applyGrammarColors(article.GERMAN_ARTICLE || '');
+            document.getElementById('article-german').innerHTML = coloredText;
+            
+            // Display English translation
+            document.getElementById('article-english').innerHTML = `
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>English Translation:</strong><br>
+                    ${article.ENGLISH_TRANSLATION || 'No translation available'}
+                </div>
+            `;
+            
+            // Display vocabulary
+            document.getElementById('article-vocab').innerHTML = `
+                <div style="background: #fef3c7; padding: 15px; border-radius: 8px;">
+                    <strong>Vocabulary:</strong><br>
+                    ${article.VOCABULARY_USED || 'No vocabulary listed'}
+                </div>
+            `;
+            
+            // Display grammar
+            document.getElementById('grammar-content').innerHTML = article.DEEP_DIVE_GRAMMAR || 'No grammar analysis available';
+            
+            // Setup practice
+            setupPractice(article);
+            
+            // Track progress
+            if (!userProgress.articles.includes(index)) {
+                userProgress.articles.push(index);
+                saveProgress();
+                updateProgressDisplay();
             }
-            
-            // Article content with grammar color coding
-            const articleContent = document.getElementById('article-content');
-            const germanText = applyGrammarColors(article.GERMAN_ARTICLE || '');
-            
-            articleContent.innerHTML = `
-                <div class="metadata" style="background: rgba(0, 172, 193, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <strong>Level:</strong> <span class="level-badge ${getLevelClass(article.LEVEL)}">${article.LEVEL}</span> | 
-                    <strong>Theme:</strong> ${article.THEME || 'General'} | 
-                    <strong>Date:</strong> ${article.DATE || 'N/A'}
-                </div>
-                <div class="german-text">${germanText}</div>
-                <div class="english-text" style="background: rgba(79, 195, 247, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; color: var(--text-secondary);">
-                    <strong>English Translation:</strong><br>${article.ENGLISH_TRANSLATION || 'No translation available'}
-                </div>
-                <div class="vocabulary-section" style="background: rgba(0, 172, 193, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
-                    <strong style="color: var(--accent-cyan);">🎯 Key Vocabulary:</strong>
-                    <div style="margin-top: 10px;">${article.VOCABULARY_USED || 'No vocabulary listed'}</div>
-                </div>
-                <div class="phrases-section" style="background: rgba(79, 195, 247, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
-                    <strong style="color: var(--accent-blue);">💬 Phrases & Idioms:</strong>
-                    <div style="margin-top: 10px;">${article.PHRASE_AND_IDIOM || 'No phrases listed'}</div>
-                </div>
-            `;
-            
-            // Deep dive grammar
-            document.getElementById('deep-dive-content').innerHTML = `
-                <div class="grammar-section" style="background: rgba(0, 172, 193, 0.1); padding: 25px; border-radius: 8px;">
-                    <h3 style="color: var(--accent-cyan); margin-bottom: 15px;">🧠 Deep Dive Grammar</h3>
-                    <div style="color: var(--text-primary);">${article.DEEP_DIVE_GRAMMAR || 'No grammar analysis available'}</div>
-                </div>
-            `;
-            
-            // Practice exercises
-            setupPracticeExercises(article);
         }
 
-        // Apply grammar color coding
+        // Apply grammar colors properly
         function applyGrammarColors(text) {
             if (!text) return '';
             
-            // Define patterns for each grammar type
+            // Create a temporary div to safely parse the text
+            const temp = document.createElement('div');
+            temp.textContent = text; // This escapes any HTML
+            let processedText = temp.innerHTML;
+            
+            // Grammar patterns
             const patterns = [
-                // Articles
                 { regex: /\b(der|die|das|den|dem|des|ein|eine|einen|einem|einer|eines)\b/gi, class: 'article' },
-                // Common verbs
-                { regex: /\b(ist|sind|war|waren|hat|haben|hatte|hatten|wird|werden|wurde|wurden|kann|können|muss|müssen|soll|sollen|will|wollen|darf|dürfen|mag|mögen|bin|bist|sein|gewesen|gehen|ging|gegangen|kommen|kam|gekommen|machen|machte|gemacht)\b/gi, class: 'verb' },
-                // Adjectives
-                { regex: /\b(gut|besser|beste|schlecht|groß|klein|neu|alt|jung|schön|wichtig|richtig|falsch|schnell|langsam|teuer|billig|einfach|schwer|leicht)\b/gi, class: 'adjective' },
-                // Adverbs
-                { regex: /\b(sehr|immer|nie|oft|manchmal|heute|gestern|morgen|jetzt|dann|hier|dort|gern|vielleicht|ziemlich|wirklich)\b/gi, class: 'adverb' },
-                // Prepositions
-                { regex: /\b(in|an|auf|unter|über|vor|hinter|neben|zwischen|mit|ohne|für|gegen|durch|um|aus|bei|nach|von|zu|seit)\b/gi, class: 'preposition' },
-                // Conjunctions
-                { regex: /\b(und|oder|aber|denn|weil|dass|wenn|als|ob|während|bevor|nachdem|damit|sodass|trotzdem)\b/gi, class: 'conjunction' },
-                // Pronouns
-                { regex: /\b(ich|du|er|sie|es|wir|ihr|Sie|mich|dich|sich|mir|dir|mein|dein|sein|ihr|unser|euer)\b/gi, class: 'pronoun' }
+                { regex: /\b(ist|sind|war|waren|hat|haben|hatte|hatten|wird|werden|kann|muss|soll|will|bin|bist|sein)\b/gi, class: 'verb' },
+                { regex: /\b(gut|schlecht|groß|klein|neu|alt|schön|wichtig|schnell|langsam)\b/gi, class: 'adjective' },
+                { regex: /\b(sehr|immer|nie|oft|manchmal|heute|gestern|morgen|jetzt|hier|dort)\b/gi, class: 'adverb' },
+                { regex: /\b(in|an|auf|unter|über|vor|hinter|mit|ohne|für|gegen|durch|bei|nach|von|zu)\b/gi, class: 'preposition' },
+                { regex: /\b(und|oder|aber|denn|weil|dass|wenn|als|ob|während)\b/gi, class: 'conjunction' },
+                { regex: /\b(ich|du|er|sie|es|wir|ihr|Sie|mich|dich|mir|dir|mein|dein|sein)\b/gi, class: 'pronoun' }
             ];
             
             // Apply colors
-            let coloredText = text;
             patterns.forEach(pattern => {
-                coloredText = coloredText.replace(pattern.regex, (match) => {
+                processedText = processedText.replace(pattern.regex, (match) => {
                     return `<span class="${pattern.class}" title="${pattern.class}">${match}</span>`;
                 });
             });
             
-            // Color nouns (capitalized words not at sentence start)
-            coloredText = coloredText.replace(/(?<![.!?]\s)\b[A-ZÄÖÜ][a-zäöüß]+\b/g, (match) => {
-                // Determine gender randomly for demo (in real app, use dictionary)
+            // Color nouns (capitalized words)
+            processedText = processedText.replace(/\b([A-ZÄÖÜ][a-zäöüß]+)\b/g, (match) => {
+                // Skip if already wrapped
+                if (processedText.includes(`>${match}</span>`)) return match;
+                
+                // Assign gender randomly (in production, use dictionary)
                 const genders = ['noun-m', 'noun-f', 'noun-n'];
-                const gender = genders[Math.floor(Math.random() * genders.length)];
-                return `<span class="${gender}" title="Noun">${match}</span>`;
+                const gender = genders[Math.floor(Math.random() * 3)];
+                return `<span class="${gender}" title="noun">${match}</span>`;
             });
             
-            return coloredText;
-        }
-
-        // Get level class for styling
-        function getLevelClass(level) {
-            const levelMap = {
-                'A2-B1': 'level-a2',
-                'B2': 'level-b2',
-                'C1+': 'level-c1'
-            };
-            return levelMap[level] || 'level-b1';
+            return processedText;
         }
 
         // Setup practice exercises
-        function setupPracticeExercises(article) {
+        function setupPractice(article) {
             const container = document.getElementById('practice-content');
             
             container.innerHTML = `
-                <h3 style="color: var(--accent-cyan); margin-bottom: 20px;">Practice Exercises</h3>
-                <div class="exercise-section">
-                    <h4 style="color: var(--text-primary); margin-bottom: 15px;">1. Fill in the Articles</h4>
+                <div class="exercise-container">
+                    <h4>Fill in the Articles</h4>
                     <div id="article-exercise"></div>
+                    <button class="btn btn-primary" onclick="checkExercise()" style="margin-top: 15px;">Check Answers</button>
                 </div>
-                <div class="exercise-section" style="margin-top: 30px;">
-                    <h4 style="color: var(--text-primary); margin-bottom: 15px;">2. Vocabulary Matching</h4>
-                    <div id="vocab-exercise"></div>
-                </div>
-                <button class="btn-primary" onclick="checkAnswers()" style="margin-top: 20px;">Check Answers</button>
-                <div id="exercise-feedback" style="margin-top: 20px;"></div>
             `;
             
-            // Generate exercises based on article content
-            generateArticleExercise(article);
-            generateVocabExercise(article);
-        }
-
-        // Generate article exercise
-        function generateArticleExercise(article) {
+            // Create simple exercise
             const text = article.GERMAN_ARTICLE || '';
-            const sentences = text.split('.').slice(0, 3);
-            const container = document.getElementById('article-exercise');
+            const sentences = text.split('.').slice(0, 2);
             
-            container.innerHTML = sentences.map(sentence => {
-                // Remove some articles for practice
-                const modifiedSentence = sentence.replace(/\b(der|die|das|ein|eine)\b/gi, (match) => {
-                    return `<select class="article-select" style="padding: 4px; border-radius: 4px; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-glow);">
+            let exerciseHtml = '';
+            sentences.forEach(sentence => {
+                const modified = sentence.replace(/\b(der|die|das)\b/gi, (match) => {
+                    return `<select class="article-select" style="padding: 4px; margin: 0 4px;">
                         <option value="">---</option>
                         <option value="der">der</option>
                         <option value="die">die</option>
                         <option value="das">das</option>
-                        <option value="ein">ein</option>
-                        <option value="eine">eine</option>
                     </select>`;
                 });
-                return `<p style="margin-bottom: 15px; line-height: 2;">${modifiedSentence}</p>`;
-            }).join('');
+                exerciseHtml += `<p style="line-height: 2; margin-bottom: 10px;">${modified}</p>`;
+            });
+            
+            document.getElementById('article-exercise').innerHTML = exerciseHtml;
         }
 
-        // Generate vocabulary exercise
-        function generateVocabExercise(article) {
-            const vocab = article.VOCABULARY_USED || '';
-            const container = document.getElementById('vocab-exercise');
+        // Check exercise
+        function checkExercise() {
+            const selects = document.querySelectorAll('.article-select');
+            let correct = 0;
             
-            if (!vocab) {
-                container.innerHTML = '<p style="color: var(--text-secondary);">No vocabulary available for this article.</p>';
-                return;
+            selects.forEach(select => {
+                if (select.value) correct++;
+            });
+            
+            alert(`You got ${correct} out of ${selects.length} correct!`);
+            
+            userProgress.exercises++;
+            saveProgress();
+            updateProgressDisplay();
+        }
+
+        // Navigation functions
+        function previousArticle() {
+            if (currentArticleIndex > 0) {
+                showArticle(currentArticleIndex - 1);
             }
-            
-            const vocabItems = vocab.split(',').slice(0, 5);
-            container.innerHTML = `
-                <p style="color: var(--text-secondary); margin-bottom: 15px;">Match the German words with their meanings:</p>
-                ${vocabItems.map((item, index) => {
-                    const [german, english] = item.split('-').map(s => s.trim());
-                    return `
-                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                            <span style="min-width: 150px;">${german || item}</span>
-                            <input type="text" class="vocab-input" placeholder="Enter translation" style="flex: 1; padding: 8px; border-radius: 4px; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-glow);">
-                        </div>
-                    `;
-                }).join('')}
-            `;
         }
 
-        // Load podcasts from podcast.arnavray.ca
-        async function loadPodcasts() {
-            const categories = ['ai-tech', 'finance-business', 'leadership-strategy', 'science-innovation', 'sunday-specials'];
-            const container = document.getElementById('podcast-categories');
+        function nextArticle() {
+            if (currentArticleIndex < articles.length - 1) {
+                showArticle(currentArticleIndex + 1);
+            }
+        }
+
+        function backToList() {
+            document.getElementById('article-display').style.display = 'none';
+            document.getElementById('level-nav').parentElement.style.display = 'block';
+        }
+
+        // Setup podcasts
+        function setupPodcasts() {
+            const categories = [
+                { id: 'ai-tech', name: 'AI & Technology', icon: '🤖' },
+                { id: 'finance-business', name: 'Finance & Business', icon: '💰' },
+                { id: 'leadership-strategy', name: 'Leadership', icon: '🎯' },
+                { id: 'science-innovation', name: 'Science', icon: '🔬' },
+                { id: 'sunday-specials', name: 'Lifestyle', icon: '🎭' }
+            ];
             
-            container.innerHTML = categories.map(cat => `
+            const grid = document.getElementById('podcast-grid');
+            grid.innerHTML = categories.map(cat => `
                 <div class="podcast-tile">
-                    <div class="podcast-header">
-                        <span class="podcast-title">${cat.replace('-', ' ').toUpperCase()}</span>
-                        <button class="btn-primary" onclick="fetchPodcast('${cat}')">Load Episode</button>
-                    </div>
-                    <div id="podcast-${cat}" class="podcast-content"></div>
+                    <h4>${cat.icon} ${cat.name}</h4>
+                    <p style="color: var(--text-secondary); margin: 10px 0;">German podcast episodes</p>
+                    <button class="btn btn-primary" onclick="loadPodcast('${cat.id}')">
+                        Load Episode
+                    </button>
+                    <div id="podcast-status-${cat.id}" style="margin-top: 10px;"></div>
                 </div>
             `).join('');
         }
 
-        // Fetch podcast episode
-        async function fetchPodcast(category) {
-            const container = document.getElementById(`podcast-${category}`);
-            container.innerHTML = '<div class="loading">Loading podcast</div>';
+        // Load podcast
+        async function loadPodcast(category) {
+            const statusDiv = document.getElementById(`podcast-status-${category}`);
+            statusDiv.innerHTML = '<div class="loading">Loading...</div>';
             
             try {
-                const response = await fetch(`https://podcast.arnavray.ca/.netlify/functions/generate-podcast?bunch=${category}&lang=de`);
+                // Try to fetch from the podcast API
+                const response = await fetch(`/.netlify/functions/get-podcasts?category=${category}`);
                 const data = await response.json();
                 
-                if (data.success && data.episode) {
-                    displayPodcastEpisode(category, data.episode);
-                    // Store as article for practice
-                    convertPodcastToArticle(data.episode);
+                if (data.episodes && data.episodes.length > 0) {
+                    currentPodcast = data.episodes[0];
+                    displayPodcast(currentPodcast);
+                    statusDiv.innerHTML = '<span style="color: var(--secondary);">✓ Loaded</span>';
+                    
+                    // Track progress
+                    if (!userProgress.podcasts.includes(category)) {
+                        userProgress.podcasts.push(category);
+                        saveProgress();
+                        updateProgressDisplay();
+                    }
                 } else {
-                    throw new Error('Failed to load podcast');
+                    throw new Error('No episodes found');
                 }
             } catch (error) {
                 console.error('Error loading podcast:', error);
-                container.innerHTML = '<p style="color: var(--text-secondary);">Failed to load podcast. Please try again.</p>';
+                // Use sample podcast
+                currentPodcast = getSamplePodcast(category);
+                displayPodcast(currentPodcast);
+                statusDiv.innerHTML = '<span style="color: var(--warning);">Sample episode</span>';
             }
         }
 
-        // Display podcast episode
-        function displayPodcastEpisode(category, episode) {
-            const container = document.getElementById(`podcast-${category}`);
+        // Display podcast
+        function displayPodcast(podcast) {
+            document.getElementById('podcast-player').style.display = 'block';
+            document.getElementById('podcast-title').textContent = podcast.title || 'German Podcast Episode';
             
-            container.innerHTML = `
-                <div style="margin-top: 15px;">
-                    <h4 style="color: var(--text-primary); margin-bottom: 10px;">${episode.title}</h4>
-                    <div class="podcast-meta">
-                        <span>📅 ${episode.date}</span>
-                        <span>⏱️ ${episode.duration}</span>
-                        <span>🎯 Score: ${episode.totalScore}</span>
-                    </div>
-                    <button class="btn-primary" onclick="playPodcast('${category}')" style="margin-top: 15px;">▶️ Play</button>
-                    <button class="btn-primary" onclick="showTranscript('${category}')" style="margin-top: 15px;">📝 Transcript</button>
-                    <div id="transcript-${category}" style="display: none; margin-top: 20px; padding: 20px; background: rgba(0, 172, 193, 0.1); border-radius: 8px;">
-                        ${applyGrammarColors(episode.script)}
-                    </div>
-                </div>
-            `;
-            
-            // Store episode
-            podcastEpisodes[category] = episode;
-            
-            // Update progress
-            if (!userProgress.podcastsListened.includes(category)) {
-                userProgress.podcastsListened.push(category);
-                updateProgress();
-            }
+            const transcript = applyGrammarColors(podcast.script || podcast.description || 'No transcript available');
+            document.getElementById('podcast-transcript').innerHTML = transcript;
         }
 
-        // Convert podcast to article format for practice
-        function convertPodcastToArticle(episode) {
-            const article = {
-                DATE: episode.date,
-                LEVEL: 'B2',
-                THEME: `Podcast: ${episode.title}`,
-                GERMAN_ARTICLE: episode.script,
-                ENGLISH_TRANSLATION: 'Auto-generated from podcast',
-                VOCABULARY_USED: extractVocabulary(episode.script),
-                DEEP_DIVE_GRAMMAR: 'Dialogue format with multiple speakers',
-                GRAMMAR_TOPIC_TAGS: 'Konversation,Dialog',
-                STATUS: 'Published'
-            };
+        // Play podcast (using browser TTS)
+        function playPodcast() {
+            if (!currentPodcast) return;
             
-            articles.push(article);
-            return article;
+            const text = currentPodcast.script || currentPodcast.description || '';
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'de-DE';
+            utterance.rate = 0.9;
+            
+            speechSynthesis.speak(utterance);
         }
 
-        // Extract vocabulary from text
-        function extractVocabulary(text) {
-            const words = text.match(/\b[A-ZÄÖÜ][a-zäöüß]{4,}\b/g) || [];
-            const unique = [...new Set(words)];
-            return unique.slice(0, 10).join(', ');
+        // Stop podcast
+        function stopPodcast() {
+            speechSynthesis.cancel();
         }
 
-        // Grammar drill functionality
-        function startGrammarDrill() {
-            const container = document.getElementById('drill-container');
-            const topics = Array.from(grammarTopics);
-            
-            if (topics.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary);">No grammar topics available. Load articles first.</p>';
-                return;
-            }
-            
-            // Display grammar topics for selection
-            document.getElementById('grammar-topics').innerHTML = topics.map(topic => `
-                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--card-bg); border-radius: 20px; cursor: pointer;">
-                    <input type="checkbox" value="${topic}" class="grammar-topic-check">
-                    <span style="color: var(--text-primary);">${topic}</span>
-                </label>
-            `).join('');
-            
-            container.innerHTML = `
-                <h4 style="color: var(--accent-cyan); margin-bottom: 20px;">Grammar Drill Exercises</h4>
-                <div id="drill-questions"></div>
-            `;
-            
-            generateDrillQuestions();
-        }
-
-        // Generate drill questions
-        function generateDrillQuestions() {
-            const selected = Array.from(document.querySelectorAll('.grammar-topic-check:checked')).map(cb => cb.value);
-            const container = document.getElementById('drill-questions');
-            
-            if (selected.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary);">Please select at least one grammar topic.</p>';
-                return;
-            }
-            
-            // Generate questions based on selected topics
-            const questions = [];
-            selected.forEach(topic => {
-                questions.push(generateQuestionForTopic(topic));
-            });
-            
-            container.innerHTML = questions.map((q, index) => `
-                <div style="margin-bottom: 25px; padding: 20px; background: rgba(0, 172, 193, 0.1); border-radius: 8px;">
-                    <p style="color: var(--text-primary); margin-bottom: 15px;"><strong>Question ${index + 1}:</strong> ${q.question}</p>
-                    ${q.options.map((opt, i) => `
-                        <label style="display: block; margin-bottom: 10px; cursor: pointer;">
-                            <input type="radio" name="q${index}" value="${i}">
-                            <span style="margin-left: 10px; color: var(--text-secondary);">${opt}</span>
-                        </label>
-                    `).join('')}
-                </div>
-            `).join('');
-            
-            container.innerHTML += '<button class="btn-primary" onclick="checkDrillAnswers()">Check Answers</button>';
-        }
-
-        // Generate question for topic
-        function generateQuestionForTopic(topic) {
-            const questions = {
-                'Präteritum': {
-                    question: 'Complete: Gestern ___ ich ins Kino.',
-                    options: ['gehe', 'ging', 'gegangen', 'gehen'],
-                    correct: 1
-                },
-                'Perfekt': {
-                    question: 'Complete: Ich ___ das Buch gelesen.',
-                    options: ['bin', 'habe', 'hatte', 'wurde'],
-                    correct: 1
-                },
-                'Dativ': {
-                    question: 'Complete: Ich gebe ___ Mann das Buch.',
-                    options: ['der', 'den', 'dem', 'des'],
-                    correct: 2
-                }
-            };
-            
-            return questions[topic] || {
-                question: `Practice question for ${topic}`,
-                options: ['Option A', 'Option B', 'Option C', 'Option D'],
-                correct: 0
-            };
-        }
-
-        // AI Chat functionality
-        async function sendMessage() {
+        // AI Teacher - Simple implementation
+        function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             if (!message) return;
             
-            const chatWindow = document.getElementById('chat-window');
+            const container = document.getElementById('chat-container');
             
             // Add user message
-            chatWindow.innerHTML += `
-                <div class="user-message" style="margin-bottom: 15px; text-align: right;">
-                    <p style="background: var(--accent-cyan); color: white; padding: 10px 15px; border-radius: 15px; display: inline-block; max-width: 70%;">${message}</p>
-                </div>
-            `;
+            container.innerHTML += `<div class="message user-message">${message}</div>`;
+            
+            // Simple response logic
+            setTimeout(() => {
+                const response = generateResponse(message);
+                container.innerHTML += `<div class="message ai-message">${response}</div>`;
+                container.scrollTop = container.scrollHeight;
+            }, 500);
             
             input.value = '';
+        }
+
+        // Generate AI response (simple logic)
+        function generateResponse(message) {
+            const lowerMessage = message.toLowerCase();
             
-            // Send to AI
-            try {
-                const response = await fetch('/.netlify/functions/ai-conversation', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message, context: { article: articles[currentArticleIndex] } })
-                });
-                
-                const data = await response.json();
-                
-                // Add AI response
-                chatWindow.innerHTML += `
-                    <div class="ai-message" style="margin-bottom: 15px;">
-                        <p style="background: rgba(0, 172, 193, 0.2); padding: 10px 15px; border-radius: 15px; display: inline-block; max-width: 70%;">${data.text || 'Entschuldigung, ich konnte keine Antwort generieren.'}</p>
-                    </div>
-                `;
-                
-                // Show corrections if any
-                if (data.corrections && data.corrections.length > 0) {
-                    chatWindow.innerHTML += `
-                        <div style="background: rgba(255, 193, 7, 0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-                            <strong>Corrections:</strong><br>
-                            ${data.corrections.map(c => `${c.original} → ${c.corrected}: ${c.explanation}`).join('<br>')}
+            // Check for common errors
+            const corrections = [];
+            if (lowerMessage.includes('ich habe gegangen')) {
+                corrections.push('Korrektur: "ich bin gegangen" (Bewegungsverben mit sein)');
+            }
+            if (lowerMessage.includes('der frau')) {
+                corrections.push('Korrektur: "die Frau" (feminin) oder "der Frau" (Dativ)');
+            }
+            
+            let response = 'Sehr gut! ';
+            
+            if (corrections.length > 0) {
+                response += corrections.join(' ');
+            } else {
+                response += 'Dein Deutsch wird immer besser! Weiter so!';
+            }
+            
+            return response;
+        }
+
+        // Grammar drill
+        function startDrill() {
+            const container = document.getElementById('drill-content');
+            const selectedTopics = Array.from(document.querySelectorAll('#grammar-topics input:checked')).map(cb => cb.value);
+            
+            if (selectedTopics.length === 0) {
+                alert('Please select at least one topic');
+                return;
+            }
+            
+            // Generate exercises
+            let html = '<h3>Grammar Exercises</h3>';
+            
+            if (selectedTopics.includes('articles')) {
+                html += `
+                    <div class="exercise-container">
+                        <div class="exercise-question">Choose the correct article: ___ Haus ist groß.</div>
+                        <div class="exercise-options">
+                            <div class="exercise-option" onclick="selectOption(this)">der</div>
+                            <div class="exercise-option" onclick="selectOption(this)">die</div>
+                            <div class="exercise-option" onclick="selectOption(this)">das</div>
                         </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Error sending message:', error);
-                chatWindow.innerHTML += `
-                    <div class="ai-message" style="margin-bottom: 15px;">
-                        <p style="background: rgba(244, 67, 54, 0.2); padding: 10px 15px; border-radius: 15px;">Error connecting to AI teacher. Please try again.</p>
                     </div>
                 `;
             }
             
-            chatWindow.scrollTop = chatWindow.scrollHeight;
+            if (selectedTopics.includes('verbs')) {
+                html += `
+                    <div class="exercise-container">
+                        <div class="exercise-question">Conjugate: Ich ___ (gehen) zur Schule.</div>
+                        <div class="exercise-options">
+                            <div class="exercise-option" onclick="selectOption(this)">gehe</div>
+                            <div class="exercise-option" onclick="selectOption(this)">gehst</div>
+                            <div class="exercise-option" onclick="selectOption(this)">geht</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '<button class="btn btn-primary" onclick="checkDrill()" style="margin-top: 20px;">Check Answers</button>';
+            container.innerHTML = html;
         }
 
-        // Progress tracking
+        // Select option
+        function selectOption(element) {
+            const parent = element.parentElement;
+            parent.querySelectorAll('.exercise-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // Check drill
+        function checkDrill() {
+            const selected = document.querySelectorAll('.exercise-option.selected');
+            alert(`You completed ${selected.length} questions!`);
+            
+            userProgress.exercises += selected.length;
+            saveProgress();
+            updateProgressDisplay();
+        }
+
+        // Progress management
         function loadProgress() {
             const saved = localStorage.getItem('germanProgress');
             if (saved) {
                 userProgress = JSON.parse(saved);
+                
+                // Check streak
+                const today = new Date().toDateString();
+                if (userProgress.lastVisit !== today) {
+                    const lastVisit = new Date(userProgress.lastVisit);
+                    const daysDiff = Math.floor((new Date() - lastVisit) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff === 1) {
+                        userProgress.streak++;
+                    } else if (daysDiff > 1) {
+                        userProgress.streak = 1;
+                    }
+                    
+                    userProgress.lastVisit = today;
+                    saveProgress();
+                }
             }
-            updateProgressDisplay();
         }
 
-        function updateProgress() {
+        function saveProgress() {
             localStorage.setItem('germanProgress', JSON.stringify(userProgress));
-            updateProgressDisplay();
         }
 
         function updateProgressDisplay() {
-            document.getElementById('articles-read').textContent = userProgress.articlesRead.length;
-            document.getElementById('podcasts-listened').textContent = userProgress.podcastsListened.length;
-            document.getElementById('exercises-completed').textContent = userProgress.exercisesCompleted;
-            document.getElementById('current-streak').textContent = `${userProgress.streak} days`;
+            document.getElementById('stat-articles').textContent = userProgress.articles.length;
+            document.getElementById('stat-podcasts').textContent = userProgress.podcasts.length;
+            document.getElementById('stat-exercises').textContent = userProgress.exercises;
+            document.getElementById('stat-streak').textContent = userProgress.streak;
             
-            // Update level progress bars
-            const levels = ['A2-B1', 'B2', 'C1+'];
-            levels.forEach(level => {
-                const levelArticles = articles.filter(a => a.LEVEL === level);
-                const readArticles = levelArticles.filter(a => userProgress.articlesRead.includes(articles.indexOf(a)));
-                const progress = levelArticles.length > 0 ? (readArticles.length / levelArticles.length * 100) : 0;
+            // Update level progress
+            const levels = { 'A2-B1': 0, 'B2': 0, 'C1+': 0 };
+            
+            userProgress.articles.forEach(index => {
+                if (articles[index]) {
+                    levels[articles[index].level]++;
+                }
+            });
+            
+            Object.keys(levels).forEach(level => {
+                const levelArticles = articles.filter(a => a.level === level);
+                const progress = levelArticles.length > 0 ? (levels[level] / levelArticles.length * 100) : 0;
                 
                 const levelKey = level.replace('-', '').replace('+', '').toLowerCase();
-                document.getElementById(`${levelKey}-progress`).textContent = `${Math.round(progress)}%`;
-                document.getElementById(`${levelKey}-bar`).style.width = `${progress}%`;
+                document.getElementById(`progress-${levelKey}`).textContent = `${Math.round(progress)}%`;
+                document.getElementById(`progress-bar-${levelKey}`).style.width = `${progress}%`;
             });
         }
 
-        // Helper functions
-        function navigateArticle(direction) {
-            if (direction === 'next') {
-                currentArticleIndex = (currentArticleIndex + 1) % articles.length;
-            } else {
-                currentArticleIndex = (currentArticleIndex - 1 + articles.length) % articles.length;
-            }
-            displayArticle(currentArticleIndex);
-        }
-
-        function showAllArticles() {
-            document.getElementById('article-display-container').style.display = 'none';
-            document.getElementById('level-navigation').style.display = 'block';
-        }
-
-        function playPodcast(category) {
-            const episode = podcastEpisodes[category];
-            if (!episode) return;
-            
-            // Use speech synthesis to play
-            const utterance = new SpeechSynthesisUtterance(episode.script);
-            utterance.lang = 'de-DE';
-            utterance.rate = 0.9;
-            speechSynthesis.speak(utterance);
-        }
-
-        function showTranscript(category) {
-            const transcript = document.getElementById(`transcript-${category}`);
-            transcript.style.display = transcript.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function checkAnswers() {
-            const feedback = document.getElementById('exercise-feedback');
-            feedback.innerHTML = '<p style="color: var(--accent-cyan);">✓ Answers checked! Keep practicing to improve.</p>';
-            userProgress.exercisesCompleted++;
-            updateProgress();
-        }
-
-        function checkDrillAnswers() {
-            userProgress.exercisesCompleted++;
-            updateProgress();
-            alert('Drill completed! Check your progress page for updates.');
-        }
-
-        // Sample data fallback
+        // Sample data functions
         function getSampleArticles() {
             return [
                 {
-                    DATE: '2024-01-15',
-                    LEVEL: 'A2-B1',
+                    DATE: '2024-01-20',
                     THEME: 'Daily Routine',
                     STATUS: 'Published',
-                    GERMAN_ARTICLE: 'Jeden Morgen stehe ich um sieben Uhr auf. Ich frühstücke mit meiner Familie. Dann gehe ich zur Arbeit.',
-                    ENGLISH_TRANSLATION: 'Every morning I get up at seven o\'clock. I have breakfast with my family. Then I go to work.',
-                    VOCABULARY_USED: 'aufstehen - to get up, frühstücken - to have breakfast, Familie - family',
-                    DEEP_DIVE_GRAMMAR: 'Present tense regular verbs',
-                    GRAMMAR_TOPIC_TAGS: 'Präsens,Alltag'
+                    GERMAN_ARTICLE: 'Jeden Morgen stehe ich um sieben Uhr auf. Ich frühstücke mit meiner Familie. Der Kaffee ist heiß und das Brot ist frisch.',
+                    ENGLISH_TRANSLATION: 'Every morning I get up at seven o\'clock. I have breakfast with my family. The coffee is hot and the bread is fresh.',
+                    VOCABULARY_USED: 'aufstehen - to get up, frühstücken - to have breakfast, der Kaffee - coffee',
+                    DEEP_DIVE_GRAMMAR: 'Present tense regular verbs, definite articles',
+                    level: 'A2-B1'
                 },
                 {
-                    DATE: '2024-01-14',
-                    LEVEL: 'B2',
+                    DATE: '2024-01-19',
                     THEME: 'Technology',
                     STATUS: 'Published',
-                    GERMAN_ARTICLE: 'Die künstliche Intelligenz verändert unsere Arbeitswelt grundlegend. Viele Prozesse werden automatisiert.',
-                    ENGLISH_TRANSLATION: 'Artificial intelligence is fundamentally changing our working world. Many processes are being automated.',
-                    VOCABULARY_USED: 'künstliche Intelligenz - artificial intelligence, verändern - to change, Arbeitswelt - working world',
-                    DEEP_DIVE_GRAMMAR: 'Passive voice with werden',
-                    GRAMMAR_TOPIC_TAGS: 'Passiv,Technologie'
-                },
-                {
-                    DATE: '2024-01-13',
-                    LEVEL: 'C1+',
-                    THEME: 'Philosophy',
-                    STATUS: 'Published',
-                    GERMAN_ARTICLE: 'Die Frage nach dem Sinn des Lebens beschäftigt die Menschheit seit Jahrtausenden. Philosophen haben unterschiedliche Antworten gefunden.',
-                    ENGLISH_TRANSLATION: 'The question of the meaning of life has occupied humanity for millennia. Philosophers have found different answers.',
-                    VOCABULARY_USED: 'Sinn des Lebens - meaning of life, Menschheit - humanity, Jahrtausende - millennia',
-                    DEEP_DIVE_GRAMMAR: 'Perfect tense with haben, abstract concepts',
-                    GRAMMAR_TOPIC_TAGS: 'Perfekt,Philosophie'
+                    GERMAN_ARTICLE: 'Die künstliche Intelligenz verändert unsere Welt. Viele Menschen nutzen KI jeden Tag.',
+                    ENGLISH_TRANSLATION: 'Artificial intelligence is changing our world. Many people use AI every day.',
+                    VOCABULARY_USED: 'künstliche Intelligenz - AI, verändern - to change, nutzen - to use',
+                    DEEP_DIVE_GRAMMAR: 'Present tense, accusative case',
+                    level: 'B2'
                 }
             ];
+        }
+
+        function getSamplePodcast(category) {
+            return {
+                title: `German ${category} Podcast`,
+                script: 'Willkommen zu unserem Podcast! Heute sprechen wir über interessante Themen. Die deutsche Sprache ist schön und wichtig.',
+                description: 'A sample German podcast episode'
+            };
         }
     </script>
 </body>
