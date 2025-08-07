@@ -89,7 +89,7 @@ cd ../..
 Create a `.env` file in the root directory:
 ```env
 # Google Sheets API (optional - works without it using sample data)
-VITE_GOOGLE_SHEET_ID=1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8
+VITE_GOOGLE_SHEET_ID= ###
 VITE_GOOGLE_API_KEY=your-google-api-key-here
 
 # Gemini AI (optional - basic responses work without it)
