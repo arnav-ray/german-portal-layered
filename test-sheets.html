@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Connection Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .pending {
+            color: orange;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .log-entry {
+            padding: 5px;
+            margin: 2px 0;
+            border-left: 3px solid #ccc;
+            padding-left: 10px;
+        }
+        .log-success {
+            border-left-color: green;
+            background: #f0fff0;
+        }
+        .log-error {
+            border-left-color: red;
+            background: #fff0f0;
+        }
+        .log-info {
+            border-left-color: blue;
+            background: #f0f0ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Google Sheets Connection Debugger</h1>
+    
+    <div class="test-section">
+        <h2>Sheet Information</h2>
+        <p><strong>Sheet ID:</strong> 1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8</p>
+        <p><strong>Sheet URL:</strong> <a href="https://docs.google.com/spreadsheets/d/1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8/edit" target="_blank">Open Sheet</a></p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Controls</h2>
+        <button onclick="testNetlifyFunction()">1. Test Netlify Function</button>
+        <button onclick="testVisualizationAPI()">2. Test Visualization API</button>
+        <button onclick="testCSVExport()">3. Test CSV Export</button>
+        <button onclick="testSheetsAPIv4()">4. Test Sheets API v4</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="logs"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Data Preview</h2>
+        <div id="dataPreview"></div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1WbU27bSvjaHWCdCl7deU9-iEBTCmlSZe8l99-ppxfS8';
+        
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            logsDiv.appendChild(entry);
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            document.getElementById('dataPreview').innerHTML = '';
+            log('Logs cleared', 'info');
+        }
+
+        function displayData(data, method) {
+            const preview = document.getElementById('dataPreview');
+            preview.innerHTML = `
+                <h3>Data from: ${method}</h3>
+                <p><strong>Rows found:</strong> ${data.length}</p>
+                <pre>${JSON.stringify(data.slice(0, 3), null, 2)}</pre>
+            `;
+        }
+
+        // Test 1: Netlify Function
+        async function testNetlifyFunction() {
+            log('Testing Netlify Function...', 'info');
+            
+            try {
+                const response = await fetch('/.netlify/functions/get-articles');
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                const data = await response.json();
+                
+                if (data.debug) {
+                    log(`Debug info: ${JSON.stringify(data.debug)}`, 'info');
+                }
+                
+                if (data.values) {
+                    log(`✅ Success! Got ${data.values.length} rows via ${data.method}`, 'success');
+                    displayData(data.values, 'Netlify Function');
+                } else if (data.error) {
+                    log(`❌ Error: ${data.error}`, 'error');
+                } else {
+                    log(`⚠️ Unexpected response: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Fetch error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test 2: Google Visualization API
+        async function testVisualizationAPI() {
+            log('Testing Google Visualization API (for public sheets)...', 'info');
+            
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+            log(`Fetching: ${url}`, 'info');
+            
+            try {
+                const response = await fetch(url);
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    log(`❌ Failed with status ${response.status}`, 'error');
+                    return;
+                }
+                
+                const text = await response.text();
+                log(`Response length: ${text.length} characters`, 'info');
+                
+                // Extract JSON from response
+                let jsonString = text;
+                if (text.includes('google.visualization.Query.setResponse')) {
+                    jsonString = text.substring(
+                        text.indexOf('(') + 1,
+                        text.lastIndexOf(')')
+                    );
+                } else if (text.includes('/*O_o*/')) {
+                    jsonString = text.substring(
+                        text.indexOf('{'),
+                        text.lastIndexOf('}') + 1
+                    );
+                }
+                
+                const data = JSON.parse(jsonString);
+                
+                if (data.status === 'error') {
+                    log(`❌ API Error: ${data.errors?.[0]?.message || 'Unknown error'}`, 'error');
+                    log('This usually means the sheet is not public', 'info');
+                    return;
+                }
+                
+                const values = [];
+                
+                // Extract headers
+                if (data.table?.cols) {
+                    values.push(data.table.cols.map(col => col.label || ''));
+                }
+                
+                // Extract rows
+                if (data.table?.rows) {
+                    data.table.rows.forEach(row => {
+                        values.push(row.c.map(cell => cell ? (cell.v || '') : ''));
+                    });
+                }
+                
+                log(`✅ Success! Got ${values.length} rows`, 'success');
+                displayData(values, 'Visualization API');
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test 3: CSV Export
+        async function testCSVExport() {
+            log('Testing CSV Export (for public sheets)...', 'info');
+            
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+            log(`Fetching: ${url}`, 'info');
+            
+            try {
+                const response = await fetch(url);
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    log(`❌ Failed with status ${response.status}`, 'error');
+                    if (response.status === 404) {
+                        log('404 means the sheet is not public or doesn\'t exist', 'info');
+                    }
+                    return;
+                }
+                
+                const csvText = await response.text();
+                log(`CSV length: ${csvText.length} characters`, 'info');
+                
+                // Parse CSV (simple parser)
+                const lines = csvText.split('\n');
+                const values = lines.map(line => line.split(',').map(cell => cell.trim()));
+                
+                log(`✅ Success! Got ${values.length} rows`, 'success');
+                displayData(values, 'CSV Export');
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test 4: Google Sheets API v4
+        async function testSheetsAPIv4() {
+            log('Testing Google Sheets API v4 (requires API key)...', 'info');
+            
+            const apiKey = prompt('Enter your Google API Key (or cancel to skip):');
+            if (!apiKey) {
+                log('⚠️ Skipped - no API key provided', 'info');
+                return;
+            }
+            
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1?key=${apiKey}`;
+            log(`Fetching with API key...`, 'info');
+            
+            try {
+                const response = await fetch(url);
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    log(`❌ API Error: ${error.error?.message || 'Unknown error'}`, 'error');
+                    
+                    if (response.status === 403) {
+                        log('403 Forbidden - Check if API key has Sheets API enabled', 'info');
+                    } else if (response.status === 400) {
+                        log('400 Bad Request - Check API key format', 'info');
+                    }
+                    return;
+                }
+                
+                const data = await response.json();
+                log(`✅ Success! Got ${data.values?.length || 0} rows`, 'success');
+                displayData(data.values || [], 'Sheets API v4');
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic test on load
+        window.addEventListener('load', () => {
+            log('Page loaded. Ready to test!', 'success');
+            log('Click the buttons above to test different connection methods', 'info');
+            
+            // Check if we're on Netlify
+            if (window.location.hostname.includes('netlify') || window.location.hostname.includes('arnavray')) {
+                log('✅ Running on Netlify - Function endpoint should work', 'success');
+            } else {
+                log('⚠️ Not on Netlify - Function endpoint may not work locally', 'info');
+            }
+        });
+    </script>
+</body>
+</html>
