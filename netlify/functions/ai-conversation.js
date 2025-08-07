@@ -2,16 +2,16 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 exports.handler = async (event, context) => {
+  // CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+  };
+  
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-      }
-    };
+    return { statusCode: 200, headers };
   }
 
   try {
@@ -21,7 +21,7 @@ exports.handler = async (event, context) => {
       return {
         statusCode: 400,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          ...headers,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ error: 'Message is required' })
@@ -32,15 +32,16 @@ exports.handler = async (event, context) => {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
     if (!GEMINI_API_KEY) {
-      console.log('Gemini API key not found, using fallback response');
-      // Fallback to simple response if no API key
+      console.log('Gemini API key not found, using enhanced fallback response');
+      
+      // Enhanced fallback response with better grammar checking
       return {
         statusCode: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          ...headers,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(generateFallbackResponse(message, userContext))
+        body: JSON.stringify(generateEnhancedFallbackResponse(message, userContext))
       };
     }
 
@@ -49,21 +50,24 @@ exports.handler = async (event, context) => {
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     // Build conversation context
-    const systemPrompt = `Du bist ein freundlicher Deutschlehrer. Deine Aufgabe ist es:
-1. Auf Deutsch zu antworten
-2. Grammatikfehler zu korrigieren (mit Erklärungen)
-3. Dem Schüler beim Deutschlernen zu helfen
-4. Das Niveau anzupassen (aktuell: ${userContext?.userLevel || 'B2'})
+    const systemPrompt = `Du bist ein freundlicher und geduldiger Deutschlehrer. Deine Aufgabe:
 
-Wenn der Schüler Fehler macht, korrigiere sie freundlich und erkläre warum.
+1. IMMER auf Deutsch antworten
+2. Grammatikfehler freundlich korrigieren mit Erklärungen
+3. Das Sprachniveau anpassen (aktuell: ${userContext?.article?.LEVEL || 'B2'})
+4. Ermutigung und positive Verstärkung geben
+5. Auf den Kontext des Artikels oder Podcasts eingehen, wenn vorhanden
+
+${userContext?.article ? `Der Schüler lernt gerade über: "${userContext.article.THEME}"` : ''}
+
 Antworte im JSON-Format:
 {
-  "text": "Deine Antwort auf Deutsch",
+  "text": "Deine hilfreiche Antwort auf Deutsch",
   "corrections": [
     {
       "original": "falscher Text",
       "corrected": "korrigierter Text",
-      "explanation": "Erklärung auf Deutsch"
+      "explanation": "Erklärung warum und Regel"
     }
   ],
   "metrics": {
@@ -75,53 +79,47 @@ Antworte im JSON-Format:
   "suggestions": [
     {
       "type": "Grammar/Vocabulary/Expression",
-      "action": "Konkrete Verbesserungsvorschläge"
+      "action": "Konkrete Übungsvorschläge"
     }
   ]
 }`;
 
-    // Build conversation history for context
+    // Build conversation with context
     let conversationContext = systemPrompt + "\n\n";
     
-    if (userContext?.podcast) {
-      conversationContext += `Der Schüler hat gerade den Podcast "${userContext.podcast.title}" gehört.\n`;
-    }
-    
     if (history && history.length > 0) {
-      conversationContext += "Bisheriger Gesprächsverlauf:\n";
+      conversationContext += "Bisheriges Gespräch:\n";
       history.slice(-5).forEach(h => {
         conversationContext += `${h.sender === 'user' ? 'Schüler' : 'Lehrer'}: ${h.text}\n`;
       });
     }
     
-    conversationContext += `\nSchüler: ${message}\n\nBitte antworte als Deutschlehrer im JSON-Format:`;
+    conversationContext += `\nSchüler: ${message}\n\nBitte antworte als hilfreicher Deutschlehrer im JSON-Format:`;
 
     // Generate response with Gemini
     const result = await model.generateContent(conversationContext);
     const response = await result.response;
     const responseText = response.text();
     
-    // Try to parse as JSON, with fallback
+    // Parse response
     let aiResponse;
     try {
-      // Remove any markdown code blocks if present
       const cleanedResponse = responseText.replace(/```json\n?|\n?```/g, '').trim();
       aiResponse = JSON.parse(cleanedResponse);
     } catch (parseError) {
-      console.error('Failed to parse Gemini response as JSON:', parseError);
-      // Fallback: create structured response from plain text
+      console.error('Failed to parse Gemini response:', parseError);
       aiResponse = {
-        text: responseText,
-        corrections: extractCorrections(message),
-        metrics: calculateMetrics(message),
-        suggestions: generateSuggestions(message)
+        text: responseText || "Sehr gut! Lass uns weiter üben.",
+        corrections: extractGrammarCorrections(message),
+        metrics: calculateDetailedMetrics(message),
+        suggestions: generateLearningSuggestions(message, userContext)
       };
     }
 
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        ...headers,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(aiResponse)
@@ -129,129 +127,247 @@ Antworte im JSON-Format:
     
   } catch (error) {
     console.error('Error in AI conversation:', error);
+    
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        ...headers,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ 
-        error: 'Failed to process conversation',
-        text: 'Entschuldigung, es gab einen Fehler. Bitte versuchen Sie es erneut.',
-        corrections: [],
-        metrics: { accuracy: 75, fluency: 75, grammar_accuracy: 75, vocabulary_usage: 75 },
-        suggestions: []
-      })
+      body: JSON.stringify(generateEnhancedFallbackResponse(
+        event.body ? JSON.parse(event.body).message : '',
+        event.body ? JSON.parse(event.body).context : null
+      ))
     };
   }
 };
 
-// Fallback response when no API key is available
-function generateFallbackResponse(message, context) {
-  const corrections = extractCorrections(message);
+// Enhanced fallback response with better grammar checking
+function generateEnhancedFallbackResponse(message, context) {
+  const corrections = extractGrammarCorrections(message);
+  const metrics = calculateDetailedMetrics(message);
+  const suggestions = generateLearningSuggestions(message, context);
   
-  let responseText = 'Vielen Dank für deine Nachricht! ';
+  // Generate contextual response
+  let responseText = '';
   
-  if (context?.podcast) {
-    responseText += `Ich hoffe, der Podcast "${context.podcast.title}" war interessant. `;
+  if (context?.article) {
+    responseText = `Sehr gut, dass du den Artikel über "${context.article.THEME}" liest! `;
   }
   
   if (corrections.length > 0) {
-    responseText += 'Ich habe einige kleine Korrekturen für dich. ';
+    responseText += 'Ich habe ein paar kleine Korrekturen für dich. ';
+  } else {
+    responseText += 'Dein Deutsch wird immer besser! ';
   }
   
-  responseText += 'Wie kann ich dir beim Deutschlernen helfen?';
+  // Add encouraging feedback
+  if (metrics.accuracy >= 80) {
+    responseText += 'Ausgezeichnet! Du machst große Fortschritte. ';
+  } else if (metrics.accuracy >= 60) {
+    responseText += 'Gut gemacht! Weiter so! ';
+  } else {
+    responseText += 'Keine Sorge, Übung macht den Meister! ';
+  }
+  
+  responseText += 'Was möchtest du als Nächstes üben?';
   
   return {
     text: responseText,
     corrections: corrections,
-    metrics: calculateMetrics(message),
-    suggestions: generateSuggestions(message)
+    metrics: metrics,
+    suggestions: suggestions
   };
 }
 
-// Helper function to extract common grammar corrections
-function extractCorrections(message) {
+// Extract grammar corrections with detailed rules
+function extractGrammarCorrections(message) {
   const corrections = [];
+  const text = message.toLowerCase();
   
-  // Common German grammar mistakes
-  const patterns = [
+  // Common German grammar mistakes database
+  const grammarRules = [
+    // Verb conjugation errors
     {
-      regex: /\bich\s+habe\s+gegangen\b/i,
+      pattern: /\bich\s+habe\s+gegangen\b/i,
       original: 'ich habe gegangen',
       corrected: 'ich bin gegangen',
-      explanation: 'Bewegungsverben bilden das Perfekt mit "sein".'
+      explanation: 'Bewegungsverben (gehen, kommen, fahren) bilden das Perfekt mit "sein", nicht mit "haben".'
     },
     {
-      regex: /\bich\s+bin\s+gemacht\b/i,
+      pattern: /\bich\s+bin\s+gemacht\b/i,
       original: 'ich bin gemacht',
       corrected: 'ich habe gemacht',
-      explanation: '"Machen" bildet das Perfekt mit "haben".'
+      explanation: 'Das Verb "machen" bildet das Perfekt mit "haben", nicht mit "sein".'
     },
+    // Article errors
     {
-      regex: /\bder\s+Frau\b/,
+      pattern: /\bder\s+frau\b/i,
       original: 'der Frau',
-      corrected: 'die Frau',
-      explanation: '"Frau" ist feminin (Nominativ: die Frau).'
+      corrected: 'die Frau (Nominativ) / der Frau (Dativ/Genitiv)',
+      explanation: '"Frau" ist feminin. Im Nominativ: die Frau. Im Dativ/Genitiv: der Frau.'
     },
     {
-      regex: /\bein\s+Haus\b/,
-      original: 'ein Haus',
-      corrected: 'ein Haus',
-      explanation: 'Korrekt! "Haus" ist Neutrum (ein Haus).'
+      pattern: /\bein\s+mann\b/i,
+      original: 'ein Mann',
+      corrected: 'ein Mann',
+      explanation: 'Korrekt! "Mann" ist maskulin: ein Mann.'
+    },
+    // Case errors
+    {
+      pattern: /\bich\s+helfe\s+du\b/i,
+      original: 'ich helfe du',
+      corrected: 'ich helfe dir',
+      explanation: 'Nach "helfen" steht der Dativ: ich helfe dir (nicht du).'
+    },
+    {
+      pattern: /\bmit\s+mein\s+freund\b/i,
+      original: 'mit mein Freund',
+      corrected: 'mit meinem Freund',
+      explanation: 'Nach "mit" steht der Dativ: meinem (nicht mein).'
+    },
+    // Word order errors
+    {
+      pattern: /\bgestern\s+ich\s+war\b/i,
+      original: 'gestern ich war',
+      corrected: 'gestern war ich',
+      explanation: 'Bei Zeitangaben am Satzanfang: Verb an zweiter Position, dann Subjekt.'
+    },
+    // Modal verb errors
+    {
+      pattern: /\bich\s+kann\s+zu\s+gehen\b/i,
+      original: 'ich kann zu gehen',
+      corrected: 'ich kann gehen',
+      explanation: 'Nach Modalverben steht der Infinitiv ohne "zu".'
+    },
+    // Separable verbs
+    {
+      pattern: /\bich\s+anrufe\b/i,
+      original: 'ich anrufe',
+      corrected: 'ich rufe an',
+      explanation: 'Trennbare Verben: Der Präfix kommt ans Satzende.'
     }
   ];
   
-  patterns.forEach(pattern => {
-    if (message.match(pattern.regex)) {
+  // Check each rule
+  grammarRules.forEach(rule => {
+    if (text.match(rule.pattern)) {
       corrections.push({
-        original: pattern.original,
-        corrected: pattern.corrected,
-        explanation: pattern.explanation
+        original: rule.original,
+        corrected: rule.corrected,
+        explanation: rule.explanation
       });
     }
   });
   
-  return corrections;
+  // Check for missing capitals on nouns
+  const words = message.split(/\s+/);
+  words.forEach((word, index) => {
+    // Skip first word of sentence
+    if (index > 0 && words[index - 1].endsWith('.')) return;
+    
+    // Common nouns that should be capitalized
+    const commonNouns = ['haus', 'mann', 'frau', 'kind', 'arbeit', 'schule', 'auto', 'buch', 'stadt', 'land'];
+    if (commonNouns.includes(word.toLowerCase()) && word[0] === word[0].toLowerCase()) {
+      corrections.push({
+        original: word,
+        corrected: word.charAt(0).toUpperCase() + word.slice(1),
+        explanation: 'Substantive werden im Deutschen großgeschrieben.'
+      });
+    }
+  });
+  
+  return corrections.slice(0, 3); // Limit to 3 corrections to not overwhelm
 }
 
-// Calculate simple metrics based on message
-function calculateMetrics(message) {
+// Calculate detailed metrics
+function calculateDetailedMetrics(message) {
   const wordCount = message.split(/\s+/).length;
-  const corrections = extractCorrections(message);
+  const corrections = extractGrammarCorrections(message);
+  const sentenceCount = (message.match(/[.!?]+/g) || []).length || 1;
+  
+  // Calculate accuracy based on corrections
+  const errorRate = corrections.length / Math.max(sentenceCount, 1);
+  const accuracy = Math.max(30, Math.min(95, 100 - (errorRate * 20)));
+  
+  // Calculate fluency based on sentence length and complexity
+  const avgWordsPerSentence = wordCount / sentenceCount;
+  const fluency = Math.min(90, 50 + (avgWordsPerSentence * 3));
+  
+  // Grammar accuracy
+  const grammarAccuracy = corrections.length === 0 ? 90 : Math.max(40, 90 - (corrections.length * 15));
+  
+  // Vocabulary usage based on word variety and length
+  const uniqueWords = new Set(message.toLowerCase().split(/\s+/));
+  const vocabScore = Math.min(85, 40 + (uniqueWords.size * 3));
   
   return {
-    accuracy: Math.max(70, Math.min(95, 100 - (corrections.length * 10))),
-    fluency: Math.min(90, 60 + wordCount * 2),
-    grammar_accuracy: corrections.length === 0 ? 95 : 75,
-    vocabulary_usage: Math.min(85, 70 + Math.floor(wordCount / 2))
+    accuracy: Math.round(accuracy),
+    fluency: Math.round(fluency),
+    grammar_accuracy: Math.round(grammarAccuracy),
+    vocabulary_usage: Math.round(vocabScore)
   };
 }
 
-// Generate learning suggestions
-function generateSuggestions(message) {
+// Generate learning suggestions based on errors and context
+function generateLearningSuggestions(message, context) {
   const suggestions = [];
-  const wordCount = message.split(/\s+/).length;
-  const corrections = extractCorrections(message);
+  const corrections = extractGrammarCorrections(message);
+  const level = context?.article?.LEVEL || 'B2';
   
+  // Grammar-based suggestions
   if (corrections.length > 0) {
-    suggestions.push({
-      type: 'Grammar',
-      action: 'Übe die korrigierten Strukturen mit ähnlichen Sätzen'
+    const grammarTopics = new Set();
+    corrections.forEach(c => {
+      if (c.explanation.includes('Perfekt')) grammarTopics.add('Perfekt');
+      if (c.explanation.includes('Dativ')) grammarTopics.add('Dativ');
+      if (c.explanation.includes('Akkusativ')) grammarTopics.add('Akkusativ');
+      if (c.explanation.includes('Modal')) grammarTopics.add('Modalverben');
+      if (c.explanation.includes('trennbar')) grammarTopics.add('Trennbare Verben');
+    });
+    
+    grammarTopics.forEach(topic => {
+      suggestions.push({
+        type: 'Grammar',
+        action: `Übe ${topic} mit den Übungen im Grammar Drill Bereich`
+      });
     });
   }
   
+  // Length-based suggestions
+  const wordCount = message.split(/\s+/).length;
   if (wordCount < 10) {
     suggestions.push({
       type: 'Expression',
-      action: 'Versuche längere, komplexere Sätze zu bilden'
+      action: 'Versuche längere Sätze mit Nebensätzen zu bilden (weil, dass, wenn)'
     });
   }
   
-  suggestions.push({
-    type: 'Vocabulary',
-    action: 'Integriere neue Wörter aus Podcasts in deine Antworten'
-  });
+  // Level-appropriate suggestions
+  if (level === 'A2-B1') {
+    suggestions.push({
+      type: 'Vocabulary',
+      action: 'Erweitere deinen Wortschatz mit Alltagsthemen aus den A2-B1 Artikeln'
+    });
+  } else if (level === 'B2') {
+    suggestions.push({
+      type: 'Grammar',
+      action: 'Übe Konjunktiv II und Passiv für B2-Niveau'
+    });
+  } else if (level === 'C1+') {
+    suggestions.push({
+      type: 'Expression',
+      action: 'Verwende mehr idiomatische Ausdrücke und komplexe Satzstrukturen'
+    });
+  }
   
-  return suggestions;
+  // Context-based suggestions
+  if (context?.article?.THEME) {
+    suggestions.push({
+      type: 'Vocabulary',
+      action: `Lerne die Fachvokabeln zum Thema "${context.article.THEME}"`
+    });
+  }
+  
+  return suggestions.slice(0, 3); // Limit to 3 suggestions
 }
