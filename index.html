@@ -320,21 +320,47 @@
     // 3. DATA FETCHING & PARSING (NOW FROM GOOGLE SHEETS)
     // ===================================================================================
     async function loadArticlesFromSheet(sheetUrl) {
+        // Using a CORS proxy to bypass browser security restrictions.
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         try {
-            const response = await fetch(sheetUrl);
+            const response = await fetch(proxyUrl + sheetUrl);
             if (!response.ok) {
                 throw new Error(`Could not fetch sheet. Status: ${response.status}`);
             }
             const csvText = await response.text();
             
-            // Basic CSV parser
-            const rows = csvText.split(/\r?\n/).map(row => row.split(','));
+            // Robust CSV parser to handle commas within quotes
+            const rows = [];
+            let currentRow = [];
+            let inQuotes = false;
+            let currentField = '';
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    currentRow.push(currentField);
+                    currentField = '';
+                } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                    if (i > 0 && csvText[i-1] !== '\n' && csvText[i-1] !== '\r') {
+                         currentRow.push(currentField);
+                         rows.push(currentRow);
+                         currentRow = [];
+                         currentField = '';
+                    }
+                } else {
+                    currentField += char;
+                }
+            }
+            if (currentField) currentRow.push(currentField);
+            if (currentRow.length > 0) rows.push(currentRow);
+
             const headers = rows[0].map(h => h.trim());
             
             const jsonData = rows.slice(1).map(row => {
                 let obj = {};
                 headers.forEach((header, i) => {
-                    obj[header] = row[i] ? row[i].replace(/"/g, '') : '';
+                    obj[header] = row[i] ? row[i] : '';
                 });
                 return obj;
             });
@@ -342,7 +368,7 @@
             return jsonData.filter(article => article.STATUS === 'Published');
         } catch (error) {
             console.error('Failed to load articles from Google Sheet:', error);
-            document.getElementById('article-selection-card').innerHTML = '<h2>Error</h2><p>Could not load articles from the source. Please check the console for details.</p>';
+            document.getElementById('article-selection-card').innerHTML = '<h2>Error</h2><p>Could not load articles. This might be due to a network issue or the CORS proxy. Please try again later.</p>';
             return []; // Return empty array on failure
         }
     }
@@ -354,7 +380,7 @@
     function setupLevelInteraction() {
         const container = document.getElementById('article-selection-card');
         if (!container || articles.length === 0) {
-            container.innerHTML = '<h2>No Articles Found</h2><p>No published articles could be loaded. Please check your Google Sheet configuration.</p>';
+            container.innerHTML = '<h2>No Articles Found</h2><p>No published articles could be loaded. Please check your Google Sheet configuration and make sure it is published to the web.</p>';
             return;
         }
 
@@ -732,7 +758,7 @@
             speechSynthesis.onvoiceschanged = populateVoiceList;
         }
 
-        // *** IMPORTANT: REPLACE WITH YOUR PUBLISHED GOOGLE SHEET URL ***
+        // *** THIS IS THE LINE TO UPDATE ***
         const G_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ1E9A-efKS8f3UcqqwAXoVNyqqgB2eHdyB2VUl1Sxvjeb3xSO3yeLyWnRfd1a5aOMyV4BCzOr6WNrT/pub?gid=0&single=true&output=csv';
         
         articles = await loadArticlesFromSheet(G_SHEET_URL);
