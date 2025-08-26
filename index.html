@@ -236,6 +236,8 @@
             if (this.cache.has(cleanWord)) return this.cache.get(cleanWord);
             
             try {
+                // NOTE: This will fail when run locally due to CORS policy.
+                // It will work when deployed to a web server.
                 const url = `https://api.dictionaryapi.dev/api/v2/entries/de/${encodeURIComponent(cleanWord)}`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
@@ -315,48 +317,36 @@
     }
 
     // ===================================================================================
-    // 3. DATA FETCHING & PARSING
+    // 3. DATA FETCHING & PARSING (NOW FROM GOOGLE SHEETS)
     // ===================================================================================
-    async function loadArticles() {
+    async function loadArticlesFromSheet(sheetUrl) {
         try {
-            console.warn('Using fallback articles. Replace getFallbackArticles() with your data fetching logic.');
-            return getFallbackArticles();
+            const response = await fetch(sheetUrl);
+            if (!response.ok) {
+                throw new Error(`Could not fetch sheet. Status: ${response.status}`);
+            }
+            const csvText = await response.text();
+            
+            // Basic CSV parser
+            const rows = csvText.split(/\r?\n/).map(row => row.split(','));
+            const headers = rows[0].map(h => h.trim());
+            
+            const jsonData = rows.slice(1).map(row => {
+                let obj = {};
+                headers.forEach((header, i) => {
+                    obj[header] = row[i] ? row[i].replace(/"/g, '') : '';
+                });
+                return obj;
+            });
+
+            return jsonData.filter(article => article.STATUS === 'Published');
         } catch (error) {
-            console.error('Failed to load articles:', error);
-            return [];
+            console.error('Failed to load articles from Google Sheet:', error);
+            document.getElementById('article-selection-card').innerHTML = '<h2>Error</h2><p>Could not load articles from the source. Please check the console for details.</p>';
+            return []; // Return empty array on failure
         }
     }
 
-    function getFallbackArticles() {
-        return [
-            {
-                LEVEL: 'A2-B1', THEME: 'Die moderne Arbeitswelt', STATUS: 'Published',
-                GERMAN_ARTICLE: `<span class="noun-n" title="Noun (das)" onclick="showWordInfo('Homeoffice', 'Homeoffice')">Homeoffice</span> <span class="conjunction" title="Conjunction" onclick="showWordInfo('oder', 'oder')">oder</span> <span class="noun-n" title="Noun (das)" onclick="showWordInfo('Büro', 'Büro')">Büro</span><span class="punctuation">:</span> <span class="adverb" title="Adverb" onclick="showWordInfo('Wo', 'wo')">Wo</span> <span class="verb" title="Verb" onclick="showWordInfo('arbeiten', 'arbeiten')">arbeiten</span> <span class="pronoun" title="Pronoun" onclick="showWordInfo('wir', 'wir')">wir</span> <span class="preposition" title="Preposition" onclick="showWordInfo('am', 'an')">am</span> <span class="adverb" title="Adverb" onclick="showWordInfo('besten', 'gut')">besten</span><span class="punctuation">?</span> <span class="article" title="Article" onclick="showWordInfo('Die', 'die')">Die</span> <span class="noun-f" title="Noun (die)" onclick="showWordInfo('Arbeitswelt', 'Arbeitswelt')">Arbeitswelt</span> <span class="verb" title="Verb" onclick="showWordInfo('hat', 'haben')">hat</span> <span class="pronoun" title="Pronoun" onclick="showWordInfo('sich', 'sich')">sich</span> <span class="preposition" title="Preposition" onclick="showWordInfo('in', 'in')">in</span> <span class="article" title="Article" onclick="showWordInfo('den', 'der')">den</span> <span class="adjective" title="Adjective" onclick="showWordInfo('letzten', 'letzt')">letzten</span> <span class="noun-n" title="Noun (das)" onclick="showWordInfo('Jahren', 'Jahr')">Jahren</span> <span class="adverb" title="Adverb" onclick="showWordInfo('stark', 'stark')">stark</span> <span class="verb" title="Verb" onclick="showWordInfo('verändert', 'verändern')">verändert</span><span class="punctuation">.</span>`,
-                ENGLISH_TRANSLATION: 'Home office or office: Where do we work best? The world of work has changed a lot in recent years.',
-                VOCABULARY_USED: `<ul><li><strong>sich verändern</strong> - to change<br><strong>Pronunciation Tip:</strong> The 'v' is pronounced like an 'f'.<br><strong>Mnemonic:</strong> Imagine a 'fair-ender' who always changes the rules at the end.</li><li><strong>die Arbeitswelt</strong> - the world of work<br><strong>Pronunciation Tip:</strong> 'Ar' is like the 'ar' in 'car'.<br><strong>Mnemonic:</strong> The 'work-world' is your 'Arbeit-welt'.</li></ul>`,
-                GRAMMAR_LESSON: 'Dieser Text verwendet das Perfekt, um über vergangene Ereignisse zu sprechen, die für die Gegenwart relevant sind.',
-                DEEP_DIVE_GRAMMAR: `<strong>The Rule:</strong> The Perfekt tense is formed with the auxiliary verb 'haben' or 'sein' and the past participle of the main verb.<br><br><strong>Examples from the Text:</strong> "Die Arbeitswelt <strong>hat sich</strong> ... <strong>verändert</strong>."`,
-                GRAMMAR_TOPIC_TAGS: 'Perfekt, Reflexivpronomen, Wortstellung',
-                DRILL_SENTENCES: 'Wir arbeiten {in} einem großen Büro.|Er fährt {mit} dem Auto zur Arbeit.',
-                PHRASE_AND_IDIOM: '<strong>Phrase:</strong> den Anschluss verpassen (to miss the boat).<br><strong>Idiom:</strong> Das ist nicht mein Bier (That\'s not my business).',
-                QUOTE_AND_JOKE: '<strong>Quote:</strong> "Arbeit ist die beste Medizin." (Work is the best medicine.)<br><strong>Joke:</strong> Was ist grün und rennt durch den Garten? Ein Rasen-Stier!',
-                CONVERSATION_TIME: '<strong>Frage:</strong> Arbeitest du lieber im Homeoffice oder im Büro?<br><strong>Antwort:</strong> Ich arbeite lieber im Homeoffice, weil ich mich dort besser konzentrieren kann.<br><br><strong>Frage:</strong> Was sind die Vorteile vom Büro?<br><strong>Antwort:</strong> Im Büro kann man sich leichter mit Kollegen austauschen.'
-            },
-            {
-                LEVEL: 'B2', THEME: 'Technology', STATUS: 'Published',
-                GERMAN_ARTICLE: `<span class="article" title="Article" onclick="showWordInfo('Die', 'die')">Die</span> <span class="adjective" title="Adjective" onclick="showWordInfo('künstliche', 'künstlich')">künstliche</span> <span class="noun-f" title="Noun (die)" onclick="showWordInfo('Intelligenz', 'Intelligenz')">Intelligenz</span> <span class="verb" title="Verb" onclick="showWordInfo('verändert', 'verändern')">verändert</span> <span class="pronoun" title="Pronoun" onclick="showWordInfo('unsere', 'unser')">unsere</span> <span class="noun-f" title="Noun (die)" onclick="showWordInfo('Welt', 'Welt')">Welt</span> <span class="adverb" title="Adverb" onclick="showWordInfo('grundlegend', 'grundlegend')">grundlegend</span><span class="punctuation">,</span> <span class="conjunction" title="Conjunction" onclick="showWordInfo('weil', 'weil')">weil</span> <span class="pronoun" title="Pronoun" onclick="showWordInfo('sie', 'sie')">sie</span> <span class="adjective" title="Adjective" onclick="showWordInfo('neue', 'neu')">neue</span> <span class="noun-f" title="Noun (die)" onclick="showWordInfo('Möglichkeiten', 'Möglichkeit')">Möglichkeiten</span> <span class="verb" title="Verb" onclick="showWordInfo('schafft', 'schaffen')">schafft</span><span class="punctuation">.</span>`,
-                ENGLISH_TRANSLATION: 'Artificial intelligence is fundamentally changing our world because it creates new possibilities.',
-                VOCABULARY_USED: '<ul><li><strong>künstliche Intelligenz</strong> - AI</li><li><strong>grundlegend</strong> - fundamentally</li><li><strong>schaffen</strong> - to create</li></ul>',
-                GRAMMAR_LESSON: 'Nebensätze mit "weil" schicken das konjugierte Verb an das Satzende.',
-                DEEP_DIVE_GRAMMAR: 'Subordinate clauses with "weil" (because) send the verb to the end of the clause.',
-                GRAMMAR_TOPIC_TAGS: 'Nebensatz, Konjunktionen, Wortstellung',
-                DRILL_SENTENCES: 'Er lernt Deutsch, {weil} er in Deutschland arbeiten will.|Sie geht nicht {ins} Kino.',
-                PHRASE_AND_IDIOM: '<strong>Phrase:</strong> am Puls der Zeit sein (to have one\'s finger on the pulse).',
-                QUOTE_AND_JOKE: '<strong>Joke:</strong> Why did the computer go to the doctor? Because it had a virus!',
-                CONVERSATION_TIME: '<strong>Frage:</strong> Welche Rolle spielt Technologie in deinem Leben?<br><strong>Antwort:</strong> Technologie spielt eine sehr große Rolle, ich benutze mein Smartphone jeden Tag.'
-            }
-        ];
-    }
 
     // ===================================================================================
     // 4. UI DISPLAY & INTERACTION
@@ -364,7 +354,7 @@
     function setupLevelInteraction() {
         const container = document.getElementById('article-selection-card');
         if (!container || articles.length === 0) {
-            container.innerHTML = '<p>No articles found.</p>';
+            container.innerHTML = '<h2>No Articles Found</h2><p>No published articles could be loaded. Please check your Google Sheet configuration.</p>';
             return;
         }
 
@@ -742,7 +732,11 @@
             speechSynthesis.onvoiceschanged = populateVoiceList;
         }
 
-        articles = await loadArticles();
+        // *** IMPORTANT: REPLACE WITH YOUR PUBLISHED GOOGLE SHEET URL ***
+        const G_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT_b--q5fNfI2-3wQ1S5d1J0g8eP-5fNfI2-3wQ1S5d1J0g8e/pub?output=csv';
+        
+        articles = await loadArticlesFromSheet(G_SHEET_URL);
+        
         setupLevelInteraction();
         initializeProgressTracking();
         setupSettings();
