@@ -91,7 +91,9 @@
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay-color); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--surface); padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 500px; }
+        .modal-content { background: var(--surface); padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .modal-body { overflow-y: auto; }
         .modal-close-btn { float: right; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
         .settings-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border); }
         .settings-section h3 { font-size: 1.1rem; margin-bottom: 10px; }
@@ -130,20 +132,34 @@
         .legend-item { display: flex; align-items: center; gap: 8px; }
         .legend-color-box { width: 18px; height: 18px; border-radius: 4px; }
         
-        details.color-legend-details > summary {
-            cursor: pointer;
-            font-weight: bold;
-            color: var(--text-secondary);
-            padding: 10px;
-            border-radius: 8px;
-            transition: background-color 0.2s ease;
-        }
-        details.color-legend-details > summary:hover {
-            background-color: var(--background);
-        }
-        details.color-legend-details[open] > summary {
-            margin-bottom: 10px;
-        }
+        details.color-legend-details > summary { cursor: pointer; font-weight: bold; color: var(--text-secondary); padding: 10px; border-radius: 8px; transition: background-color 0.2s ease; }
+        details.color-legend-details > summary:hover { background-color: var(--background); }
+        details.color-legend-details[open] > summary { margin-bottom: 10px; }
+        
+        /* Vocabulary Tab Styles */
+        .vocab-controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; align-items: end; }
+        .vocab-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; text-align: center; margin: 25px 0; }
+        .vocab-stat-card { background: var(--background); padding: 15px; border-radius: 8px; }
+        .vocab-stat-number { font-size: 1.8rem; font-weight: bold; color: var(--primary); }
+        .vocab-stat-label { font-size: 0.9rem; color: var(--text-secondary); }
+        .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .vocab-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; }
+        .vocab-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .vocab-word { font-size: 1.3rem; font-weight: 700; margin-right: 15px; }
+        .vocab-article { color: var(--primary); font-weight: 500; margin-right: 8px; }
+        .vocab-level-badge { padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; color: white; }
+        .vocab-level-badge.A1 { background-color: var(--success); }
+        .vocab-level-badge.A2 { background-color: var(--warning); color: var(--text); }
+        .vocab-level-badge.B1 { background-color: var(--info); }
+        .vocab-level-badge.B1plus { background-color: var(--danger); }
+        .vocab-translation { color: var(--text-secondary); font-style: italic; margin-bottom: 10px; }
+        .vocab-example { font-size: 0.9rem; padding: 10px; border-radius: 6px; border-left: 3px solid var(--info); background-color: var(--background); margin-top: 10px; }
+        .vocab-example-translation { font-style: italic; color: var(--text-secondary); font-size: 0.85rem; }
+        .vocab-notes-display { font-size: 0.9rem; background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); padding: 10px; margin-top: 15px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; color: var(--text); display: none; }
+        .vocab-notes-display.visible { display: block; }
+        .vocab-card-footer { margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; align-items: center; }
+        .vocab-action-btn { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-secondary); transition: color 0.2s; padding: 5px; margin-left: 10px; }
+        .vocab-action-btn:hover { color: var(--primary); }
 
     </style>
 </head>
@@ -159,6 +175,7 @@
 
         <nav class="nav-tabs">
             <button class="nav-tab active" data-page="articles">📖 Articles</button>
+            <button class="nav-tab" data-page="vocabulary">📚 Vocabulary</button>
             <button class="nav-tab" data-page="podcasts">🎧 Podcasts</button>
             <button class="nav-tab" data-page="ai-teacher">💬 AI Teacher</button>
             <button class="nav-tab" data-page="grammar">✍️ Grammar Drill</button>
@@ -170,6 +187,43 @@
                 <!-- Content inserted by JS -->
             </div>
             <div id="article-display" class="card" style="display: none;"></div>
+        </div>
+        
+        <div id="vocabulary" class="page">
+            <div class="card">
+                <h2>📚 Vocabulary Browser</h2>
+                <div class="vocab-controls-grid">
+                    <div class="control-group">
+                        <label for="vocab-type-filter">Content Type</label>
+                        <select id="vocab-type-filter" class="level-select-dropdown">
+                            <option value="all">All Types</option>
+                            <option value="nouns">Nouns</option>
+                            <option value="verbs">Verbs</option>
+                            <option value="adjectives">Adjectives</option>
+                            <option value="adverbs">Adverbs</option>
+                            <option value="phrases">Phrases & Idioms</option>
+                            <option value="quotes">Quotes</option>
+                            <option value="popCulture">Pop Culture</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="vocab-level-filter">Level</label>
+                        <select id="vocab-level-filter" class="level-select-dropdown">
+                            <option value="all">All Levels</option>
+                            <option value="A1">A1</option>
+                            <option value="A2">A2</option>
+                            <option value="B1">B1</option>
+                            <option value="B1+">B1+</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="vocab-search">Search</label>
+                        <input type="text" id="vocab-search" placeholder="Search German or English...">
+                    </div>
+                </div>
+                <div id="vocab-stats" class="vocab-stats-grid"></div>
+                <div id="vocab-grid" class="vocab-grid"></div>
+            </div>
         </div>
 
         <div id="podcasts" class="page"><div class="card"><h2>🎧 Podcasts</h2><p>Feature coming soon.</p></div></div>
@@ -194,27 +248,56 @@
     
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
-            <button class="modal-close-btn">&times;</button>
-            <h2>Settings</h2>
-            <div class="settings-section">
-                <h3>Theme</h3>
-                <div class="theme-switch-wrapper">
-                    <span>🌞 Light</span>
-                    <label class="theme-switch" for="theme-checkbox">
-                        <input type="checkbox" id="theme-checkbox" style="display:none;"/>
-                        <div style="position:relative; display:inline-block; width:50px; height:28px; background-color:#ccc; border-radius:34px; cursor:pointer;">
-                            <div style="position:absolute; height:20px; width:20px; left:4px; bottom:4px; background-color:white; border-radius:50%; transition: .4s;" id="theme-slider"></div>
-                        </div>
-                    </label>
-                    <span>🌙 Dark</span>
+             <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Theme</h3>
+                    <div class="theme-switch-wrapper">
+                        <span>🌞 Light</span>
+                        <label class="theme-switch" for="theme-checkbox">
+                            <input type="checkbox" id="theme-checkbox" style="display:none;"/>
+                            <div style="position:relative; display:inline-block; width:50px; height:28px; background-color:#ccc; border-radius:34px; cursor:pointer;">
+                                <div style="position:absolute; height:20px; width:20px; left:4px; bottom:4px; background-color:white; border-radius:50%; transition: .4s;" id="theme-slider"></div>
+                            </div>
+                        </label>
+                        <span>🌙 Dark</span>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Voice Preference</h3>
+                    <div class="voice-select-wrapper">
+                        <label for="voice-select">Speaker:</label>
+                        <select id="voice-select" class="level-select-dropdown"></select>
+                    </div>
                 </div>
             </div>
-            <div class="settings-section">
-                <h3>Voice Preference</h3>
-                <div class="voice-select-wrapper">
-                    <label for="voice-select">Speaker:</label>
-                    <select id="voice-select" class="level-select-dropdown"></select>
-                </div>
+        </div>
+    </div>
+    
+    <!-- Modals for Vocabulary Tab -->
+    <div id="verb-conjugation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="verb-modal-title"></h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div id="verb-modal-body" class="modal-body"></div>
+        </div>
+    </div>
+    <div id="typing-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="typing-modal-title">Type Your Notes</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="typing-textarea" style="width: 100%; height: 20vh; font-size: 1rem; padding: 10px; border-radius: 8px; border: 1px solid var(--border); resize: vertical; background-color: var(--background); color: var(--text);"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="save-typed-notes-btn" class="btn btn-primary">Save Notes</button>
             </div>
         </div>
     </div>
@@ -224,8 +307,112 @@
     let currentArticleIndex = 0;
     let germanVoices = [];
     let currentUtterance = null;
+    let allVocabulary = [];
 
-
+    // ===================================================================================
+    // DATA STORE (VOCABULARY)
+    // ===================================================================================
+    const germanVocabulary = {
+        nouns: [
+            {word: "Bahnhof", article: "der", english: "train station", plural: "Bahnhöfe", level: "A1", category: "Railways", example: "Der Zug nach Berlin fährt vom Hauptbahnhof ab.", translation: "The train to Berlin departs from the main train station."},
+            {word: "Brot", article: "das", english: "bread", plural: "Brote", level: "A1", category: "Bakery", example: "Ich hätte gerne ein frisches Brot, bitte.", translation: "I would like a fresh bread, please."},
+            {word: "Termin", article: "der", english: "appointment", plural: "Termine", level: "A1", category: "Bürgeramt", example: "Haben Sie einen Termin beim Bürgeramt?", translation: "Do you have an appointment at the citizen's office?"},
+            {word: "Freund", article: "der", english: "friend (male)", plural: "Freunde", level: "A1", category: "Friends", example: "Mein bester Freund wohnt in Hamburg.", translation: "My best friend lives in Hamburg."},
+            {word: "Wohnung", article: "die", english: "apartment", plural: "Wohnungen", level: "A1", category: "Landowner", example: "Wir suchen eine neue Wohnung in der Stadt.", translation: "We are looking for a new apartment in the city."},
+            {word: "Schreibtisch", article: "der", english: "desk", plural: "Schreibtische", level: "A1", category: "Office", example: "Mein Schreibtisch im Büro ist sehr groß.", translation: "My desk in the office is very big."},
+            {word: "Wasser", article: "das", english: "water", plural: "Wässer", level: "A1", category: "Gym", example: "Bitte bring eine Flasche Wasser zum Training mit.", translation: "Please bring a bottle of water to the workout."},
+            {word: "Ticket", article: "das", english: "ticket", plural: "Tickets", level: "A1", category: "Railways", example: "Haben Sie Ihr Ticket schon gekauft?", translation: "Have you already bought your ticket?"},
+            {word: "Vertrag", article: "der", english: "contract", plural: "Verträge", level: "A2", category: "Landowner", example: "Bitte lesen Sie den Mietvertrag sorgfältig durch.", translation: "Please read the rental contract carefully."},
+            {word: "Gehalt", article: "das", english: "salary", plural: "Gehälter", level: "A2", category: "Office", example: "Die Gehaltsverhandlung findet nächste Woche statt.", translation: "The salary negotiation takes place next week."},
+            {word: "Mitgliedschaft", article: "die", english: "membership", plural: "Mitgliedschaften", level: "A2", category: "Gym", example: "Die Mitgliedschaft im Fitnessstudio kostet 30 Euro pro Monat.", translation: "The gym membership costs 30 euros per month."},
+            {word: "Anschluss", article: "der", english: "connecting train/connection", plural: "Anschlüsse", level: "A2", category: "Railways", example: "In Frankfurt haben Sie Anschluss nach München.", translation: "In Frankfurt you have a connection to Munich."},
+            {word: "Kaution", article: "die", english: "security deposit", plural: "Kautionen", level: "A2", category: "Landowner", example: "Die Kaution beträgt drei Monatsmieten.", translation: "The security deposit is three months' rent."},
+            {word: "Kollege", article: "der", english: "colleague (male)", plural: "Kollegen", level: "A2", category: "Office", example: "Mein Kollege aus der IT-Abteilung ist sehr hilfsbereit.", translation: "My colleague from the IT department is very helpful."},
+            {word: "Anmeldung", article: "die", english: "registration", plural: "Anmeldungen", level: "A2", category: "Bürgeramt", example: "Für die Anmeldung benötigen Sie Ihren Pass.", translation: "For the registration you need your passport."},
+            {word: "Einladung", article: "die", english: "invitation", plural: "Einladungen", level: "A2", category: "Friends", example: "Danke für die Einladung zu deiner Party!", translation: "Thanks for the invitation to your party!"},
+            {word: "Besprechung", article: "die", english: "meeting", plural: "Besprechungen", level: "B1", category: "Office", example: "Die Besprechung mit dem Kunden war sehr produktiv.", translation: "The meeting with the client was very productive."},
+            {word: "Nebenkostenabrechnung", article: "die", english: "utility bill statement", plural: "Nebenkostenabrechnungen", level: "B1", category: "Landowner", example: "Ich muss die Nebenkostenabrechnung noch überprüfen.", translation: "I still have to check the utility bill."},
+            {word: "Aufenthaltstitel", article: "der", english: "residence permit", plural: "Aufenthaltstitel", level: "B1", category: "Bürgeramt", example: "Mein Aufenthaltstitel ist noch zwei Jahre gültig.", translation: "My residence permit is valid for another two years."},
+            {word: "Verspätung", article: "die", english: "delay", plural: "Verspätungen", level: "B1", category: "Railways", example: "Wegen einer Störung hat der Zug 20 Minuten Verspätung.", translation: "Due to a disruption, the train has a 20-minute delay."},
+            {word: "Verhandlung", article: "die", english: "negotiation", plural: "Verhandlungen", level: "B1", category: "Office", example: "Die Verhandlungen über das neue Projekt waren erfolgreich.", translation: "The negotiations about the new project were successful."},
+            {word: "Unterhaltung", article: "die", english: "conversation", plural: "Unterhaltungen", level: "B1", category: "Friends", example: "Wir hatten eine sehr interessante Unterhaltung.", translation: "We had a very interesting conversation."},
+            {word: "Protokoll", article: "das", english: "minutes (of a meeting)", plural: "Protokolle", level: "B1+", category: "Office", example: "Könnten Sie mir bitte das Protokoll der letzten Sitzung schicken?", translation: "Could you please send me the minutes of the last meeting?"},
+            {word: "Gesellschafter", article: "der", english: "shareholder/partner", plural: "Gesellschafter", level: "B1+", category: "Office", example: "Die Gesellschafter haben über die Zukunft der Firma entschieden.", translation: "The shareholders decided on the future of the company."},
+            {word: "Arbeitsgenehmigung", article: "die", english: "work permit", plural: "Arbeitsgenehmigungen", level: "B1+", category: "Bürgeramt", example: "Ohne Arbeitsgenehmigung dürfen Sie in Deutschland nicht arbeiten.", translation: "You are not allowed to work in Germany without a work permit."},
+            {word: "Mietminderung", article: "die", english: "rent reduction", plural: "Mietminderungen", level: "B1+", category: "Landowner", example: "Wegen des Schimmels in der Wohnung haben wir eine Mietminderung beantragt.", translation: "We applied for a rent reduction because of the mold in the apartment."}
+        ],
+        verbs: [
+            {infinitive: "wohnen", english: "to live/reside", level: "A1", category: "Landowner", example: "Ich wohne seit zwei Jahren in Frankfurt.", translation: "I have been living in Frankfurt for two years."},
+            {infinitive: "kaufen", english: "to buy", level: "A1", category: "Bakery", example: "Ich kaufe jeden Morgen frische Brötchen.", translation: "I buy fresh bread rolls every morning."},
+            {infinitive: "fahren", english: "to drive/go", level: "A1", category: "Railways", example: "Wir fahren am Wochenende mit dem Zug nach Köln.", translation: "We are taking the train to Cologne on the weekend."},
+            {infinitive: "unterschreiben", english: "to sign", level: "A2", category: "Landowner", example: "Sie müssen den Vertrag hier unterschreiben.", translation: "You have to sign the contract here."},
+            {infinitive: "trainieren", english: "to train/work out", level: "A2", category: "Gym", example: "Ich trainiere dreimal pro Woche im Fitnessstudio.", translation: "I work out three times a week at the gym."},
+            {infinitive: "einladen", english: "to invite", level: "A2", category: "Friends", example: "Ich möchte dich zu meinem Geburtstag einladen.", translation: "I would like to invite you to my birthday."},
+            {infinitive: "verlängern", english: "to extend/renew", level: "B1", category: "Bürgeramt", example: "Ich muss mein Visum bei der Ausländerbehörde verlängern lassen.", translation: "I have to get my visa extended at the foreigner's office."},
+            {infinitive: "teilnehmen", english: "to participate", level: "B1", category: "Office", example: "Wer wird an der Besprechung teilnehmen?", translation: "Who will participate in the meeting?"},
+            {infinitive: "umsteigen", english: "to change (trains)", level: "B1", category: "Railways", example: "In Mannheim müssen Sie in den ICE nach Paris umsteigen.", translation: "In Mannheim you have to change to the ICE to Paris."},
+            {infinitive: "genehmigen", english: "to approve/authorize", level: "B1+", category: "Office", example: "Der Abteilungsleiter muss den Urlaubsantrag genehmigen.", translation: "The department head has to approve the vacation request."}
+        ],
+        adjectives: [
+            {word: "lecker", english: "delicious", level: "A1", category: "Bakery", example: "Der Kuchen von dieser Bäckerei ist sehr lecker.", translation: "The cake from this bakery is very delicious."},
+            {word: "wichtig", english: "important", level: "A1", category: "Bürgeramt", example: "Bringen Sie alle wichtigen Dokumente mit.", translation: "Bring all important documents with you."},
+            {word: "freundlich", english: "friendly", level: "A2", category: "Friends", example: "Deine Freunde sind alle sehr freundlich.", translation: "Your friends are all very friendly."},
+            {word: "pünktlich", english: "punctual", level: "A2", category: "Railways", example: "In Deutschland sind die Züge meistens pünktlich.", translation: "In Germany, the trains are mostly on time."},
+            {word: "gemütlich", english: "cozy", level: "A2", category: "Landowner", example: "Unsere neue Wohnung ist klein, aber sehr gemütlich.", translation: "Our new apartment is small but very cozy."},
+            {word: "anstrengend", english: "exhausting", level: "A2", category: "Gym", example: "Das Training heute war wirklich anstrengend.", translation: "The workout today was really exhausting."},
+            {word: "effizient", english: "efficient", level: "B1", category: "Office", example: "Wir müssen einen effizienteren Weg finden, dieses Problem zu lösen.", translation: "We need to find a more efficient way to solve this problem."},
+            {word: "unbefristet", english: "unlimited/permanent", level: "B1", category: "Landowner", example: "Ich habe einen unbefristeten Arbeitsvertrag.", translation: "I have a permanent work contract."},
+            {word: "zuverlässig", english: "reliable", level: "B1", category: "Friends", example: "Sie ist eine sehr zuverlässige Person.", translation: "She is a very reliable person."},
+            {word: "verfügbar", english: "available", level: "B1", category: "Office", example: "Sind Sie nächste Woche für ein Gespräch verfügbar?", translation: "Are you available for a meeting next week?"},
+            {word: "umfassend", english: "comprehensive", level: "B1+", category: "Office", example: "Wir benötigen eine umfassende Analyse der Marktdaten.", translation: "We need a comprehensive analysis of the market data."},
+            {word: "rechtskräftig", english: "legally valid", level: "B1+", category: "Bürgeramt", example: "Das Urteil ist jetzt rechtskräftig.", translation: "The verdict is now legally valid."}
+        ],
+        adverbs: [
+            {word: "heute", english: "today", level: "A1", category: "General", example: "Heute habe ich keine Zeit.", translation: "I don't have time today."},
+            {word: "dort", english: "there", level: "A1", category: "General", example: "Die Bäckerei ist direkt dort an der Ecke.", translation: "The bakery is right there on the corner."},
+            {word: "morgen", english: "tomorrow", level: "A1", category: "General", example: "Morgen gehe ich ins Fitnessstudio.", translation: "Tomorrow I'm going to the gym."},
+            {word: "jetzt", english: "now", level: "A1", category: "General", example: "Wir müssen jetzt losgehen.", translation: "We have to go now."},
+            {word: "manchmal", english: "sometimes", level: "A2", category: "General", example: "Manchmal fahre ich mit dem Fahrrad zur Arbeit.", translation: "Sometimes I ride my bike to work."},
+            {word: "deshalb", english: "therefore", level: "A2", category: "Office", example: "Ich war krank, deshalb konnte ich nicht kommen.", translation: "I was sick, therefore I couldn't come."},
+            {word: "gern", english: "gladly", level: "A2", category: "Friends", example: "Ich treffe mich gern mit Freunden am Abend.", translation: "I like to meet up with friends in the evening."},
+            {word: "leider", english: "unfortunately", level: "A2", category: "Railways", example: "Der Zug hat leider Verspätung.", translation: "Unfortunately, the train is delayed."},
+            {word: "tatsächlich", english: "actually/in fact", level: "B1", category: "Friends", example: "Er hat tatsächlich den Marathon gewonnen.", translation: "He actually won the marathon."},
+            {word: "anschließend", english: "afterwards", level: "B1", category: "Railways", example: "Wir gehen ins Kino und anschließend etwas essen.", translation: "We are going to the cinema and afterwards eating something."},
+            {word: "unbedingt", english: "absolutely", level: "B1", category: "General", example: "Du musst diesen Film unbedingt sehen.", translation: "You absolutely have to see this movie."},
+            {word: "regelmäßig", english: "regularly", level: "B1", category: "Gym", example: "Man sollte regelmäßig Sport treiben.", translation: "One should do sports regularly."},
+            {word: "ausschließlich", english: "exclusively", level: "B1+", category: "Office", example: "Dieses Angebot gilt ausschließlich für Neukunden.", translation: "This offer is exclusively for new customers."},
+            {word: "gegebenenfalls", english: "if applicable/if necessary", level: "B1+", category: "Bürgeramt", example: "Bitte bringen Sie gegebenenfalls Ihre Geburtsurkunde mit.", translation: "If applicable, please bring your birth certificate with you."}
+        ],
+        phrases: [
+            {german: "Einen Kaffee zum Mitnehmen, bitte.", english: "A coffee to go, please.", level: "A1", category: "Bakery"},
+            {german: "Ich möchte einen Termin vereinbaren.", english: "I would like to make an appointment.", level: "A1", category: "Bürgeramt"},
+            {german: "Wo ist Gleis 5?", english: "Where is platform 5?", level: "A1", category: "Railways"},
+            {german: "Was kostet die Miete monatlich, inklusive Nebenkosten?", english: "How much is the rent per month, including utilities?", level: "A2", category: "Landowner"},
+            {german: "Ich möchte meinen Vertrag kündigen.", english: "I would like to cancel my contract.", level: "A2", category: "Gym"},
+            {german: "Schön, dich kennenzulernen.", english: "Nice to meet you.", level: "A2", category: "Friends"},
+            {german: "Ich habe meinen Anschlusszug verpasst.", english: "I missed my connecting train.", level: "A2", category: "Railways"},
+            {german: "Könnten Sie das bitte protokollieren?", english: "Could you please take minutes of that?", level: "B1", category: "Office"},
+            {german: "Dieser Zug hat voraussichtlich 10 Minuten Verspätung.", english: "This train is expected to be 10 minutes late.", level: "B1", category: "Railways"},
+            {german: "Lass uns am Wochenende etwas unternehmen.", english: "Let's do something on the weekend.", level: "B1", category: "Friends"},
+            {german: "Die Heizung in meiner Wohnung ist kaputt.", english: "The heating in my apartment is broken.", level: "B1", category: "Landowner"},
+            {german: "Ich bin anderer Meinung.", english: "I have a different opinion.", level: "B1", category: "Office"},
+            {german: "Die vorgeschlagenen Änderungen bedürfen der Genehmigung.", english: "The proposed changes require approval.", level: "B1+", category: "Office"},
+            {german: "Tomaten auf den Augen haben.", english: "To be oblivious to what's going on. (Idiom)", level: "B1+", category: "Friends"},
+            {german: "Das ist nicht mein Bier.", english: "That's not my problem/business. (Idiom)", level: "B1+", category: "Friends"}
+        ],
+        quotes: [
+            {german: "Ohne Fleiß kein Preis.", english: "No pain, no gain. (Lit: Without diligence, no prize.)", level: "A2", source: "Proverb"},
+            {german: "Die Grenzen meiner Sprache bedeuten die Grenzen meiner Welt.", english: "The limits of my language mean the limits of my world.", level: "B1+", source: "Ludwig Wittgenstein"},
+            {german: "Wer kämpft, kann verlieren. Wer nicht kämpft, hat schon verloren.", english: "He who fights can lose. He who doesn't fight has already lost.", level: "B1", source: "Bertolt Brecht"}
+        ],
+        popCulture: [
+             {german: "Ich bin dein Vater.", english: "I am your father.", level: "A2", source: "Star Wars"},
+             {german: "Das Boot", english: "The Boat", level: "B1", source: "Classic German Film (1981)"},
+             {german: "Lola rennt", english: "Run Lola Run", level: "B1", source: "Iconic German Film (1998)"},
+             {german: "Ich habe fertig.", english: "I am finished. (Famous line from a football coach)", level: "B1+", source: "Giovanni Trapattoni"}
+        ]
+    };
+    
     // ===================================================================================
     // 1. DICTIONARY SERVICE
     // ===================================================================================
@@ -236,8 +423,6 @@
             if (this.cache.has(cleanWord)) return this.cache.get(cleanWord);
             
             try {
-                // NOTE: This will fail when run locally due to CORS policy.
-                // It will work when deployed to a web server.
                 const url = `https://api.dictionaryapi.dev/api/v2/entries/de/${encodeURIComponent(cleanWord)}`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
@@ -317,19 +502,16 @@
     }
 
     // ===================================================================================
-    // 3. DATA FETCHING & PARSING (NOW FROM GOOGLE SHEETS)
+    // 3. DATA FETCHING & PARSING
     // ===================================================================================
     async function loadArticlesFromSheet(sheetUrl) {
-        // Using a CORS proxy to bypass browser security restrictions.
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         try {
-            const response = await fetch(proxyUrl + sheetUrl);
+            const response = await fetch(sheetUrl);
             if (!response.ok) {
                 throw new Error(`Could not fetch sheet. Status: ${response.status}`);
             }
             const csvText = await response.text();
             
-            // Robust CSV parser to handle commas within quotes
             const rows = [];
             let currentRow = [];
             let inQuotes = false;
@@ -339,11 +521,11 @@
                 if (char === '"') {
                     inQuotes = !inQuotes;
                 } else if (char === ',' && !inQuotes) {
-                    currentRow.push(currentField);
+                    currentRow.push(currentField.trim());
                     currentField = '';
                 } else if ((char === '\n' || char === '\r') && !inQuotes) {
                     if (i > 0 && csvText[i-1] !== '\n' && csvText[i-1] !== '\r') {
-                         currentRow.push(currentField);
+                         currentRow.push(currentField.trim());
                          rows.push(currentRow);
                          currentRow = [];
                          currentField = '';
@@ -352,7 +534,7 @@
                     currentField += char;
                 }
             }
-            if (currentField) currentRow.push(currentField);
+            if (currentField) currentRow.push(currentField.trim());
             if (currentRow.length > 0) rows.push(currentRow);
 
             const headers = rows[0].map(h => h.trim());
@@ -368,9 +550,47 @@
             return jsonData.filter(article => article.STATUS === 'Published');
         } catch (error) {
             console.error('Failed to load articles from Google Sheet:', error);
-            document.getElementById('article-selection-card').innerHTML = '<h2>Error</h2><p>Could not load articles. This might be due to a network issue or the CORS proxy. Please try again later.</p>';
-            return []; // Return empty array on failure
+            // Engage fallback if fetching fails
+            loadFallbackData(); 
+            return []; // Return empty array as the primary load failed
         }
+    }
+    
+    // --- FALLBACK DATA LOADER ---
+    function loadFallbackData() {
+        console.log("Loading fallback data as articles.");
+        const container = document.getElementById('article-selection-card');
+        container.innerHTML = '<h2>Demo Content</h2><p>Could not load external articles. Showing local vocabulary as demo content.</p>';
+        
+        // Convert vocab categories into "articles"
+        const vocabAsArticles = [];
+        const categories = [...new Set(allVocabulary.map(item => item.category))];
+        
+        categories.forEach(category => {
+            if(!category) return;
+            const items = allVocabulary.filter(item => item.category === category);
+            const vocabListHtml = items.map(item => `<li><strong>${item.word}</strong>: ${item.english}</li>`).join('');
+            
+            vocabAsArticles.push({
+                THEME: `Vocabulary: ${category}`,
+                LEVEL: items[0]?.level || 'A1',
+                GERMAN_ARTICLE: `Dies ist eine Liste von Wörtern zum Thema ${category}.`,
+                ENGLISH_TRANSLATION: `This is a list of words on the topic of ${category}.`,
+                VOCABULARY_USED: `<ul>${vocabListHtml}</ul>`,
+                // Add empty strings for other properties to prevent errors
+                GRAMMAR_LESSON: '',
+                DEEP_DIVE_GRAMMAR: '',
+                GRAMMAR_TOPIC_TAGS: '',
+                PHRASE_AND_IDIOM: '',
+                QUOTE_AND_JOKE: '',
+                CONVERSATION_TIME: '',
+                DRILL_SENTENCES: ''
+            });
+        });
+        
+        articles = vocabAsArticles; // Overwrite global articles with the fallback data
+        // We need to re-initialize the article selection UI with this new data
+        setupLevelInteraction();
     }
 
 
@@ -379,10 +599,14 @@
     // ===================================================================================
     function setupLevelInteraction() {
         const container = document.getElementById('article-selection-card');
-        if (!container || articles.length === 0) {
-            container.innerHTML = '<h2>No Articles Found</h2><p>No published articles could be loaded. Please check your Google Sheet configuration and make sure it is published to the web.</p>';
+        if (!container) return;
+        
+        if (articles.length === 0) {
+            // This part is now handled by the fallback logic, but we keep it as a safeguard.
+            container.innerHTML = '<h2>No Articles Found</h2><p>No articles could be loaded. Please check the console for errors.</p>';
             return;
         }
+
 
         container.innerHTML = `
             <h2>German Articles by Level</h2>
@@ -396,8 +620,9 @@
         const levelSelect = document.getElementById('level-select');
         const articleListContainer = document.getElementById('article-list-container');
 
-        const levels = [...new Set(articles.map(a => a.LEVEL))];
+        const levels = [...new Set(articles.map(a => a.LEVEL))].sort();
         
+        levelSelect.innerHTML = ''; // Clear previous options
         levels.forEach(level => {
             const option = document.createElement('option');
             option.value = level;
@@ -682,7 +907,154 @@
 
 
     // ===================================================================================
-    // 6. SETTINGS & INITIALIZATION
+    // 6. VOCABULARY TAB FUNCTIONALITY
+    // ===================================================================================
+    function initializeVocabularyTab() {
+        allVocabulary = [
+            ...germanVocabulary.nouns.map(item => ({ ...item, type: 'nouns', word: item.word })),
+            ...germanVocabulary.verbs.map(item => ({ ...item, type: 'verbs', word: item.infinitive })),
+            ...germanVocabulary.adjectives.map(item => ({ ...item, type: 'adjectives', word: item.word })),
+            ...germanVocabulary.adverbs.map(item => ({ ...item, type: 'adverbs', word: item.word })),
+            ...germanVocabulary.phrases.map(item => ({ ...item, type: 'phrases', word: item.german })),
+            ...germanVocabulary.quotes.map(item => ({ ...item, type: 'quotes', word: item.german })),
+            ...germanVocabulary.popCulture.map(item => ({ ...item, type: 'popCulture', word: item.german }))
+        ];
+
+        const typeFilter = document.getElementById('vocab-type-filter');
+        const levelFilter = document.getElementById('vocab-level-filter');
+        const searchInput = document.getElementById('vocab-search');
+
+        typeFilter.addEventListener('change', filterVocabulary);
+        levelFilter.addEventListener('change', filterVocabulary);
+        searchInput.addEventListener('keyup', filterVocabulary);
+
+        filterVocabulary();
+    }
+
+    function filterVocabulary() {
+        const typeFilter = document.getElementById('vocab-type-filter').value;
+        const levelFilter = document.getElementById('vocab-level-filter').value;
+        const searchTerm = document.getElementById('vocab-search').value.toLowerCase();
+
+        let filtered = allVocabulary.filter(item => {
+            const matchesType = typeFilter === 'all' || item.type === typeFilter;
+            const matchesLevel = levelFilter === 'all' || item.level === levelFilter;
+            const matchesSearch = searchTerm === '' ||
+                item.word.toLowerCase().includes(searchTerm) ||
+                item.english.toLowerCase().includes(searchTerm);
+            return matchesType && matchesLevel && matchesSearch;
+        });
+
+        displayVocabulary(filtered);
+        updateVocabularyStats(filtered);
+    }
+    
+    function displayVocabulary(list) {
+        const grid = document.getElementById('vocab-grid');
+        grid.innerHTML = '';
+        list.forEach((item, index) => {
+            const cardElement = createVocabularyCard(item, index);
+            grid.insertAdjacentHTML('beforeend', cardElement);
+            // Must call after inserting, so element exists in DOM
+            loadVocabularyNote(item.word, `v-card-${index}`);
+        });
+    }
+
+    function updateVocabularyStats(filteredList) {
+        const stats = {
+             nouns: germanVocabulary.nouns.length,
+             verbs: germanVocabulary.verbs.length,
+             adjectives: germanVocabulary.adjectives.length,
+             adverbs: germanVocabulary.adverbs.length,
+             phrases: germanVocabulary.phrases.length
+        };
+        const container = document.getElementById('vocab-stats');
+        container.innerHTML = `
+            <div class="vocab-stat-card"><div class="vocab-stat-number">${filteredList.length}</div><div class="vocab-stat-label">Showing</div></div>
+            <div class="vocab-stat-card"><div class="vocab-stat-number">${stats.nouns}</div><div class="vocab-stat-label">Nouns</div></div>
+            <div class="vocab-stat-card"><div class="vocab-stat-number">${stats.verbs}</div><div class="vocab-stat-label">Verbs</div></div>
+            <div class="vocab-stat-card"><div class="vocab-stat-number">${stats.adjectives}</div><div class="vocab-stat-label">Adjectives</div></div>
+            <div class="vocab-stat-card"><div class="vocab-stat-number">${stats.adverbs}</div><div class="vocab-stat-label">Adverbs</div></div>
+            <div class="vocab-stat-card"><div class="vocab-stat-number">${stats.phrases}</div><div class="vocab-stat-label">Phrases</div></div>
+        `;
+    }
+
+    function createVocabularyCard(item, index) {
+        const cardId = `v-card-${index}`;
+        const itemJson = JSON.stringify(item).replace(/"/g, '&quot;');
+        let header = `<div class="vocab-word">${item.word}</div>`;
+        if (item.article) {
+             header = `<div class="vocab-word"><span class="vocab-article">${item.article}</span> ${item.word}</div>`;
+        }
+        
+        return `
+            <div class="vocab-card" id="${cardId}">
+                <div class="vocab-card-header">
+                    ${header}
+                    <span class="vocab-level-badge ${item.level.replace('+', 'plus')}">${item.level}</span>
+                </div>
+                <div class="vocab-card-body">
+                    <div class="vocab-translation">${item.english}</div>
+                    ${item.example ? `<div class="vocab-example"><strong>${item.example}</strong><div class="vocab-example-translation">${item.translation}</div></div>` : ''}
+                    <div class="vocab-notes-display" id="notes-${cardId}"></div>
+                </div>
+                <div class="vocab-card-footer">
+                    <button class="vocab-action-btn" onclick='openTypingModal(${itemJson}, "${cardId}")' title="Type Notes">⌨️</button>
+                    ${item.type === 'verbs' ? `<button class="vocab-action-btn" onclick='openVerbModal(${itemJson})' title="Show Conjugations">📖</button>` : ''}
+                </div>
+            </div>`;
+    }
+
+    window.openTypingModal = function(item, cardId) {
+        const modal = document.getElementById('typing-modal');
+        document.getElementById('typing-modal-title').textContent = `Notes for "${item.word}"`;
+        const textarea = document.getElementById('typing-textarea');
+        const noteKey = `vocab_note_${item.word}`;
+        textarea.value = localStorage.getItem(noteKey) || '';
+        
+        document.getElementById('save-typed-notes-btn').onclick = () => {
+            const noteText = textarea.value.trim();
+            const displayDiv = document.querySelector(`#${cardId} .vocab-notes-display`);
+            if (noteText) {
+                localStorage.setItem(noteKey, noteText);
+                if(displayDiv) {
+                    displayDiv.textContent = noteText;
+                    displayDiv.classList.add('visible');
+                }
+            } else {
+                localStorage.removeItem(noteKey);
+                if(displayDiv) {
+                    displayDiv.textContent = '';
+                    displayDiv.classList.remove('visible');
+                }
+            }
+            modal.classList.remove('visible');
+        };
+        modal.classList.add('visible');
+    }
+    document.querySelector('#typing-modal .modal-close-btn').addEventListener('click', () => document.getElementById('typing-modal').classList.remove('visible'));
+    
+    function loadVocabularyNote(word, cardId) {
+        const noteKey = `vocab_note_${word}`;
+        const savedNote = localStorage.getItem(noteKey);
+        const displayDiv = document.querySelector(`#${cardId} .vocab-notes-display`);
+        if (savedNote && displayDiv) {
+            displayDiv.textContent = savedNote;
+            displayDiv.classList.add('visible');
+        }
+    }
+    
+    window.openVerbModal = function(verb) {
+        const modal = document.getElementById('verb-conjugation-modal');
+        document.getElementById('verb-modal-title').textContent = `Conjugation: ${verb.infinitive}`;
+        document.getElementById('verb-modal-body').innerHTML = getVerbConjugationTable(verb.infinitive);
+        modal.classList.add('visible');
+    }
+    document.querySelector('#verb-conjugation-modal .modal-close-btn').addEventListener('click', () => document.getElementById('verb-conjugation-modal').classList.remove('visible'));
+
+
+    // ===================================================================================
+    // 7. SETTINGS & INITIALIZATION
     // ===================================================================================
     function populateVoiceList() {
         germanVoices = speechSynthesis.getVoices().filter(voice => voice.lang === 'de-DE');
@@ -758,12 +1130,18 @@
             speechSynthesis.onvoiceschanged = populateVoiceList;
         }
 
+        initializeVocabularyTab(); 
+
         // *** THIS IS THE LINE TO UPDATE ***
         const G_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ1E9A-efKS8f3UcqqwAXoVNyqqgB2eHdyB2VUl1Sxvjeb3xSO3yeLyWnRfd1a5aOMyV4BCzOr6WNrT/pub?gid=0&single=true&output=csv';
         
         articles = await loadArticlesFromSheet(G_SHEET_URL);
         
-        setupLevelInteraction();
+        // Only setup article interaction if articles were loaded successfully (not in fallback mode)
+        if (articles.length > 0) {
+            setupLevelInteraction();
+        }
+        
         initializeProgressTracking();
         setupSettings();
 
@@ -782,3 +1160,4 @@
 
 </body>
 </html>
+
