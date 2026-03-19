@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>German Mastery Hub - Learn German Effectively</title>
     <meta name="description" content="Master German through articles, podcasts, and interactive exercises">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.dictionaryapi.dev https://docs.google.com https://sheets.googleapis.com; img-src 'self' data:; frame-ancestors 'none';">
     <style>
         :root {
             --primary: #2563eb;
@@ -161,6 +162,24 @@
         .vocab-action-btn { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-secondary); transition: color 0.2s; padding: 5px; margin-left: 10px; }
         .vocab-action-btn:hover { color: var(--primary); }
 
+        /* GDPR consent banner */
+        #gdpr-banner { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 2px solid var(--primary); padding: 16px 20px; z-index: 2000; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; box-shadow: 0 -4px 12px rgba(0,0,0,0.1); }
+        #gdpr-banner p { flex: 1; min-width: 200px; margin: 0; font-size: 0.9rem; color: var(--text); }
+        #gdpr-banner a { color: var(--primary); }
+        .gdpr-btn { padding: 8px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+        .gdpr-btn-accept { background: var(--primary); color: #fff; }
+        .gdpr-btn-decline { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
+
+        /* Privacy / Impressum section */
+        #privacy-section { margin-top: 30px; padding: 20px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border); font-size: 0.9rem; color: var(--text-secondary); }
+        #privacy-section h3 { color: var(--text); margin-bottom: 10px; font-size: 1rem; }
+        #privacy-section a { color: var(--primary); cursor: pointer; background: none; border: none; font-size: inherit; text-decoration: underline; }
+        .privacy-details { display: none; margin-top: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--background); }
+        .privacy-details.visible { display: block; }
+        .data-mgmt-btns { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .data-mgmt-btn { padding: 7px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.85rem; }
+        .data-mgmt-btn:hover { background: var(--background); }
+        .data-mgmt-btn.danger { color: var(--danger); border-color: var(--danger); }
     </style>
 </head>
 <body>
@@ -237,6 +256,42 @@
         <div id="progress" class="page"><div class="card"><h2>📊 Progress</h2><p>Track your learning journey here.</p></div></div>
     </div>
 
+    <!-- Privacy & Impressum section -->
+    <div id="privacy-section">
+        <h3>Privacy &amp; Impressum</h3>
+        <p>
+            This site stores your learning progress (articles read, vocabulary interactions, streak) locally in your browser using <em>localStorage</em>.
+            No data is sent to any server. No cookies are set.
+            <button id="toggle-privacy-btn" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.9rem;text-decoration:underline;padding:0;">Show details / data management</button>
+        </p>
+        <div id="privacy-details" class="privacy-details">
+            <p><strong>What is stored (browser localStorage only):</strong></p>
+            <ul style="margin:8px 0 12px 20px;">
+                <li><code>germanMasteryProgress</code> — articles read, vocabulary interactions, streak</li>
+                <li><code>germanAppSettings</code> — theme and voice preference</li>
+                <li><code>vocab_note_*</code> — any vocabulary notes you write</li>
+            </ul>
+            <p>You can export or delete this data at any time:</p>
+            <div class="data-mgmt-btns">
+                <button class="data-mgmt-btn" id="export-data-btn">Export My Data (JSON)</button>
+                <button class="data-mgmt-btn danger" id="clear-data-btn">Delete All My Data</button>
+            </div>
+            <hr style="margin:14px 0; border-color:var(--border);">
+            <p><strong>Impressum / Legal Notice</strong></p>
+            <p>
+                Operator: Arnav Ray &mdash; For questions contact via the project repository.<br>
+                This is a personal educational project. No personal data is collected or processed on the server.
+            </p>
+        </div>
+    </div>
+
+    <!-- GDPR consent banner -->
+    <div id="gdpr-banner" style="display:none;" role="dialog" aria-label="Data storage notice">
+        <p>This site saves your learning progress in your browser's local storage. No data is sent to external servers. See <button id="gdpr-privacy-link" style="background:none;border:none;color:var(--primary);cursor:pointer;text-decoration:underline;font-size:inherit;padding:0;">privacy details</button> for more.</p>
+        <button class="gdpr-btn gdpr-btn-accept" id="gdpr-accept-btn">Accept &amp; Continue</button>
+        <button class="gdpr-btn gdpr-btn-decline" id="gdpr-decline-btn">Decline (no storage)</button>
+    </div>
+
     <div id="word-popup-backdrop" class="popup-backdrop" onclick="closeWordPopup()"></div>
     <div id="word-popup" class="word-popup">
         <div class="popup-header">
@@ -303,6 +358,20 @@
     </div>
 
 <script>
+    // --- SECURITY UTILITY ---
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // --- GDPR / STORAGE CONSENT ---
+    let storageAllowed = localStorage.getItem('gdprConsent') === 'accepted';
+
     let articles = [];
     let currentArticleIndex = 0;
     let germanVoices = [];
@@ -438,13 +507,13 @@
 
                 const result = {
                     word,
-                    definition: `${definition}<br><br><em>Example: ${example}</em>`,
+                    definition: `${escapeHtml(definition)}<br><br><em>Example: ${escapeHtml(example)}</em>`,
                 };
                 this.cache.set(cleanWord, result);
                 return result;
             } catch (error) {
                 console.warn('Dictionary API failed:', error);
-                const fallback = { word, definition: `Definition for <strong>${word}</strong> not available.` };
+                const fallback = { word, definition: `Definition for <strong>${escapeHtml(word)}</strong> not available.` };
                 this.cache.set(cleanWord, fallback);
                 return fallback;
             }
@@ -461,6 +530,7 @@
     }
 
     function loadProgress() {
+        if (!storageAllowed) return { articlesRead: new Set(), vocabularyLearned: new Map(), streak: 0, lastVisit: null };
         try {
             const saved = localStorage.getItem('germanMasteryProgress');
             if (saved) {
@@ -472,6 +542,7 @@
     }
 
     function saveProgress() {
+        if (!storageAllowed) return;
         try {
             const progressData = { ...window.userProgress, articlesRead: Array.from(window.userProgress.articlesRead), vocabularyLearned: Array.from(window.userProgress.vocabularyLearned.entries()) };
             localStorage.setItem('germanMasteryProgress', JSON.stringify(progressData));
@@ -673,10 +744,10 @@
 
         articleDisplay.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>${article.THEME} (${article.LEVEL})</h2>
+                <h2>${escapeHtml(article.THEME)} (${escapeHtml(article.LEVEL)})</h2>
                 <button class="btn btn-primary" onclick="backToList()">Back to List</button>
             </div>
-            
+
             <div class="article-section">
                 <h3>Deutscher Text</h3>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
@@ -688,42 +759,42 @@
                         <div class="legend-grid">
                             ${colorMap.map(item => `
                                 <div class="legend-item">
-                                    <div class="legend-color-box" style="background-color: ${item.color};"></div>
-                                    <span>${item.name}</span>
+                                    <div class="legend-color-box" style="background-color: ${escapeHtml(item.color)};"></div>
+                                    <span>${escapeHtml(item.name)}</span>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 </details>
                 <div class="german-text">${coloredText}</div>
-                <p><strong>Kurze Lektion:</strong> ${article.GRAMMAR_LESSON || 'N/A'}</p>
+                <p><strong>Kurze Lektion:</strong> ${escapeHtml(article.GRAMMAR_LESSON || 'N/A')}</p>
             </div>
 
             <div class="article-section translation-section">
                 <h3>English Translation</h3>
-                <p>${article.ENGLISH_TRANSLATION || 'N/A'}</p>
+                <p>${escapeHtml(article.ENGLISH_TRANSLATION || 'N/A')}</p>
             </div>
 
             <div class="article-section vocabulary-section">
                 <h3>Vocabulary</h3>
-                <div>${article.VOCABULARY_USED || 'N/A'}</div>
+                <p>${escapeHtml(article.VOCABULARY_USED || 'N/A')}</p>
             </div>
 
             <div class="article-section grammar-section">
                 <h3>Deep Dive Grammar</h3>
-                <div>${article.DEEP_DIVE_GRAMMAR || 'N/A'}</div>
-                <p style="margin-top: 15px;"><strong>Tags:</strong> <small>${article.GRAMMAR_TOPIC_TAGS || 'N/A'}</small></p>
+                <p>${escapeHtml(article.DEEP_DIVE_GRAMMAR || 'N/A')}</p>
+                <p style="margin-top: 15px;"><strong>Tags:</strong> <small>${escapeHtml(article.GRAMMAR_TOPIC_TAGS || 'N/A')}</small></p>
             </div>
 
             <div class="article-section culture-section">
-                <h3>Phrases, Idioms, Quotes & Jokes</h3>
-                <p>${article.PHRASE_AND_IDIOM || 'N/A'}</p>
-                <p style="margin-top: 10px;">${article.QUOTE_AND_JOKE || 'N/A'}</p>
+                <h3>Phrases, Idioms, Quotes &amp; Jokes</h3>
+                <p>${escapeHtml(article.PHRASE_AND_IDIOM || 'N/A')}</p>
+                <p style="margin-top: 10px;">${escapeHtml(article.QUOTE_AND_JOKE || 'N/A')}</p>
             </div>
-            
+
             <div class="article-section">
                 <h3>Conversation Time</h3>
-                <div>${article.CONVERSATION_TIME || 'N/A'}</div>
+                <p>${escapeHtml(article.CONVERSATION_TIME || 'N/A')}</p>
             </div>
 
             <button class="btn btn-primary" onclick="backToList()" style="margin-top: 20px;">Back to List</button>
@@ -879,12 +950,12 @@
             const item = document.createElement('div');
             item.className = 'drill-item';
             item.innerHTML = `
-                <span>${part1.trim()}</span>
-                <input type="text" id="${inputId}" data-answer="${answer.trim()}" placeholder="______" size="10">
-                <span class="drill-hint" title="First letter of the answer">(${hint})</span>
-                <span>${part3.trim()}</span>
+                <span>${escapeHtml(part1.trim())}</span>
+                <input type="text" id="${escapeHtml(inputId)}" data-answer="${escapeHtml(answer.trim())}" placeholder="______" size="10">
+                <span class="drill-hint" title="First letter of the answer">(${escapeHtml(hint)})</span>
+                <span>${escapeHtml(part3.trim())}</span>
                 <button class="btn btn-primary">Check</button>
-                <span class="drill-result" id="${resultId}"></span>
+                <span class="drill-result" id="${escapeHtml(resultId)}"></span>
             `;
             
             container.appendChild(item);
@@ -1154,6 +1225,67 @@
                     document.getElementById(e.target.dataset.page).classList.add('active');
                 }
             });
+        });
+
+        // --- GDPR consent banner ---
+        const gdprBanner = document.getElementById('gdpr-banner');
+        const gdprConsent = localStorage.getItem('gdprConsent');
+        if (!gdprConsent) {
+            gdprBanner.style.display = 'flex';
+        }
+        document.getElementById('gdpr-accept-btn').addEventListener('click', () => {
+            localStorage.setItem('gdprConsent', 'accepted');
+            storageAllowed = true;
+            gdprBanner.style.display = 'none';
+        });
+        document.getElementById('gdpr-decline-btn').addEventListener('click', () => {
+            localStorage.setItem('gdprConsent', 'declined');
+            storageAllowed = false;
+            gdprBanner.style.display = 'none';
+        });
+        document.getElementById('gdpr-privacy-link').addEventListener('click', () => {
+            gdprBanner.style.display = 'none';
+            document.getElementById('privacy-section').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('privacy-details').classList.add('visible');
+        });
+
+        // --- Privacy section toggle ---
+        document.getElementById('toggle-privacy-btn').addEventListener('click', () => {
+            document.getElementById('privacy-details').classList.toggle('visible');
+        });
+
+        // --- Export data ---
+        document.getElementById('export-data-btn').addEventListener('click', () => {
+            const keys = ['germanMasteryProgress', 'germanAppSettings'];
+            const vocabNoteKeys = Object.keys(localStorage).filter(k => k.startsWith('vocab_note_'));
+            const exportData = {};
+            [...keys, ...vocabNoteKeys].forEach(k => {
+                const val = localStorage.getItem(k);
+                if (val !== null) {
+                    try { exportData[k] = JSON.parse(val); } catch { exportData[k] = val; }
+                }
+            });
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'german-mastery-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // --- Delete all data ---
+        document.getElementById('clear-data-btn').addEventListener('click', () => {
+            if (!confirm('This will permanently delete all your learning progress, settings, and notes stored in this browser. Are you sure?')) return;
+            const keysToRemove = Object.keys(localStorage).filter(k =>
+                k === 'germanMasteryProgress' || k === 'germanAppSettings' || k.startsWith('vocab_note_')
+            );
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+            // Reset in-memory state
+            storageAllowed = false;
+            localStorage.removeItem('gdprConsent');
+            window.userProgress = { articlesRead: new Set(), vocabularyLearned: new Map(), streak: 0, lastVisit: null };
+            alert('All data has been deleted. Reload the page to start fresh.');
         });
     });
 </script>

@@ -1,13 +1,27 @@
 // netlify/functions/get-podcasts.js
 exports.handler = async (event, context) => {
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://german.arnavray.ca';
+
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Content-Type': 'application/json',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
   };
 
-  const category = event.queryStringParameters?.category || 'ai-tech';
-  
-  // Sample podcast data that actually works
+  // Handle preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers, body: '' };
+  }
+
+  const allowedCategories = ['ai-tech', 'finance-business', 'leadership-strategy', 'science-innovation', 'sunday-specials'];
+  const rawCategory = event.queryStringParameters?.category || 'ai-tech';
+  const category = allowedCategories.includes(rawCategory) ? rawCategory : 'ai-tech';
+
+  // Sample podcast data
   const podcasts = {
     'ai-tech': {
       title: 'KI Revolution in Deutschland',
@@ -62,8 +76,8 @@ Lisa: Super Idee! Ich bleibe zu Hause und lese ein Buch. Manchmal ist Entspannun
     }
   };
 
-  const podcast = podcasts[category] || podcasts['ai-tech'];
-  
+  const podcast = podcasts[category];
+
   return {
     statusCode: 200,
     headers,
@@ -75,7 +89,7 @@ Lisa: Super Idee! Ich bleibe zu Hause und lese ein Buch. Manchmal ist Entspannun
         date: new Date().toISOString().split('T')[0],
         duration: '5 min',
         script: podcast.script,
-        description: `German learning podcast about ${category}`,
+        description: `German learning podcast - ${category.replace(/-/g, ' ')}`,
         learning_metadata: {
           difficulty_level: podcast.level,
           grammar_focus: 'Conversation, Present tense',

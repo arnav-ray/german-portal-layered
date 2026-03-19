@@ -1,35 +1,76 @@
 // netlify/functions/ai-conversation.js
+const MAX_MESSAGE_LENGTH = 2000;
+
 exports.handler = async (event, context) => {
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://german.arnavray.ca';
+
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
   };
 
+  // Handle preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers, body: '' };
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  }
+
   try {
-    const { message } = JSON.parse(event.body || '{}');
-    
-    if (!message) {
+    let parsed;
+    try {
+      parsed = JSON.parse(event.body || '{}');
+    } catch {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'No message provided' })
+        body: JSON.stringify({ error: 'Invalid JSON body' }),
+      };
+    }
+
+    const { message } = parsed;
+
+    if (!message || typeof message !== 'string') {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'No message provided' }),
+      };
+    }
+
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: `Message exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters` }),
       };
     }
 
     // Simple grammar checking without external API
     const corrections = checkGrammar(message);
     const response = generateResponse(message, corrections);
-    
+
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(response)
+      body: JSON.stringify(response),
     };
-    
+
   } catch (error) {
     console.error('Error:', error);
     return {
-      statusCode: 200,
+      statusCode: 500,
       headers,
       body: JSON.stringify({
         text: 'Entschuldigung, es gab einen Fehler. Bitte versuche es noch einmal.',
@@ -44,7 +85,7 @@ exports.handler = async (event, context) => {
 function checkGrammar(message) {
   const corrections = [];
   const text = message.toLowerCase();
-  
+
   // Common German grammar mistakes
   const rules = [
     {
@@ -72,7 +113,7 @@ function checkGrammar(message) {
       explanation: 'Korrekt! Nach "für" steht der Akkusativ'
     }
   ];
-  
+
   rules.forEach(rule => {
     if (text.match(rule.pattern)) {
       corrections.push({
@@ -82,11 +123,11 @@ function checkGrammar(message) {
       });
     }
   });
-  
+
   // Check capitalization of nouns
   const words = message.split(/\s+/);
   const commonNouns = ['haus', 'mann', 'frau', 'kind', 'schule', 'arbeit', 'auto', 'buch'];
-  
+
   words.forEach(word => {
     if (commonNouns.includes(word.toLowerCase()) && word[0] === word[0].toLowerCase()) {
       corrections.push({
@@ -96,7 +137,7 @@ function checkGrammar(message) {
       });
     }
   });
-  
+
   return corrections.slice(0, 3); // Max 3 corrections
 }
 
@@ -108,13 +149,13 @@ function generateResponse(message, corrections) {
     'Prima! Du machst Fortschritte.',
     'Toll! Dein Deutsch ist schon sehr gut.'
   ];
-  
+
   let text = responses[Math.floor(Math.random() * responses.length)];
-  
+
   if (corrections.length > 0) {
     text = 'Gut versucht! Ich habe ein paar kleine Korrekturen für dich. ';
   }
-  
+
   // Add contextual response based on keywords
   const lower = message.toLowerCase();
   if (lower.includes('hallo') || lower.includes('guten tag')) {
@@ -126,7 +167,7 @@ function generateResponse(message, corrections) {
   } else if (lower.includes('danke')) {
     text = 'Gern geschehen! Es macht mir Spaß, dir zu helfen.';
   }
-  
+
   // Calculate simple metrics
   const wordCount = message.split(/\s+/).length;
   const metrics = {
@@ -135,29 +176,29 @@ function generateResponse(message, corrections) {
     grammar_accuracy: corrections.length === 0 ? 90 : Math.max(50, 90 - (corrections.length * 20)),
     vocabulary_usage: Math.min(85, 60 + wordCount)
   };
-  
+
   // Generate suggestions
   const suggestions = [];
-  
+
   if (corrections.length > 0) {
     suggestions.push({
       type: 'Grammar',
       action: 'Übe die korrigierten Strukturen mit ähnlichen Sätzen'
     });
   }
-  
+
   if (wordCount < 10) {
     suggestions.push({
       type: 'Expression',
       action: 'Versuche längere Sätze zu schreiben'
     });
   }
-  
+
   suggestions.push({
     type: 'Vocabulary',
     action: 'Lerne neue Wörter aus den Artikeln und Podcasts'
   });
-  
+
   return {
     text,
     corrections,
