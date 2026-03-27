@@ -826,7 +826,7 @@
         backdrop.style.display = 'block';
 
         const data = await dictionaryService.getDefinition(baseForm);
-        let html = `<p><strong>Definition:</strong> ${data.definition}</p>`;
+        let html = `<p><strong>Definition:</strong> ${escapeHtml(data.definition)}</p>`;
         
         const allSpans = document.querySelectorAll('.german-text span');
         const matchingSpan = Array.from(allSpans).find(span => span.textContent.trim() === word.trim() && span.classList.contains('verb'));
@@ -929,11 +929,11 @@
     function setupGrammarDrill(drillSentences, theme) {
         const container = document.getElementById('grammar-drill-content');
         if (!drillSentences) {
-            container.innerHTML = `<p>No grammar drills available for the article "${theme}". Please select another article.</p>`;
+            container.innerHTML = `<p>No grammar drills available for the article "${escapeHtml(theme)}". Please select another article.</p>`;
             return;
         }
 
-        container.innerHTML = `<h3>Drills for: ${theme}</h3>`;
+        container.innerHTML = `<h3>Drills for: ${escapeHtml(theme)}</h3>`;
         const sentences = drillSentences.split('|');
         
         sentences.forEach((sentence, index) => {
