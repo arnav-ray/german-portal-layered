@@ -1,221 +1,210 @@
-# 🌊 German Mastery Hub
+# German Mastery Hub
 
 An immersive German learning platform with ocean-themed design, featuring articles from Google Sheets, AI-powered podcasts, interactive grammar drills, and an AI conversation teacher.
 
-🌐 **Live Demo**: [https://german.arnavray.ca](https://german.arnavray.ca)
+**Live Demo**: [https://german.arnavray.ca](https://german.arnavray.ca)
 
-## ✨ Features
+## Features
 
-### 📚 Level-Based Learning System
+### Level-Based Learning System
 - **A2-B1**: Beginner to intermediate content
-- **B2**: Upper intermediate material  
+- **B2**: Upper intermediate material
 - **C1+**: Advanced topics and complex grammar
 - Articles automatically categorized by difficulty
 - Color-coded grammar highlighting for all parts of speech
 
-### 🎨 Grammar Color Coding
-- 🔵 **Blue** - Masculine nouns
-- 🩷 **Pink** - Feminine nouns
-- 🟦 **Cyan** - Neuter nouns
-- 🟣 **Purple** - Verbs (underlined)
-- 🟡 **Yellow** - Adjectives
-- 🟢 **Green** - Adverbs (italic)
-- 🔴 **Magenta** - Prepositions
-- 🔷 **Light Blue** - Conjunctions
-- 🟨 **Gold** - Pronouns
-- 🟪 **Violet** - Articles
+### Grammar Color Coding
+- Blue — Masculine nouns
+- Pink — Feminine nouns
+- Cyan — Neuter nouns
+- Purple — Verbs (underlined)
+- Yellow — Adjectives
+- Green — Adverbs (italic)
+- Magenta — Prepositions
+- Light Blue — Conjunctions
+- Gold — Pronouns
+- Violet — Articles
 
-### 🎧 Podcast Integration
-- Fetches German podcasts from [podcast.arnavray.ca](https://podcast.arnavray.ca)
-- 5 Categories:
+### Podcast Integration
+- 5 categories served from `/api/get-podcasts`:
   - AI & Technology (B2)
   - Finance & Business (B2)
   - Leadership & Strategy (C1+)
   - Science & Innovation (B2)
   - Sunday Specials (A2-B1)
-- Podcasts converted to practice articles
 - Full transcripts with grammar highlighting
 
-### 💬 AI German Teacher
-- Conversational AI for practice
+### AI German Teacher
+- Conversational AI for practice via `/api/ai-conversation`
 - Grammar correction with explanations
 - Progress metrics and fluency scoring
-- Works with or without API key (basic/full modes)
-- Context-aware responses based on current article
+- Context-aware responses
 
-### ✍️ Grammar Drills
+### Grammar Drills
 - Auto-generated from article content
-- Multiple exercise types:
-  - Article selection (der/die/das)
-  - Vocabulary matching
-  - Fill in the blanks
-  - Multiple choice questions
-- Tracks completion for progress
+- Exercise types: article selection, vocabulary matching, fill-in-the-blank, multiple choice
+- Completion tracking
 
-### 📊 Progress Tracking
-- Articles read counter
-- Podcasts listened tracker
-- Exercises completed
-- Daily streak system
-- Level-specific progress bars
-- Data persists in browser storage
+### Progress Tracking
+- Articles read, podcasts listened, exercises completed
+- Daily streak system with level-specific progress bars
+- Data persists in browser localStorage
 
-## 🚀 Quick Start
+---
+
+## Quick Start
 
 ### Prerequisites
-- Node.js 14+
-- Netlify account (for deployment)
+- Node.js 18+
+- Vercel account (for deployment)
 - Google Sheets API key (optional)
-- Gemini API key (optional, for AI teacher)
 
-### Installation
+### Local Development
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/german-portal-layered.git
+git clone https://github.com/arnav-ray/german-portal-layered.git
 cd german-portal-layered
 ```
 
 2. **Install dependencies**
 ```bash
 npm install
-cd netlify/functions
-npm install
-cd ../..
 ```
 
 3. **Set up environment variables**
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root:
 ```env
-# Google Sheets API (optional - works without it using sample data)
-VITE_GOOGLE_SHEET_ID= ###
+# Google Sheets (required for articles)
+GOOGLE_SHEET_ID=your-sheet-id-here
+
+# Google Sheets API v4 key (optional — falls back to CSV export)
 VITE_GOOGLE_API_KEY=your-google-api-key-here
 
-# Gemini AI (optional - basic responses work without it)
-GEMINI_API_KEY=your-gemini-api-key-here
+# CORS allowed origin (optional — defaults to https://german.arnavray.ca)
+ALLOWED_ORIGIN=http://localhost:3000
 ```
 
-4. **Run locally with Netlify Dev**
+4. **Run locally with Vercel CLI**
 ```bash
-netlify dev
+npm install -g vercel
+vercel dev
 ```
 
-Or use a simple HTTP server:
+Or use a simple HTTP server for the static frontend only:
 ```bash
 python -m http.server 8000
 # Visit http://localhost:8000
 ```
 
-## 📋 Google Sheets Setup
+---
+
+## Google Sheets Setup
 
 ### Required Columns
-Your Google Sheet must have these columns:
-- `DATE` - Article date (YYYY-MM-DD)
-- `LEVEL` - Optional, auto-detected if missing
-- `THEME` - Article topic/theme
-- `STATUS` - Must be "Published" to display
-- `GERMAN_ARTICLE` - Main German text
-- `ENGLISH_TRANSLATION` - English translation
-- `VOCABULARY_USED` - Format: "word1 - translation1, word2 - translation2"
-- `DEEP_DIVE_GRAMMAR` - Grammar explanations
-- `PHRASE_AND_IDIOM` - Common phrases
-- `QUOTE_AND_JOKE` - Quotes or humor
-- `CONVERSATION_TIME` - Dialog examples
-- `GRAMMAR_TOPIC_TAGS` - Comma-separated tags (e.g., "Perfekt,Dativ")
-- `DRILL_SENTENCES` - Practice sentences
+| Column | Description |
+|--------|-------------|
+| `DATE` | Article date (YYYY-MM-DD) |
+| `LEVEL` | Difficulty: A2-B1, B2, or C1+ |
+| `THEME` | Article topic |
+| `STATUS` | Must be `Published` to display |
+| `GERMAN_ARTICLE` | Main German text |
+| `ENGLISH_TRANSLATION` | English translation |
+| `VOCABULARY_USED` | Format: `word1 - translation1, word2 - translation2` |
+| `DEEP_DIVE_GRAMMAR` | Grammar explanations |
+| `PHRASE_AND_IDIOM` | Common phrases |
+| `QUOTE_AND_JOKE` | Quotes or humor |
+| `CONVERSATION_TIME` | Dialog examples |
+| `GRAMMAR_TOPIC_TAGS` | Comma-separated tags (e.g., `Perfekt,Dativ`) |
+| `DRILL_SENTENCES` | Practice sentences |
 
 ### Making Your Sheet Public
-1. Open your Google Sheet
-2. Click "Share" → "Anyone with the link"
-3. Set to "Viewer" permissions
-4. Sheet will work without API key
+1. Open your Google Sheet → Share → "Anyone with the link" → Viewer
+2. The API will work without an API key using CSV export fallback
 
-### Using Private Sheets
-1. Enable Google Sheets API in Google Cloud Console
-2. Create API key
-3. Add to environment variables
-4. Restrict key to Sheets API only
+---
 
-## 🌐 Deployment to Netlify
+## Deployment to Vercel
 
-### Via Netlify CLI
-```bash
-# Install Netlify CLI globally
-npm install -g netlify-cli
+### Via Vercel Dashboard
+1. Import `arnav-ray/german-portal-layered` from GitHub
+2. **Framework Preset**: Other
+3. **Build Command**: *(leave blank)*
+4. **Output Directory**: *(leave blank)*
+5. Add environment variables (see table below)
+6. Deploy
 
-# Login to Netlify
-netlify login
+### Environment Variables
 
-# Create new site
-netlify init
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `GOOGLE_SHEET_ID` | Yes | Google Sheet ID for articles |
+| `VITE_GOOGLE_API_KEY` | No | Sheets API v4 key (faster, optional) |
+| `ALLOWED_ORIGIN` | No | CORS origin (defaults to `https://german.arnavray.ca`) |
 
-# Deploy
-netlify deploy --prod
+### Custom Domain (german.arnavray.ca)
+In Vercel: Project → Settings → Domains → Add `german.arnavray.ca`
+
+Then add this DNS record in GoDaddy:
+
+| Type | Name | Value | TTL |
+|------|------|-------|-----|
+| CNAME | `german` | `cname.vercel-dns.com` | 600 |
+
+---
+
+## Project Structure
+
+```
+german-portal-layered/
+├── index.html                  # Main single-page application
+├── vercel.json                 # Vercel config (cleanUrls, CORS headers)
+├── package.json                # Project dependencies
+├── .gitignore
+├── LICENSE                     # Apache 2.0
+├── README.md
+├── netlify.toml.disabled       # Legacy Netlify config (inactive)
+└── api/                        # Vercel serverless functions
+    ├── ai-conversation.js      # AI chat and grammar checking
+    ├── get-articles.js         # Google Sheets article fetcher
+    └── get-podcasts.js         # Podcast episode provider
 ```
 
-### Via GitHub Integration
-1. Push code to GitHub
-2. Connect repository to Netlify
-3. Configure build settings:
-   - Build command: `echo "No build needed"`
-   - Publish directory: `.`
-4. Add environment variables in Netlify dashboard
-5. Deploy!
+---
 
-### Environment Variables in Netlify
-1. Go to Site settings → Environment variables
-2. Add:
-   - `VITE_GOOGLE_SHEET_ID`
-   - `VITE_GOOGLE_API_KEY` (optional)
-   - `GEMINI_API_KEY` (optional)
+## API Endpoints
 
-## 🎯 Features Breakdown
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/ai-conversation` | Grammar check + AI response |
+| `GET` | `/api/get-articles` | Fetch articles from Google Sheets |
+| `GET` | `/api/get-podcasts?category=<cat>` | Fetch podcast episode by category |
 
-### Articles System
-- Fetches from Google Sheets or uses sample data
-- Auto-categorizes into difficulty levels
-- Grammar color coding applied automatically
-- Navigate with Previous/Next buttons
-- Practice exercises for each article
+Valid categories: `ai-tech`, `finance-business`, `leadership-strategy`, `science-innovation`, `sunday-specials`
 
-### Podcast Integration
-- Click "Load Episode" for each category
-- Fetches fresh content from podcast.arnavray.ca
-- Converts to article format for practice
-- Includes:
-  - Play button (uses browser TTS)
-  - Full transcript
-  - Grammar highlighting
-  - Vocabulary extraction
+### Example: AI Conversation
+```bash
+curl -X POST https://german.arnavray.ca/api/ai-conversation \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Ich habe gegangen zum Supermarkt."}'
+```
 
-### AI Teacher
-- **Without API key**: Basic grammar checking and suggestions
-- **With Gemini API**: Full conversational AI
-- Features:
-  - Real-time grammar correction
-  - Fluency scoring (0-100%)
-  - Contextual responses
-  - Learning suggestions
+---
 
-### Grammar Drills
-- Select topics from checkboxes
-- Generate custom exercises
-- Track completion
-- Updates progress automatically
+## Technology Stack
 
-### Progress Tracking
-- Stored in browser localStorage
-- Tracks:
-  - Articles by level
-  - Podcast episodes
-  - Exercise completion
-  - Daily streaks
-- Visual progress bars
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Backend**: Vercel Serverless Functions (Node.js)
+- **Data Source**: Google Sheets API (with CSV export fallback)
+- **Hosting**: Vercel
+- **Storage**: Browser localStorage
 
-## 🛠️ Configuration
+---
 
-### Customizing Theme Colors
+## Customisation
+
+### Theme Colors
 Edit CSS variables in `index.html`:
 ```css
 :root {
@@ -223,14 +212,13 @@ Edit CSS variables in `index.html`:
   --ocean-mid: #003c40;
   --accent-cyan: #00acc1;
   --accent-blue: #4fc3f7;
-  /* ... more colors */
 }
 ```
 
-### Adding New Grammar Rules
-Edit `netlify/functions/ai-conversation.js`:
+### Grammar Rules (AI Teacher)
+Edit `api/ai-conversation.js`:
 ```javascript
-const grammarRules = [
+const rules = [
   {
     pattern: /your-pattern/i,
     original: 'error text',
@@ -240,138 +228,53 @@ const grammarRules = [
 ];
 ```
 
-### Modifying Level Detection
-Edit `categorizeLevel()` function in `index.html`:
-```javascript
-function categorizeLevel(article) {
-  // Add your detection logic
-  if (theme.includes('your-keyword')) {
-    return 'C1+';
-  }
-  // ... more rules
-}
-```
+---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-### Articles Not Loading
-- Check if Google Sheet is public or API key is set
-- Verify STATUS column contains "Published"
-- Check browser console for errors
-- Site uses sample data if connection fails
+| Problem | Solution |
+|---------|---------|
+| Articles not loading | Check `GOOGLE_SHEET_ID` env var; verify STATUS = "Published"; site falls back to sample data |
+| Podcasts not loading | Check `/api/get-podcasts` response in browser Network tab |
+| AI Teacher not responding | Check `/api/ai-conversation` is reachable; works without API key in basic mode |
+| Grammar colours not visible | Clear browser cache; check JS is enabled |
 
-### Podcasts Not Loading
-- Ensure podcast.arnavray.ca is accessible
-- Check for CORS errors in console
-- Falls back to sample episodes automatically
+---
 
-### AI Teacher Not Responding
-- Works without API key (limited features)
-- Add GEMINI_API_KEY for full functionality
-- Check network tab for API errors
+## Security
 
-### Grammar Colors Not Visible
-- Clear browser cache
-- Toggle dark/light theme
-- Check if JavaScript is enabled
+This project follows standard web security practices:
+- All user-supplied and external data rendered via `innerHTML` is escaped with `escapeHtml()`
+- Serverless functions validate input length and method
+- CORS headers restrict origins via `ALLOWED_ORIGIN` env var
+- Security headers set on all API responses: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`
 
-## 📁 Project Structure
+---
 
-```
-german-portal-layered/
-├── index.html                 # Main application file
-├── netlify.toml              # Netlify configuration
-├── package.json              # Project dependencies
-├── .gitignore               # Git ignore file
-├── README.md                # This file
-└── netlify/
-    └── functions/           # Serverless functions
-        ├── get-articles.js  # Fetch Google Sheets data
-        ├── get-podcasts.js  # Fetch podcast episodes
-        ├── ai-conversation.js # AI chat functionality
-        └── package.json     # Function dependencies
-```
-
-## 🔧 Technology Stack
-
-- **Frontend**: Vanilla JavaScript, HTML5, CSS3
-- **Backend**: Netlify Functions (AWS Lambda)
-- **Data Source**: Google Sheets API
-- **AI**: Google Gemini API
-- **Podcasts**: Integration with podcast.arnavray.ca
-- **Hosting**: Netlify
-- **Storage**: Browser localStorage
-
-## 📝 API Endpoints
-
-### Netlify Functions
-- `/.netlify/functions/get-articles` - Fetches articles from Google Sheets
-- `/.netlify/functions/get-podcasts` - Retrieves German podcasts
-- `/.netlify/functions/ai-conversation` - Handles AI chat
-
-### External APIs
-- Google Sheets API v4
-- Google Gemini AI
-- podcast.arnavray.ca API
-
-## 🎨 Design Features
-
-- **Ocean Theme**: Matching [arnavray.ca](https://arnavray.ca) aesthetic
-- **Animated Backgrounds**: Wave effects and gradients
-- **Glassmorphism**: Blur effects on cards
-- **Responsive Design**: Mobile-first approach
-- **Dark Mode**: Toggle between light/dark themes
-- **Accessibility**: ARIA labels and semantic HTML
-
-## 🚦 Testing Checklist
-
-- [ ] Articles load from Google Sheets
-- [ ] Articles grouped by level (A2-B1, B2, C1+)
-- [ ] Grammar color coding visible
-- [ ] Navigation between articles works
-- [ ] Practice exercises generate
-- [ ] Podcasts load when clicked
-- [ ] Podcast transcripts show with colors
-- [ ] Grammar drill creates questions
-- [ ] AI teacher responds
-- [ ] Progress tracking updates
-- [ ] Dark/light theme toggle works
-- [ ] Mobile responsive design
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create your feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes
+4. Push to the branch
 5. Open a Pull Request
 
-## 📄 License
+---
 
-This project is open source and available under the [MIT License](LICENSE).
+## License
 
-## 👤 Author
+Copyright 2024 Arnav Ray
+
+Licensed under the [Apache License, Version 2.0](LICENSE).
+
+---
+
+## Author
 
 **Arnav Ray**
 - Website: [arnavray.ca](https://arnavray.ca)
 - GitHub: [@arnav-ray](https://github.com/arnav-ray)
-- Podcast Platform: [podcast.arnavray.ca](https://podcast.arnavray.ca)
-
-## 🙏 Acknowledgments
-
-- Google Sheets for data storage
-- Netlify for hosting and serverless functions
-- Google Gemini for AI capabilities
-- The German learning community
-
-## 📞 Support
-
-For issues or questions:
-- Open an issue on GitHub
-- Email: arnav@arnavray.ca
 
 ---
 
-**Built with 💙 for German language learners worldwide**
-
-*Viel Erfolg beim Deutschlernen!* 🇩🇪
+*Viel Erfolg beim Deutschlernen!*
