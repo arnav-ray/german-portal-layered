@@ -1,8 +1,0 @@
-{
-  "name": "german-portal-functions",
-  "version": "1.0.0",
-  "description": "Netlify Functions for German Learning Portal",
-  "dependencies": {
-    "@google/generative-ai": "^0.15.0"
-  }
-}
