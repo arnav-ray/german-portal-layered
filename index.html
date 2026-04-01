@@ -640,7 +640,7 @@
         categories.forEach(category => {
             if(!category) return;
             const items = allVocabulary.filter(item => item.category === category);
-            const vocabListHtml = items.map(item => `<li><strong>${item.word}</strong>: ${item.english}</li>`).join('');
+            const vocabListHtml = items.map(item => `<li><strong>${escapeHtml(item.word)}</strong>: ${escapeHtml(item.english)}</li>`).join('');
             
             vocabAsArticles.push({
                 THEME: `Vocabulary: ${category}`,
@@ -705,7 +705,7 @@
             const filteredArticles = articles.filter(a => a.LEVEL === level);
             articleListContainer.innerHTML = filteredArticles.map(article => {
                 const globalIndex = articles.indexOf(article);
-                return `<button class="article-theme-button" onclick='showArticle(${globalIndex})'>${article.THEME}</button>`;
+                return `<button class="article-theme-button" onclick='showArticle(${globalIndex})'>${escapeHtml(article.THEME)}</button>`;
             }).join('');
         };
 
@@ -766,7 +766,7 @@
                         </div>
                     </div>
                 </details>
-                <div class="german-text">${coloredText}</div>
+                <div class="german-text">${escapeHtml(coloredText)}</div>
                 <p><strong>Kurze Lektion:</strong> ${escapeHtml(article.GRAMMAR_LESSON || 'N/A')}</p>
             </div>
 
@@ -1053,20 +1053,20 @@
     function createVocabularyCard(item, index) {
         const cardId = `v-card-${index}`;
         const itemJson = JSON.stringify(item).replace(/"/g, '&quot;');
-        let header = `<div class="vocab-word">${item.word}</div>`;
+        let header = `<div class="vocab-word">${escapeHtml(item.word)}</div>`;
         if (item.article) {
-             header = `<div class="vocab-word"><span class="vocab-article">${item.article}</span> ${item.word}</div>`;
+             header = `<div class="vocab-word"><span class="vocab-article">${escapeHtml(item.article)}</span> ${escapeHtml(item.word)}</div>`;
         }
-        
+
         return `
             <div class="vocab-card" id="${cardId}">
                 <div class="vocab-card-header">
                     ${header}
-                    <span class="vocab-level-badge ${item.level.replace('+', 'plus')}">${item.level}</span>
+                    <span class="vocab-level-badge ${item.level.replace('+', 'plus')}">${escapeHtml(item.level)}</span>
                 </div>
                 <div class="vocab-card-body">
-                    <div class="vocab-translation">${item.english}</div>
-                    ${item.example ? `<div class="vocab-example"><strong>${item.example}</strong><div class="vocab-example-translation">${item.translation}</div></div>` : ''}
+                    <div class="vocab-translation">${escapeHtml(item.english)}</div>
+                    ${item.example ? `<div class="vocab-example"><strong>${escapeHtml(item.example)}</strong><div class="vocab-example-translation">${escapeHtml(item.translation)}</div></div>` : ''}
                     <div class="vocab-notes-display" id="notes-${cardId}"></div>
                 </div>
                 <div class="vocab-card-footer">

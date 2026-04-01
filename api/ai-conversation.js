@@ -76,12 +76,6 @@ function checkGrammar(message) {
       original: 'mit mein',
       corrected: 'mit meinem/meiner',
       explanation: 'Nach "mit" steht der Dativ'
-    },
-    {
-      pattern: /\bfür\s+mich\s+/i,
-      original: 'für mich',
-      corrected: 'für mich',
-      explanation: 'Korrekt! Nach "für" steht der Akkusativ'
     }
   ];
 

@@ -1,8 +1,0 @@
-[build]
-  functions = "netlify/functions"
-
-[[plugins]]
-  package = "@netlify/plugin-functions-install-core"
-
-[build.environment]
-SECRETS_SCAN_ENABLED = "true"

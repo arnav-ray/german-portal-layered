@@ -159,12 +159,12 @@ Then add this DNS record in GoDaddy:
 ```
 german-portal-layered/
 ├── index.html                  # Main single-page application
-├── vercel.json                 # Vercel config (cleanUrls, CORS headers)
-├── package.json                # Project dependencies
+├── vercel.json                 # Vercel config (cleanUrls)
+├── package.json                # Project metadata
 ├── .gitignore
 ├── LICENSE                     # Apache 2.0
 ├── README.md
-├── netlify.toml.disabled       # Legacy Netlify config (inactive)
+├── SECURITY.md                 # Security policy and architecture
 └── api/                        # Vercel serverless functions
     ├── ai-conversation.js      # AI chat and grammar checking
     ├── get-articles.js         # Google Sheets article fetcher
@@ -208,10 +208,10 @@ curl -X POST https://german.arnavray.ca/api/ai-conversation \
 Edit CSS variables in `index.html`:
 ```css
 :root {
-  --ocean-deep: #0a0e27;
-  --ocean-mid: #003c40;
-  --accent-cyan: #00acc1;
-  --accent-blue: #4fc3f7;
+  --primary: #2563eb;
+  --secondary: #10b981;
+  --background: #f1f5f9;
+  --surface: #ffffff;
 }
 ```
 
@@ -243,11 +243,14 @@ const rules = [
 
 ## Security
 
-This project follows standard web security practices:
-- All user-supplied and external data rendered via `innerHTML` is escaped with `escapeHtml()`
-- Serverless functions validate input length and method
-- CORS headers restrict origins via `ALLOWED_ORIGIN` env var
-- Security headers set on all API responses: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`
+See [SECURITY.md](SECURITY.md) for the full security policy, architecture overview, and vulnerability reporting process.
+
+Summary:
+- All external/sheet data rendered via `innerHTML` is passed through `escapeHtml()`
+- API functions enforce method (GET/POST only), validate all inputs, and set security headers
+- CORS restricted via `ALLOWED_ORIGIN` env var (not a wildcard)
+- No runtime npm dependencies — zero `node_modules` in production
+- No personal data collected; all progress stored in browser localStorage only
 
 ---
 
